@@ -128,7 +128,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const response = $input.first().json.choices[0].message.content;\nconst unternehmen = $input.first().json.unternehmen;\nconst config = $('Konfiguration').first().json;\nconst data = JSON.parse(response);\nconst abteilungen = data.abteilungen;\nreturn { unternehmen, abteilungen, config };"
+        "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, config } = $('JSON parsen (Unternehmen)').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_object' || part.type === 'json_schema' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst abteilungen = data.abteilungen ?? data;\nreturn { unternehmen, abteilungen, config };"
       },
       "id": "c4d5e6f7-a8b9-0123-cdef-123456789013",
       "name": "JSON parsen (Abteilungen)",
@@ -166,7 +166,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const message = $input.first().json.choices[0].message;\nconst unternehmen = $input.first().json.unternehmen;\nconst abteilungen = $input.first().json.abteilungen;\nconst config = $input.first().json.config;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst rollen = data.rollen ?? [];\nreturn { unternehmen, abteilungen, rollen, config };"
+        "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, config } = $('JSON parsen (Abteilungen)').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst rollen = data.rollen ?? data;\nreturn { unternehmen, abteilungen, rollen, config };"
       },
       "id": "d2e3f4a5-b6c7-8901-cdef-234567890132",
       "name": "JSON parsen (Rollen)",
@@ -204,7 +204,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const response = $input.first().json.choices[0].message.content;\nconst unternehmen = $input.first().json.unternehmen;\nconst abteilungen = $input.first().json.abteilungen;\nconst rollen = $input.first().json.rollen;\nconst data = JSON.parse(response);\nlet mitarbeiter = data.mitarbeiter;\nmitarbeiter = mitarbeiter.map((ma, index) => ({\n  ...ma,\n  id: `emp_${String(index + 1).padStart(3, '0')}`,\n  unternehmen_id: unternehmen.id,\n  vollname: `${ma.vorname} ${ma.nachname}`\n}));\nreturn { unternehmen, abteilungen, rollen, mitarbeiter };"
+        "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, rollen, config } = $('JSON parsen (Rollen)').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nlet mitarbeiter = data.mitarbeiter ?? data;\nmitarbeiter = mitarbeiter.map((ma, index) => ({\n  ...ma,\n  id: `emp_${String(index + 1).padStart(3, '0')}`,\n  unternehmen_id: unternehmen.id,\n  vollname: `${ma.vorname} ${ma.nachname}`\n}));\nreturn { unternehmen, abteilungen, rollen, mitarbeiter, config };"
       },
       "id": "d4e5f6a7-b8c9-0123-def0-123456789013",
       "name": "JSON parsen (Mitarbeiter)",
