@@ -78,8 +78,26 @@
           ]
         },
         "sendBody": true,
-        "contentType": "raw",
-        "rawBody": "={{ JSON.stringify({\n  model: 'gpt-4o-mini',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Experte für Unternehmensstrukturen. Erstelle realistische fiktive Unternehmensdaten. Antworte immer mit validem JSON.'\n    },\n    {\n      role: 'user',\n      content: 'Erstelle ein fiktives Unternehmen mit folgenden Vorgaben: Branche: ' + $json.branche + ', Größe: ' + $json.unternehmensgroesse + ', Land: ' + $json.land + ', Besonderheit: ' + $json.besonderheit + '. Erstelle ein JSON-Objekt mit den Feldern: id, name, branche, groesse, mitarbeiteranzahl, gruendungsjahr, hauptsitz, beschreibung, umsatz_mio, webseite.'\n    }\n  ],\n  temperature: 0.8\n}) }}",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4o-mini"
+            },
+            {
+              "name": "response_format",
+              "value": "={{ { \"type\": \"json_object\" } }}"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{\"role\":\"system\",\"content\":\"Du bist ein Experte für Unternehmensstrukturen. Erstelle realistische fiktive Unternehmensdaten. Antworte immer mit validem JSON.\"},{\"role\":\"user\",\"content\":\"Erstelle ein fiktives Unternehmen mit folgenden Vorgaben: Branche: \" + $json.branche + \", Größe: \" + $json.unternehmensgroesse + \", Land: \" + $json.land + \", Besonderheit: \" + $json.besonderheit + \". Erstelle ein JSON-Objekt mit den Feldern: id, name, branche, groesse, mitarbeiteranzahl, gruendungsjahr, hauptsitz, beschreibung, umsatz_mio, webseite.\"}] }}"
+            },
+            {
+              "name": "temperature",
+              "value": "0.8"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
@@ -116,8 +134,26 @@
           ]
         },
         "sendBody": true,
-        "contentType": "raw",
-        "rawBody": "={{ JSON.stringify({\n  model: 'gpt-4o-mini',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Experte für Organisationsstrukturen. Antworte immer mit validem JSON im Format: {\"abteilungen\": [...]}'\n    },\n    {\n      role: 'user',\n      content: 'Erstelle eine hierarchische Abteilungsstruktur für: ' + $json.unternehmen.name + ' (Branche: ' + $json.unternehmen.branche + ', Mitarbeiter: ' + $json.unternehmen.mitarbeiteranzahl + '). Erstelle ' + $json.config.hierarchie_ebenen + ' Hierarchie-Ebenen. Jede Abteilung braucht: id (dept_XXX), unternehmen_id, name, ebene, parent_id (null für Ebene 1), budget_euro, mitarbeiteranzahl.'\n    }\n  ],\n  temperature: 0.7\n}) }}",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4o-mini"
+            },
+            {
+              "name": "response_format",
+              "value": "={{ { \"type\": \"json_object\" } }}"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{\"role\":\"system\",\"content\":\"Du bist ein Experte für Organisationsstrukturen. Antworte immer mit validem JSON im Format: {\\\"abteilungen\\\": [...]}\"},{\"role\":\"user\",\"content\":\"Erstelle eine hierarchische Abteilungsstruktur für: \" + $json.unternehmen.name + \" (Branche: \" + $json.unternehmen.branche + \", Mitarbeiter: \" + $json.unternehmen.mitarbeiteranzahl + \"). Erstelle \" + $json.config.hierarchie_ebenen + \" Hierarchie-Ebenen. Jede Abteilung braucht: id (dept_XXX), unternehmen_id (\" + $json.unternehmen.id + \"), name, ebene, parent_id (null für Ebene 1), budget_euro, mitarbeiteranzahl.\"}] }}"
+            },
+            {
+              "name": "temperature",
+              "value": "0.7"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
@@ -154,8 +190,26 @@
           ]
         },
         "sendBody": true,
-        "contentType": "raw",
-        "rawBody": "={{ JSON.stringify({\n  model: 'gpt-4o-mini',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein HR-Experte. Antworte immer mit validem JSON im Format: {\"rollen\": [...]}'\n    },\n    {\n      role: 'user',\n      content: 'Definiere Rollen für ' + $json.unternehmen.name + ' (Branche: ' + $json.unternehmen.branche + '). Abteilungen: ' + JSON.stringify($json.abteilungen.map(a => ({id: a.id, name: a.name, mitarbeiter: a.mitarbeiteranzahl}))) + '. Jede Rolle braucht: id (role_XXX), abteilung_id, titel, beschreibung, ebene (Entry/Mid/Senior/Lead/Executive), anzahl_personen, gehalt_min, gehalt_max, anforderungen. Definiere 2-6 Rollen pro Abteilung.'\n    }\n  ],\n  temperature: 0.7\n}) }}",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4o-mini"
+            },
+            {
+              "name": "response_format",
+              "value": "={{ { \"type\": \"json_object\" } }}"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{\"role\":\"system\",\"content\":\"Du bist ein HR-Experte. Antworte immer mit validem JSON im Format: {\\\"rollen\\\": [...]}\"},{\"role\":\"user\",\"content\":\"Definiere Rollen für \" + $json.unternehmen.name + \" (Branche: \" + $json.unternehmen.branche + \"). Es gibt \" + $json.abteilungen.length + \" Abteilungen. Jede Rolle braucht: id (role_XXX), abteilung_id, titel, beschreibung, ebene (Entry/Mid/Senior/Lead/Executive), anzahl_personen, gehalt_min, gehalt_max, anforderungen (Array). Definiere 2-6 Rollen pro Abteilung.\"}] }}"
+            },
+            {
+              "name": "temperature",
+              "value": "0.7"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "d1e2f3a4-b5c6-7890-cdef-234567890131",
@@ -192,8 +246,26 @@
           ]
         },
         "sendBody": true,
-        "contentType": "raw",
-        "rawBody": "={{ JSON.stringify({\n  model: 'gpt-4o-mini',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein HR-Experte. Antworte immer mit validem JSON im Format: {\"mitarbeiter\": [...]}'\n    },\n    {\n      role: 'user',\n      content: 'Erstelle Mitarbeiter für ' + $json.unternehmen.name + ' (Land: ' + $json.config.land + '). Rollen (erste 20): ' + JSON.stringify($json.rollen.slice(0,20).map(r => ({id: r.id, titel: r.titel, abteilung_id: r.abteilung_id, anzahl: r.anzahl_personen}))) + '. Jeder Mitarbeiter braucht: id (emp_XXX), rolle_id, abteilung_id, vorname, nachname, email, telefon, alter (25-65), gehalt_euro, eintrittsdatum (YYYY-MM-DD), vertrag (Vollzeit/Teilzeit), standort. Domain: ' + ($json.unternehmen.webseite || 'beispiel.de').replace('www.','') + '. Namen sollten zum Land passen. 85% Vollzeit.'\n    }\n  ],\n  temperature: 0.9\n}) }}",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4o-mini"
+            },
+            {
+              "name": "response_format",
+              "value": "={{ { \"type\": \"json_object\" } }}"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{\"role\":\"system\",\"content\":\"Du bist ein HR-Experte. Antworte immer mit validem JSON im Format: {\\\"mitarbeiter\\\": [...]}\"},{\"role\":\"user\",\"content\":\"Erstelle Mitarbeiter für \" + $json.unternehmen.name + \" (Land: \" + $json.config.land + \"). Es gibt \" + $json.rollen.length + \" Rollen. Jeder Mitarbeiter braucht: id (emp_XXX), rolle_id, abteilung_id, vorname, nachname, email, telefon, alter (25-65), gehalt_euro, eintrittsdatum (YYYY-MM-DD), vertrag (Vollzeit/Teilzeit), standort (\" + $json.unternehmen.hauptsitz + \"). Domain: \" + ($json.unternehmen.webseite || 'beispiel.de').replace('www.','') + \". Namen sollten zum Land passen. 85% Vollzeit.\"}] }}"
+            },
+            {
+              "name": "temperature",
+              "value": "0.9"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "d3e4f5a6-b7c8-9012-cdef-234567890133",
