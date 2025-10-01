@@ -427,14 +427,12 @@
     },
     {
       "parameters": {
-        "operation": "fromBinary",
-        "binaryPropertyName": "data",
-        "options": {}
+        "jsCode": "const item = $input.first();\nif (!item.binary || !item.binary.data || !item.binary.data.data) {\n  throw new Error('Keine Excel-Binärdaten gefunden (binary.data)');\n}\nconst buffer = Buffer.from(item.binary.data.data, 'base64');\nconst xlsx = require('xlsx');\nconst workbook = xlsx.read(buffer, { type: 'buffer' });\nconst sheetName = workbook.SheetNames[0];\nif (!sheetName) {\n  return [];\n}\nconst sheet = workbook.Sheets[sheetName];\nconst rows = xlsx.utils.sheet_to_json(sheet, { defval: '' });\nreturn rows.map(row => ({ json: row }));"
       },
       "id": "f9a0b1c2-d3e4-5678-f901-234567890148",
       "name": "APQC Tabelle zu JSON",
-      "type": "n8n-nodes-base.spreadsheetFile",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         850,
         120
