@@ -7,7 +7,10 @@
       "name": "Start",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [250, 300]
+      "position": [
+        250,
+        300
+      ]
     },
     {
       "parameters": {
@@ -48,6 +51,12 @@
               "name": "openai_api_key",
               "value": "DEIN-OPENAI-API-KEY",
               "type": "string"
+            },
+            {
+              "id": "config_apqc_path",
+              "name": "apqc_file_path",
+              "value": "/data/apqc_process_framework.xlsx",
+              "type": "string"
             }
           ]
         },
@@ -57,7 +66,10 @@
       "name": "Konfiguration",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.3,
-      "position": [450, 300],
+      "position": [
+        450,
+        300
+      ],
       "notes": "HIER ANPASSEN: Branche, Größe, Land, Besonderheiten und OpenAI API Key"
     },
     {
@@ -86,7 +98,10 @@
       "name": "HTTP: Unternehmen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [650, 300]
+      "position": [
+        650,
+        300
+      ]
     },
     {
       "parameters": {
@@ -96,7 +111,10 @@
       "name": "JSON parsen (Unternehmen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [850, 300]
+      "position": [
+        850,
+        300
+      ]
     },
     {
       "parameters": {
@@ -124,7 +142,10 @@
       "name": "HTTP: Abteilungen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1050, 300]
+      "position": [
+        1050,
+        300
+      ]
     },
     {
       "parameters": {
@@ -134,7 +155,10 @@
       "name": "JSON parsen (Abteilungen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1250, 300]
+      "position": [
+        1250,
+        300
+      ]
     },
     {
       "parameters": {
@@ -162,7 +186,10 @@
       "name": "HTTP: Rollen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1450, 300]
+      "position": [
+        1450,
+        300
+      ]
     },
     {
       "parameters": {
@@ -172,7 +199,10 @@
       "name": "JSON parsen (Rollen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1650, 300]
+      "position": [
+        1650,
+        300
+      ]
     },
     {
       "parameters": {
@@ -200,17 +230,23 @@
       "name": "HTTP: Mitarbeiter erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1850, 300]
+      "position": [
+        1850,
+        300
+      ]
     },
     {
       "parameters": {
-        "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, rollen, config } = $('JSON parsen (Rollen)').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nlet mitarbeiter = data.mitarbeiter ?? data;\nmitarbeiter = mitarbeiter.map((ma, index) => ({\n  ...ma,\n  id: `emp_${String(index + 1).padStart(3, '0')}`,\n  unternehmen_id: unternehmen.id,\n  vollname: `${ma.vorname} ${ma.nachname}`\n}));\nreturn { unternehmen, abteilungen, rollen, mitarbeiter, config };"
+        "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, rollen, prozesse, config } = $('JSON parsen (Prozesse)').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nlet mitarbeiter = data.mitarbeiter ?? data;\nmitarbeiter = mitarbeiter.map((ma, index) => ({\n  ...ma,\n  id: `emp_${String(index + 1).padStart(3, '0')}`,\n  unternehmen_id: unternehmen.id,\n  vollname: `${ma.vorname} ${ma.nachname}`\n}));\nreturn { unternehmen, abteilungen, rollen, prozesse, mitarbeiter, config };"
       },
       "id": "d4e5f6a7-b8c9-0123-def0-123456789013",
       "name": "JSON parsen (Mitarbeiter)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2050, 300]
+      "position": [
+        2050,
+        300
+      ]
     },
     {
       "parameters": {
@@ -220,7 +256,10 @@
       "name": "Unternehmen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2250, 150]
+      "position": [
+        2250,
+        150
+      ]
     },
     {
       "parameters": {
@@ -230,7 +269,10 @@
       "name": "Abteilungen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2250, 250]
+      "position": [
+        2250,
+        250
+      ]
     },
     {
       "parameters": {
@@ -240,7 +282,10 @@
       "name": "Rollen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2250, 350]
+      "position": [
+        2250,
+        350
+      ]
     },
     {
       "parameters": {
@@ -250,7 +295,10 @@
       "name": "Mitarbeiter extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2250, 450]
+      "position": [
+        2250,
+        450
+      ]
     },
     {
       "parameters": {
@@ -263,7 +311,10 @@
       "name": "Unternehmen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [2450, 150]
+      "position": [
+        2450,
+        150
+      ]
     },
     {
       "parameters": {
@@ -276,7 +327,10 @@
       "name": "Abteilungen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [2450, 250]
+      "position": [
+        2450,
+        250
+      ]
     },
     {
       "parameters": {
@@ -289,7 +343,10 @@
       "name": "Rollen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [2450, 350]
+      "position": [
+        2450,
+        350
+      ]
     },
     {
       "parameters": {
@@ -302,7 +359,10 @@
       "name": "Mitarbeiter JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [2450, 450]
+      "position": [
+        2450,
+        450
+      ]
     },
     {
       "parameters": {
@@ -314,7 +374,10 @@
       "name": "Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
-      "position": [2650, 300]
+      "position": [
+        2650,
+        300
+      ]
     },
     {
       "parameters": {
@@ -326,7 +389,10 @@
       "name": "Dateien + Rollen zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
-      "position": [2850, 300]
+      "position": [
+        2850,
+        300
+      ]
     },
     {
       "parameters": {
@@ -338,44 +404,505 @@
       "name": "Alle Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
-      "position": [3050, 300]
+      "position": [
+        3050,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "filePath": "={{ $json.apqc_file_path }}"
+      },
+      "id": "f8a9b0c1-d2e3-4567-f890-123456789147",
+      "name": "APQC Datei lesen",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        650,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "id": "f9a0b1c2-d3e4-5678-f901-234567890148",
+      "name": "APQC Tabelle zu JSON",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 1,
+      "position": [
+        850,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(item => item.json);\nconst processes = rows\n  .filter(row => String(row['Hierarchy ID']).trim() === '3')\n  .map(row => ({\n    pcf_id: row['PCF ID'],\n    hierarchy_id: row['Hierarchy ID'],\n    name: row['Name'],\n    description: row['Element Description']\n  }));\nreturn [{ json: { apqcProcesses: processes } }];"
+      },
+      "id": "g0a1b2c3-d4e5-6789-fa01-345678901459",
+      "name": "APQC Prozesse filtern",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1050,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByIndex",
+        "options": {}
+      },
+      "id": "g1a2b3c4-d5e6-7890-fa12-456789012460",
+      "name": "Kontext + Prozesse",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1650,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.config.openai_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'prozesse_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          prozesse: {\n            type: 'array',\n            minItems: 1,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                pcf_id: { type: 'string' },\n                name: { type: 'string' },\n                description: { type: 'string' },\n                abteilung_id: { type: 'string' },\n                abteilung_name: { type: 'string' },\n                begruendung: { type: 'string' },\n                prioritaet: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] }\n              },\n              required: ['pcf_id', 'name', 'description', 'abteilung_id', 'abteilung_name']\n            }\n          }\n        },\n        required: ['prozesse']\n      }\n    }\n  },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Organisationsberater. Wähle passende APQC-Prozesse für das Unternehmen aus und ordne sie Verantwortungsbereichen (Abteilungen) zu. Antworte nur im JSON-Format, das dem Schema entspricht.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Unternehmenskontext:',\n        JSON.stringify({\n          name: $json.unternehmen.name,\n          branche: $json.unternehmen.branche,\n          mitarbeiteranzahl: $json.unternehmen.mitarbeiteranzahl,\n          besonderheit: $json.config.besonderheit\n        }, null, 2),\n        '',\n        'Abteilungen:',\n        JSON.stringify($json.abteilungen.map(a => ({ id: a.id, name: a.name, ebene: a.ebene, mitarbeiter: a.mitarbeiteranzahl })), null, 2),\n        '',\n        'Existierende Rollen (Beispiele):',\n        JSON.stringify($json.rollen.slice(0, 20).map(r => ({ id: r.id, abteilung_id: r.abteilung_id, titel: r.titel })), null, 2),\n        '',\n        'Verfügbare APQC-Prozesse (Level 3):',\n        JSON.stringify($json.apqcProcesses.slice(0, 200), null, 2),\n        '',\n        'Aufgabe:',\n        'Wähle 6-12 relevante Prozesse aus, die bestmöglich zur Strategie und Struktur des Unternehmens passen. Ordne jeden Prozess einer verantwortlichen Abteilung zu und gib eine kurze Begründung sowie eine Priorität (hoch/mittel/niedrig) an.'\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.5\n}) }}"
+      },
+      "id": "g2a3b4c5-d6e7-8901-fa23-567890123461",
+      "name": "HTTP: Prozesse erstellen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1850,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, rollen, config, apqcProcesses } = $('Kontext + Prozesse').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst prozesse = data.prozesse ?? data;\nreturn { unternehmen, abteilungen, rollen, prozesse, apqcProcesses, config };"
+      },
+      "id": "g3a4b5c6-d7e8-9012-fa34-678901234562",
+      "name": "JSON parsen (Prozesse)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2050,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { prozesse } = $input.first().json;\nreturn prozesse.map(prozess => ({ json: prozess }));"
+      },
+      "id": "g4a5b6c7-d8e9-0123-fa45-789012345673",
+      "name": "Prozesse extrahieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2250,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "fileName": "prozesse.json"
+        }
+      },
+      "id": "g5a6b7c8-d9e0-1234-fa56-890123456784",
+      "name": "Prozesse JSON",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2450,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByIndex",
+        "options": {}
+      },
+      "id": "g6a7b8c9-d0e1-2345-fa67-901234567895",
+      "name": "Dateien + Prozesse zusammenführen",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        2850,
+        260
+      ]
     }
   ],
   "connections": {
-    "Start": { "main": [[{ "node": "Konfiguration", "type": "main", "index": 0 }]] },
-    "Konfiguration": { "main": [[{ "node": "HTTP: Unternehmen erstellen", "type": "main", "index": 0 }]] },
-    "HTTP: Unternehmen erstellen": { "main": [[{ "node": "JSON parsen (Unternehmen)", "type": "main", "index": 0 }]] },
-    "JSON parsen (Unternehmen)": { "main": [[{ "node": "HTTP: Abteilungen erstellen", "type": "main", "index": 0 }]] },
-    "HTTP: Abteilungen erstellen": { "main": [[{ "node": "JSON parsen (Abteilungen)", "type": "main", "index": 0 }]] },
-    "JSON parsen (Abteilungen)": { "main": [[{ "node": "HTTP: Rollen erstellen", "type": "main", "index": 0 }]] },
-    "HTTP: Rollen erstellen": { "main": [[{ "node": "JSON parsen (Rollen)", "type": "main", "index": 0 }]] },
-    "JSON parsen (Rollen)": { "main": [[{ "node": "HTTP: Mitarbeiter erstellen", "type": "main", "index": 0 }]] },
-    "HTTP: Mitarbeiter erstellen": { "main": [[{ "node": "JSON parsen (Mitarbeiter)", "type": "main", "index": 0 }]] },
-    "JSON parsen (Mitarbeiter)": {
+    "Start": {
       "main": [
         [
-          { "node": "Unternehmen extrahieren", "type": "main", "index": 0 },
-          { "node": "Abteilungen extrahieren", "type": "main", "index": 0 },
-          { "node": "Rollen extrahieren", "type": "main", "index": 0 },
-          { "node": "Mitarbeiter extrahieren", "type": "main", "index": 0 }
+          {
+            "node": "Konfiguration",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
-    "Unternehmen extrahieren": { "main": [[{ "node": "Unternehmen JSON", "type": "main", "index": 0 }]] },
-    "Abteilungen extrahieren": { "main": [[{ "node": "Abteilungen JSON", "type": "main", "index": 0 }]] },
-    "Rollen extrahieren": { "main": [[{ "node": "Rollen JSON", "type": "main", "index": 0 }]] },
-    "Mitarbeiter extrahieren": { "main": [[{ "node": "Mitarbeiter JSON", "type": "main", "index": 0 }]] },
-    "Unternehmen JSON": { "main": [[{ "node": "Dateien zusammenführen", "type": "main", "index": 0 }]] },
-    "Abteilungen JSON": { "main": [[{ "node": "Dateien zusammenführen", "type": "main", "index": 1 }]] },
-    "Rollen JSON": { "main": [[{ "node": "Dateien + Rollen zusammenführen", "type": "main", "index": 1 }]] },
-    "Mitarbeiter JSON": { "main": [[{ "node": "Alle Dateien zusammenführen", "type": "main", "index": 1 }]] },
-    "Dateien zusammenführen": { "main": [[{ "node": "Dateien + Rollen zusammenführen", "type": "main", "index": 0 }]] },
+    "Konfiguration": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Unternehmen erstellen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "APQC Datei lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Unternehmen erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Unternehmen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Unternehmen)": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Abteilungen erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Abteilungen erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Abteilungen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Abteilungen)": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Rollen erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Rollen erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Rollen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Rollen)": {
+      "main": [
+        [
+          {
+            "node": "Kontext + Prozesse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Mitarbeiter erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Mitarbeiter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Mitarbeiter)": {
+      "main": [
+        [
+          {
+            "node": "Unternehmen extrahieren",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Abteilungen extrahieren",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Rollen extrahieren",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mitarbeiter extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unternehmen extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Unternehmen JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abteilungen extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Abteilungen JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rollen extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Rollen JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mitarbeiter extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Mitarbeiter JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unternehmen JSON": {
+      "main": [
+        [
+          {
+            "node": "Dateien zusammenführen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abteilungen JSON": {
+      "main": [
+        [
+          {
+            "node": "Dateien zusammenführen",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Rollen JSON": {
+      "main": [
+        [
+          {
+            "node": "Dateien + Rollen zusammenführen",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Mitarbeiter JSON": {
+      "main": [
+        [
+          {
+            "node": "Alle Dateien zusammenführen",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Dateien zusammenführen": {
+      "main": [
+        [
+          {
+            "node": "Dateien + Rollen zusammenführen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Dateien + Rollen zusammenführen": {
-      "main": [[{ "node": "Alle Dateien zusammenführen", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Dateien + Prozesse zusammenführen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "APQC Datei lesen": {
+      "main": [
+        [
+          {
+            "node": "APQC Tabelle zu JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "APQC Tabelle zu JSON": {
+      "main": [
+        [
+          {
+            "node": "APQC Prozesse filtern",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "APQC Prozesse filtern": {
+      "main": [
+        [
+          {
+            "node": "Kontext + Prozesse",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Kontext + Prozesse": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Prozesse erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Prozesse erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Prozesse)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Prozesse)": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Mitarbeiter erstellen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prozesse extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prozesse extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Prozesse JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prozesse JSON": {
+      "main": [
+        [
+          {
+            "node": "Dateien + Prozesse zusammenführen",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Dateien + Prozesse zusammenführen": {
+      "main": [
+        [
+          {
+            "node": "Alle Dateien zusammenführen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "pinData": {},
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
