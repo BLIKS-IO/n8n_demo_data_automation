@@ -427,7 +427,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nlet rows = [];\nfor (const item of items) {\n  const data = item.json;\n  if (Array.isArray(data)) {\n    rows = rows.concat(data);\n  } else if (data && Array.isArray(data.data)) {\n    rows = rows.concat(data.data);\n  } else if (data) {\n    rows.push(data);\n  }\n}\nconst processes = rows\n  .filter(row => String(row['Hierarchy ID'] ?? row['Hierarchy']).trim() === '3')\n  .map(row => ({\n    pcf_id: row['PCF ID'],\n    hierarchy_id: row['Hierarchy ID'],\n    name: row['Name'] ?? row['Name (German Translation) (not veriied)'] ?? row['Name (German Translation) (not verified)'] ?? '',\n    description: row['Element Description'] ?? row['Element Description (German Translation) (not verfied)'] ?? row['Element Description (German Translation) (not verified)'] ?? ''\n  }));\nreturn [{ json: { apqcProcesses: processes } }];"
+        "jsCode": "const items = $input.all();\nlet rows = [];\nfor (const item of items) {\n  const data = item.json;\n  if (Array.isArray(data)) {\n    rows = rows.concat(data);\n  } else if (data && Array.isArray(data.data)) {\n    rows = rows.concat(data.data);\n  } else if (data) {\n    rows.push(data);\n  }\n}\nconst processes = rows\n  .filter(row => String(row['Hierarchy'] ?? row['Hierarchy ID'] ?? '').trim() === '3')\n  .map(row => ({\n    pcf_id: row['PCF ID'],\n    hierarchy_id: row['Hierarchy ID'],\n    name: row['Name'] ?? row['Name (German Translation) (not veriied)'] ?? row['Name (German Translation) (not verified)'] ?? '',\n    description: row['Element Description'] ?? row['Element Description (German Translation) (not verfied)'] ?? row['Element Description (German Translation) (not verified)'] ?? ''\n  }));\nreturn [{ json: { apqcProcesses: processes } }];"
       },
       "id": "g0a1b2c3-d4e5-6789-fa01-345678901459",
       "name": "APQC Prozesse filtern",
@@ -436,21 +436,6 @@
       "position": [
         1050,
         120
-      ]
-    },
-    {
-      "parameters": {
-        "mode": "combine",
-        "combinationMode": "mergeByIndex",
-        "options": {}
-      },
-      "id": "g1a2b3c4-d5e6-7890-fa12-456789012460",
-      "name": "Kontext + Prozesse",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 2.1,
-      "position": [
-        1650,
-        200
       ]
     },
     {
@@ -472,7 +457,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'prozesse_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          prozesse: {\n            type: 'array',\n            minItems: 1,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                pcf_id: { type: 'string' },\n                name: { type: 'string' },\n                description: { type: 'string' },\n                abteilung_id: { type: 'string' },\n                abteilung_name: { type: 'string' },\n                begruendung: { type: 'string' },\n                prioritaet: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] }\n              },\n              required: ['pcf_id', 'name', 'description', 'abteilung_id', 'abteilung_name']\n            }\n          }\n        },\n        required: ['prozesse']\n      }\n    }\n  },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Organisationsberater. Wähle passende APQC-Prozesse für das Unternehmen aus und ordne sie Verantwortungsbereichen (Abteilungen) zu. Antworte nur im JSON-Format, das dem Schema entspricht.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Unternehmenskontext:',\n        JSON.stringify({\n          name: $json.unternehmen.name,\n          branche: $json.unternehmen.branche,\n          mitarbeiteranzahl: $json.unternehmen.mitarbeiteranzahl,\n          besonderheit: $json.config.besonderheit\n        }, null, 2),\n        '',\n        'Abteilungen:',\n        JSON.stringify($json.abteilungen.map(a => ({ id: a.id, name: a.name, ebene: a.ebene, mitarbeiter: a.mitarbeiteranzahl })), null, 2),\n        '',\n        'Existierende Rollen (Beispiele):',\n        JSON.stringify($json.rollen.slice(0, 20).map(r => ({ id: r.id, abteilung_id: r.abteilung_id, titel: r.titel })), null, 2),\n        '',\n        'Verfügbare APQC-Prozesse (Level 3):',\n        JSON.stringify($json.apqcProcesses.slice(0, 200), null, 2),\n        '',\n        'Aufgabe:',\n        'Wähle 6-12 relevante Prozesse aus, die bestmöglich zur Strategie und Struktur des Unternehmens passen. Ordne jeden Prozess einer verantwortlichen Abteilung zu und gib eine kurze Begründung sowie eine Priorität (hoch/mittel/niedrig) an.'\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.5\n}) }}"
+        "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'prozesse_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          prozesse: {\n            type: 'array',\n            minItems: 1,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                pcf_id: { type: 'string' },\n                name: { type: 'string' },\n                description: { type: 'string' },\n                abteilung_id: { type: 'string' },\n                abteilung_name: { type: 'string' },\n                begruendung: { type: 'string' },\n                prioritaet: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] }\n              },\n              required: ['pcf_id', 'name', 'description', 'abteilung_id', 'abteilung_name']\n            }\n          }\n        },\n        required: ['prozesse']\n      }\n    }\n  },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Organisationsberater. Wähle passende APQC-Prozesse für das Unternehmen aus und ordne sie Verantwortungsbereichen (Abteilungen) zu. Antworte nur im JSON-Format, das dem Schema entspricht.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Unternehmenskontext:',\n        JSON.stringify({\n          name: $json.unternehmen.name,\n          branche: $json.unternehmen.branche,\n          mitarbeiteranzahl: $json.unternehmen.mitarbeiteranzahl,\n          besonderheit: $json.config.besonderheit\n        }, null, 2),\n        '',\n        'Abteilungen:',\n        JSON.stringify($json.abteilungen.map(a => ({ id: a.id, name: a.name, ebene: a.ebene, mitarbeiter: a.mitarbeiteranzahl })), null, 2),\n        '',\n        'Existierende Rollen (Beispiele):',\n        JSON.stringify($json.rollen.slice(0, 20).map(r => ({ id: r.id, abteilung_id: r.abteilung_id, titel: r.titel })), null, 2),\n        '',\n        'Verfügbare APQC-Prozesse (Level 3):',\n        JSON.stringify($('APQC Prozesse filtern').first().json.apqcProcesses.slice(0, 200), null, 2),\n        '',\n        'Aufgabe:',\n        'Wähle 6-12 relevante Prozesse aus, die bestmöglich zur Strategie und Struktur des Unternehmens passen. Ordne jeden Prozess einer verantwortlichen Abteilung zu und gib eine kurze Begründung sowie eine Priorität (hoch/mittel/niedrig) an.'\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.5\n}) }}"
       },
       "id": "g2a3b4c5-d6e7-8901-fa23-567890123461",
       "name": "HTTP: Prozesse erstellen",
@@ -485,7 +470,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, rollen, config, apqcProcesses } = $('Kontext + Prozesse').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst prozesse = data.prozesse ?? data;\nreturn { unternehmen, abteilungen, rollen, prozesse, apqcProcesses, config };"
+        "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, rollen, config } = $('JSON parsen (Rollen)').first().json;\nconst { apqcProcesses = [] } = $('APQC Prozesse filtern').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst prozesse = data.prozesse ?? data;\nreturn { unternehmen, abteilungen, rollen, prozesse, apqcProcesses, config };"
       },
       "id": "g3a4b5c6-d7e8-9012-fa34-678901234562",
       "name": "JSON parsen (Prozesse)",
@@ -618,17 +603,6 @@
         [
           {
             "node": "JSON parsen (Rollen)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "JSON parsen (Rollen)": {
-      "main": [
-        [
-          {
-            "node": "Kontext + Prozesse",
             "type": "main",
             "index": 0
           }
@@ -793,39 +767,6 @@
         ]
       ]
     },
-    "APQC Tabelle zu JSON": {
-      "main": [
-        [
-          {
-            "node": "APQC Prozesse filtern",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "APQC Prozesse filtern": {
-      "main": [
-        [
-          {
-            "node": "Kontext + Prozesse",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Kontext + Prozesse": {
-      "main": [
-        [
-          {
-            "node": "HTTP: Prozesse erstellen",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "HTTP: Prozesse erstellen": {
       "main": [
         [
@@ -880,6 +821,17 @@
         [
           {
             "node": "Alle Dateien zusammenführen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Rollen)": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Prozesse erstellen",
             "type": "main",
             "index": 0
           }
