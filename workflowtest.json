@@ -79,7 +79,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein Experte für Unternehmensstrukturen. Erstelle realistische fiktive Unternehmensdaten im JSON-Format.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Erstelle ein fiktives Unternehmen mit folgenden Vorgaben:\\n- Branche: \" + $json.branche + \"\\n- Größe: \" + $json.unternehmensgroesse + \"\\n- Land: \" + $json.land + \"\\n- Besonderheit: \" + $json.besonderheit + \"\\n\\nErstelle ein JSON-Objekt mit folgenden Feldern:\\n{\\n  \\\"id\\\": \\\"company_001\\\",\\n  \\\"name\\\": \\\"Firmenname\\\",\\n  \\\"branche\\\": \\\"Branche\\\",\\n  \\\"groesse\\\": \\\"Größenkategorie\\\",\\n  \\\"mitarbeiteranzahl\\\": Zahl,\\n  \\\"gruendungsjahr\\\": Jahr,\\n  \\\"hauptsitz\\\": \\\"Stadt\\\",\\n  \\\"beschreibung\\\": \\\"Beschreibung\\\",\\n  \\\"umsatz_mio\\\": Zahl,\\n  \\\"webseite\\\": \\\"www.beispiel.de\\\"\\n}\\n\\nAntworte NUR mit dem JSON-Objekt, ohne zusätzlichen Text.\"\n    }\n  ],\n  \"temperature\": 0.8\n}",
+        "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Experte für Unternehmensstrukturen. Erstelle realistische fiktive Unternehmensdaten im JSON-Format.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Erstelle ein fiktives Unternehmen mit folgenden Vorgaben:',\n        '- Branche: ' + $json.branche,\n        '- Größe: ' + $json.unternehmensgroesse,\n        '- Land: ' + $json.land,\n        '- Besonderheit: ' + $json.besonderheit,\n        '',\n        'Erstelle ein JSON-Objekt mit folgenden Feldern:',\n        '{',\n        '  \"id\": \"company_001\",',\n        '  \"name\": \"Firmenname\",',\n        '  \"branche\": \"Branche\",',\n        '  \"groesse\": \"Größenkategorie\",',\n        '  \"mitarbeiteranzahl\": Zahl,',\n        '  \"gruendungsjahr\": Jahr,',\n        '  \"hauptsitz\": \"Stadt\",',\n        '  \"beschreibung\": \"Beschreibung\",',\n        '  \"umsatz_mio\": Zahl,',\n        '  \"webseite\": \"www.beispiel.de\"',\n        '}',\n        '',\n        'Antworte NUR mit dem JSON-Objekt, ohne zusätzlichen Text.'\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.8\n}) }}",
         "options": {}
       },
       "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
@@ -214,7 +214,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Nur Unternehmen extrahieren\nconst { unternehmen } = $input.first().json;\nreturn { json: unternehmen };"
+        "jsCode": "// Nur Unternehmen extrahieren\nconst { unternehmen } = $input.first().json;\nreturn [{ json: unternehmen }];\n"
       },
       "id": "e1f2a3b4-c5d6-7890-ef01-234567890121",
       "name": "Unternehmen extrahieren",
@@ -224,7 +224,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Nur Abteilungen extrahieren\nconst { abteilungen } = $input.first().json;\nreturn abteilungen.map(abt => ({ json: abt }));"
+        "jsCode": "// Nur Abteilungen extrahieren\nconst { abteilungen } = $input.first().json;\nreturn [{ json: abteilungen }];\n"
       },
       "id": "e2f3a4b5-c6d7-8901-ef12-234567890122",
       "name": "Abteilungen extrahieren",
@@ -234,7 +234,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Nur Rollen extrahieren\nconst { rollen } = $input.first().json;\nreturn rollen.map(rolle => ({ json: rolle }));"
+        "jsCode": "// Nur Rollen extrahieren\nconst { rollen } = $input.first().json;\nreturn [{ json: rollen }];\n"
       },
       "id": "e3f4a5b6-c7d8-9012-ef23-234567890123",
       "name": "Rollen extrahieren",
@@ -244,7 +244,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Nur Mitarbeiter extrahieren\nconst { mitarbeiter } = $input.first().json;\nreturn mitarbeiter.map(ma => ({ json: ma }));"
+        "jsCode": "// Nur Mitarbeiter extrahieren\nconst { mitarbeiter } = $input.first().json;\nreturn [{ json: mitarbeiter }];\n"
       },
       "id": "e4f5a6b7-c8d9-0123-ef34-234567890124",
       "name": "Mitarbeiter extrahieren",
@@ -307,7 +307,7 @@
     {
       "parameters": {
         "mode": "combine",
-        "combinationMode": "multiplex",
+        "combinationMode": "mergeByIndex",
         "options": {}
       },
       "id": "b8c9d0e1-f2a3-4567-1234-567890123457",
@@ -315,6 +315,30 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
       "position": [2650, 300]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByIndex",
+        "options": {}
+      },
+      "id": "c9d0e1f2-a3b4-4567-8901-234567890145",
+      "name": "Dateien + Rollen zusammenführen",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [2850, 300]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByIndex",
+        "options": {}
+      },
+      "id": "d0e1f2a3-b4c5-5678-9012-345678901456",
+      "name": "Alle Dateien zusammenführen",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [3050, 300]
     }
   ],
   "connections": {
@@ -513,9 +537,9 @@
       "main": [
         [
           {
-            "node": "Dateien zusammenführen",
+            "node": "Dateien + Rollen zusammenführen",
             "type": "main",
-            "index": 2
+            "index": 1
           }
         ]
       ]
@@ -524,9 +548,31 @@
       "main": [
         [
           {
-            "node": "Dateien zusammenführen",
+            "node": "Alle Dateien zusammenführen",
             "type": "main",
-            "index": 3
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Dateien zusammenführen": {
+      "main": [
+        [
+          {
+            "node": "Dateien + Rollen zusammenführen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dateien + Rollen zusammenführen": {
+      "main": [
+        [
+          {
+            "node": "Alle Dateien zusammenführen",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
