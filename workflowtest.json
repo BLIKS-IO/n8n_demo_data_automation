@@ -128,7 +128,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// JSON aus OpenAI-Response extrahieren und parsen\nconst response = $input.first().json.choices[0].message.content;\nconst unternehmen = $input.first().json.unternehmen;\n\n// JSON extrahieren (falls in Markdown Code-Block)\nlet jsonStr = response;\nif (response.includes('```json')) {\n  jsonStr = response.split('```json')[1].split('```')[0].trim();\n} else if (response.includes('```')) {\n  jsonStr = response.split('```')[1].split('```')[0].trim();\n}\n\nconst abteilungen = JSON.parse(jsonStr);\n\nreturn { unternehmen, abteilungen };"
+        "jsCode": "// JSON aus OpenAI-Response extrahieren und parsen\nconst response = $input.first().json.choices[0].message.content;\nconst unternehmen = $input.first().json.unternehmen;\n\n// JSON extrahieren (falls in Markdown Code-Block)\nlet jsonStr = response;\nif (response.includes('```json')) {\n  jsonStr = response.split('```json')[1].split('```')[0].trim();\n} else if (response.includes('```')) {\n  jsonStr = response.split('```')[1].split('```')[0].trim();\n}\n\nconst abteilungen = JSON.parse(jsonStr);\nconst config = $('Konfiguration').first().json;\n\nreturn { unternehmen, abteilungen, config };"
       },
       "id": "c4d5e6f7-a8b9-0123-cdef-123456789013",
       "name": "JSON parsen (Abteilungen)",
@@ -138,13 +138,79 @@
     },
     {
       "parameters": {
-        "jsCode": "// Mitarbeiter erstellen und Abteilungen zuordnen\nconst data = $input.first().json;\nconst unternehmen = data.unternehmen;\nconst abteilungen = data.abteilungen;\n\nconst vornamen = ['Max', 'Anna', 'Thomas', 'Julia', 'Michael', 'Sarah', 'Andreas', 'Laura', 'Stefan', 'Lisa', 'Markus', 'Sandra', 'Christian', 'Nina', 'Daniel', 'Katharina', 'Sebastian', 'Maria', 'Florian', 'Jennifer', 'Peter', 'Sophie', 'Martin', 'Emma', 'Oliver'];\nconst nachnamen = ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann', 'Koch', 'Richter', 'Klein', 'Wolf', 'Schröder', 'Neumann', 'Schwarz', 'Zimmermann', 'Braun', 'Hofmann', 'Krause', 'Hartmann', 'Lange', 'Werner', 'Schmitt'];\n\n// Typische Positionen nach Hierarchie-Ebene\nconst positionenNachEbene = {\n  1: ['CEO', 'CFO', 'CTO', 'COO', 'Geschäftsführer'],\n  2: ['Abteilungsleiter', 'Bereichsleiter', 'Director', 'Head of'],\n  3: ['Teamleiter', 'Manager', 'Senior Spezialist', 'Lead'],\n  4: ['Spezialist', 'Mitarbeiter', 'Koordinator', 'Referent']\n};\n\nconst mitarbeiter = [];\nlet mitarbeiter_counter = 1;\nconst verwendeteNamen = new Set();\n\n// Für jede Abteilung Mitarbeiter erstellen\nabteilungen.forEach(abt => {\n  // Anzahl Mitarbeiter basierend auf Abteilungsgröße (reduziert für Demo)\n  const anzahl = Math.max(2, Math.ceil(abt.mitarbeiteranzahl / 15));\n  const ebene = abt.ebene || 2;\n  const positionen = positionenNachEbene[ebene] || positionenNachEbene[3];\n  \n  for (let i = 0; i < anzahl; i++) {\n    // Eindeutige Namen generieren\n    let vorname, nachname, vollname;\n    let versuche = 0;\n    do {\n      vorname = vornamen[Math.floor(Math.random() * vornamen.length)];\n      nachname = nachnamen[Math.floor(Math.random() * nachnamen.length)];\n      vollname = `${vorname} ${nachname}`;\n      versuche++;\n    } while (verwendeteNamen.has(vollname) && versuche < 100);\n    \n    verwendeteNamen.add(vollname);\n    \n    const alter = 25 + Math.floor(Math.random() * 30);\n    const gehalt = 35000 + (ebene * 15000) + Math.floor(Math.random() * 30000);\n    const domain = unternehmen.webseite ? unternehmen.webseite.replace('www.', '') : 'beispiel.de';\n    \n    // Position basierend auf Hierarchie und Index\n    let position;\n    if (i === 0 && ebene <= 2) {\n      position = abt.name + '-Leiter';\n    } else {\n      position = positionen[Math.floor(Math.random() * positionen.length)];\n    }\n    \n    mitarbeiter.push({\n      id: `emp_${String(mitarbeiter_counter).padStart(3, '0')}`,\n      unternehmen_id: unternehmen.id,\n      abteilung_id: abt.id,\n      vorname: vorname,\n      nachname: nachname,\n      vollname: vollname,\n      position: position,\n      email: `${vorname.toLowerCase()}.${nachname.toLowerCase()}@${domain}`,\n      telefon: `+49 ${Math.floor(Math.random() * 900 + 100)} ${Math.floor(Math.random() * 9000000 + 1000000)}`,\n      alter: alter,\n      gehalt_euro: gehalt,\n      eintrittsdatum: `${unternehmen.gruendungsjahr + Math.floor(Math.random() * (2025 - unternehmen.gruendungsjahr))}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-01`,\n      vertrag: Math.random() > 0.15 ? 'Vollzeit' : 'Teilzeit'\n    });\n    \n    mitarbeiter_counter++;\n  }\n});\n\nreturn { unternehmen, abteilungen, mitarbeiter };"
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.config.openai_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein HR-Experte. Definiere realistische Rollen und Positionen für jede Abteilung eines Unternehmens.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Definiere für folgendes Unternehmen alle benötigten Rollen pro Abteilung:\\n\\nUnternehmen: \" + $json.unternehmen.name + \"\\nBranche: \" + $json.unternehmen.branche + \"\\n\\nAbteilungen:\\n\" + JSON.stringify($json.abteilungen.map(a => ({name: a.name, ebene: a.ebene, mitarbeiter: a.mitarbeiteranzahl})), null, 2) + \"\\n\\nErstelle ein JSON-Array mit Rollen. Jede Rolle hat:\\n{\\n  \\\"id\\\": \\\"role_XXX\\\",\\n  \\\"abteilung_id\\\": \\\"dept_XXX\\\",\\n  \\\"titel\\\": \\\"Rollentitel\\\",\\n  \\\"beschreibung\\\": \\\"Was macht diese Rolle\\\",\\n  \\\"ebene\\\": \\\"Entry/Mid/Senior/Lead/Executive\\\",\\n  \\\"anzahl_personen\\\": Zahl (wie viele Personen in dieser Rolle),\\n  \\\"gehalt_min\\\": Zahl,\\n  \\\"gehalt_max\\\": Zahl,\\n  \\\"anforderungen\\\": [\\\"Skill 1\\\", \\\"Skill 2\\\"]\\n}\\n\\nWichtig:\\n- Definiere 2-6 verschiedene Rollen pro Abteilung\\n- Berücksichtige Hierarchie (Leiter, Manager, Spezialisten, Mitarbeiter)\\n- Die Summe aller anzahl_personen pro Abteilung sollte ungefähr der Mitarbeiteranzahl der Abteilung entsprechen\\n- Gehälter realistisch nach Branche und Rolle\\n\\nAntworte NUR mit dem JSON-Array, ohne zusätzlichen Text.\"\n    }\n  ],\n  \"temperature\": 0.7\n} }}",
+        "options": {}
       },
-      "id": "d4e5f6a7-b8c9-0123-def0-123456789013",
-      "name": "Mitarbeiter erstellen",
+      "id": "d1e2f3a4-b5c6-7890-cdef-234567890131",
+      "name": "HTTP: Rollen erstellen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// JSON aus OpenAI-Response extrahieren und parsen\nconst response = $input.first().json.choices[0].message.content;\nconst unternehmen = $input.first().json.unternehmen;\nconst abteilungen = $input.first().json.abteilungen;\nconst config = $input.first().json.config;\n\n// JSON extrahieren (falls in Markdown Code-Block)\nlet jsonStr = response;\nif (response.includes('```json')) {\n  jsonStr = response.split('```json')[1].split('```')[0].trim();\n} else if (response.includes('```')) {\n  jsonStr = response.split('```')[1].split('```')[0].trim();\n}\n\nconst rollen = JSON.parse(jsonStr);\n\nreturn { unternehmen, abteilungen, rollen, config };"
+      },
+      "id": "d2e3f4a5-b6c7-8901-cdef-234567890132",
+      "name": "JSON parsen (Rollen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1450, 300]
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.config.openai_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein HR-Experte. Erstelle realistische fiktive Mitarbeiterprofile mit Namen, die zur Unternehmenskultur und zum Land passen.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Erstelle fiktive Mitarbeiter für folgendes Unternehmen:\\n\\nUnternehmen: \" + $json.unternehmen.name + \"\\nLand: \" + $json.config.land + \"\\nBranche: \" + $json.unternehmen.branche + \"\\n\\nRollen:\\n\" + JSON.stringify($json.rollen.slice(0, 20).map(r => ({titel: r.titel, abteilung_id: r.abteilung_id, anzahl: r.anzahl_personen, gehalt_range: r.gehalt_min + '-' + r.gehalt_max})), null, 2) + \"\\n\\nErstelle ein JSON-Array mit Mitarbeitern. Jeder Mitarbeiter hat:\\n{\\n  \\\"id\\\": \\\"emp_XXX\\\",\\n  \\\"rolle_id\\\": \\\"role_XXX\\\",\\n  \\\"abteilung_id\\\": \\\"dept_XXX\\\",\\n  \\\"vorname\\\": \\\"Vorname\\\",\\n  \\\"nachname\\\": \\\"Nachname\\\",\\n  \\\"email\\\": \\\"vorname.nachname@domain.de\\\",\\n  \\\"telefon\\\": \\\"+49 ...\\\",\\n  \\\"alter\\\": Zahl (25-65),\\n  \\\"gehalt_euro\\\": Zahl (innerhalb der Rolle),\\n  \\\"eintrittsdatum\\\": \\\"YYYY-MM-DD\\\",\\n  \\\"vertrag\\\": \\\"Vollzeit/Teilzeit\\\",\\n  \\\"standort\\\": \\\"\" + $json.unternehmen.hauptsitz + \"\\\"\\n}\\n\\nWichtig:\\n- Erstelle die in anzahl_personen angegebene Anzahl von Mitarbeitern pro Rolle\\n- Namen sollten zum Land passen (\" + $json.config.land + \")\\n- Diverse Namen verwenden (Geschlecht, Herkunft)\\n- Gehalt im angegebenen Bereich der Rolle\\n- Email-Domain: \" + ($json.unternehmen.webseite ? $json.unternehmen.webseite.replace('www.', '') : 'beispiel.de') + \"\\n- Eintrittsdatum zwischen Gründungsjahr (\" + $json.unternehmen.gruendungsjahr + \") und heute\\n- 85% Vollzeit, 15% Teilzeit\\n\\nAntworte NUR mit dem JSON-Array, ohne zusätzlichen Text.\"\n    }\n  ],\n  \"temperature\": 0.9\n} }}",
+        "options": {}
+      },
+      "id": "d3e4f5a6-b7c8-9012-cdef-234567890133",
+      "name": "HTTP: Mitarbeiter erstellen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1850, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// JSON aus OpenAI-Response extrahieren und parsen\nconst response = $input.first().json.choices[0].message.content;\nconst unternehmen = $input.first().json.unternehmen;\nconst abteilungen = $input.first().json.abteilungen;\nconst rollen = $input.first().json.rollen;\n\n// JSON extrahieren (falls in Markdown Code-Block)\nlet jsonStr = response;\nif (response.includes('```json')) {\n  jsonStr = response.split('```json')[1].split('```')[0].trim();\n} else if (response.includes('```')) {\n  jsonStr = response.split('```')[1].split('```')[0].trim();\n}\n\nlet mitarbeiter = JSON.parse(jsonStr);\n\n// Unternehmen-ID zu allen Mitarbeitern hinzufügen und IDs normalisieren\nmitarbeiter = mitarbeiter.map((ma, index) => ({\n  ...ma,\n  id: `emp_${String(index + 1).padStart(3, '0')}`,\n  unternehmen_id: unternehmen.id,\n  vollname: `${ma.vorname} ${ma.nachname}`\n}));\n\nreturn { unternehmen, abteilungen, rollen, mitarbeiter };"
+      },
+      "id": "d4e5f6a7-b8c9-0123-def0-123456789013",
+      "name": "JSON parsen (Mitarbeiter)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2050, 300]
     },
     {
       "parameters": {
@@ -154,7 +220,7 @@
       "name": "Unternehmen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1650, 200]
+      "position": [2250, 150]
     },
     {
       "parameters": {
@@ -164,17 +230,27 @@
       "name": "Abteilungen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1650, 300]
+      "position": [2250, 250]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nur Rollen extrahieren\nconst { rollen } = $input.first().json;\nreturn rollen.map(rolle => ({ json: rolle }));"
+      },
+      "id": "e3f4a5b6-c7d8-9012-ef23-234567890123",
+      "name": "Rollen extrahieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2250, 350]
     },
     {
       "parameters": {
         "jsCode": "// Nur Mitarbeiter extrahieren\nconst { mitarbeiter } = $input.first().json;\nreturn mitarbeiter.map(ma => ({ json: ma }));"
       },
-      "id": "e3f4a5b6-c7d8-9012-ef23-234567890123",
+      "id": "e4f5a6b7-c8d9-0123-ef34-234567890124",
       "name": "Mitarbeiter extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1650, 400]
+      "position": [2250, 450]
     },
     {
       "parameters": {
@@ -187,7 +263,7 @@
       "name": "Unternehmen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [1850, 200]
+      "position": [2450, 150]
     },
     {
       "parameters": {
@@ -200,7 +276,20 @@
       "name": "Abteilungen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [1850, 300]
+      "position": [2450, 250]
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "fileName": "rollen.json"
+        }
+      },
+      "id": "f7a8b9c0-d1e2-3456-f123-345678901236",
+      "name": "Rollen JSON",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [2450, 350]
     },
     {
       "parameters": {
@@ -213,7 +302,7 @@
       "name": "Mitarbeiter JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [1850, 400]
+      "position": [2450, 450]
     },
     {
       "parameters": {
@@ -225,7 +314,7 @@
       "name": "Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
-      "position": [2050, 300]
+      "position": [2650, 300]
     }
   ],
   "connections": {
@@ -288,14 +377,47 @@
       "main": [
         [
           {
-            "node": "Mitarbeiter erstellen",
+            "node": "HTTP: Rollen erstellen",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Mitarbeiter erstellen": {
+    "HTTP: Rollen erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Rollen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Rollen)": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Mitarbeiter erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Mitarbeiter erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Mitarbeiter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Mitarbeiter)": {
       "main": [
         [
           {
@@ -305,6 +427,11 @@
           },
           {
             "node": "Abteilungen extrahieren",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Rollen extrahieren",
             "type": "main",
             "index": 0
           },
@@ -332,6 +459,17 @@
         [
           {
             "node": "Abteilungen JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rollen extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Rollen JSON",
             "type": "main",
             "index": 0
           }
@@ -371,13 +509,24 @@
         ]
       ]
     },
-    "Mitarbeiter JSON": {
+    "Rollen JSON": {
       "main": [
         [
           {
             "node": "Dateien zusammenführen",
             "type": "main",
             "index": 2
+          }
+        ]
+      ]
+    },
+    "Mitarbeiter JSON": {
+      "main": [
+        [
+          {
+            "node": "Dateien zusammenführen",
+            "type": "main",
+            "index": 3
           }
         ]
       ]
