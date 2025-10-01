@@ -7,7 +7,10 @@
       "name": "Start",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [250, 300]
+      "position": [
+        250,
+        300
+      ]
     },
     {
       "parameters": {
@@ -57,7 +60,10 @@
       "name": "Konfiguration",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.3,
-      "position": [450, 300],
+      "position": [
+        450,
+        300
+      ],
       "notes": "HIER ANPASSEN: Branche, Größe, Land, Besonderheiten und OpenAI API Key"
     },
     {
@@ -86,7 +92,10 @@
       "name": "HTTP: Unternehmen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [650, 300]
+      "position": [
+        650,
+        300
+      ]
     },
     {
       "parameters": {
@@ -96,7 +105,10 @@
       "name": "JSON parsen (Unternehmen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [850, 300]
+      "position": [
+        850,
+        300
+      ]
     },
     {
       "parameters": {
@@ -117,14 +129,17 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein Experte für Organisationsstrukturen. Erstelle realistische hierarchische Abteilungsstrukturen im JSON-Format.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Erstelle eine hierarchische Abteilungsstruktur für folgendes Unternehmen:\\n\\nUnternehmen: \" + $json.unternehmen.name + \"\\nBranche: \" + $json.unternehmen.branche + \"\\nMitarbeiter: \" + $json.unternehmen.mitarbeiteranzahl + \"\\n\\nErstelle \" + $json.config.hierarchie_ebenen + \" Hierarchie-Ebenen mit passenden Abteilungen.\\n\\nErstelle ein JSON-Array mit Abteilungen. Jede Abteilung hat:\\n{\\n  \\\"id\\\": \\\"dept_XXX\\\",\\n  \\\"unternehmen_id\\\": \\\"\" + $json.unternehmen.id + \"\\\",\\n  \\\"name\\\": \\\"Abteilungsname\\\",\\n  \\\"ebene\\\": Zahl (1-\" + $json.config.hierarchie_ebenen + \"),\\n  \\\"parent_id\\\": \\\"dept_XXX\\\" oder null für Ebene 1,\\n  \\\"budget_euro\\\": Zahl,\\n  \\\"mitarbeiteranzahl\\\": Zahl\\n}\\n\\nWichtig:\\n- Ebene 1: Geschäftsleitung (1 Abteilung)\\n- Ebene 2: Hauptabteilungen (4-6 Abteilungen)\\n- Ebene 3+: Unterabteilungen\\n- parent_id muss auf existierende übergeordnete Abteilung verweisen\\n- Summe der Mitarbeiter sollte ca. \" + $json.unternehmen.mitarbeiteranzahl + \" ergeben\\n\\nAntworte NUR mit dem JSON-Array, ohne zusätzlichen Text.\"\n    }\n  ],\n  \"temperature\": 0.7\n} }}",
+        "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Experte für Organisationsstrukturen. Erstelle realistische hierarchische Abteilungsstrukturen im JSON-Format.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Erstelle eine hierarchische Abteilungsstruktur für folgendes Unternehmen:',\n        '',\n        'Unternehmen: ' + $json.unternehmen.name,\n        'Branche: ' + $json.unternehmen.branche,\n        'Mitarbeiter: ' + $json.unternehmen.mitarbeiteranzahl,\n        '',\n        'Erstelle ' + $json.config.hierarchie_ebenen + ' Hierarchie-Ebenen mit passenden Abteilungen.',\n        '',\n        'Erstelle ein JSON-Array mit Abteilungen. Jede Abteilung hat:',\n        '{',\n        '  \"id\": \"dept_XXX\",',\n        '  \"unternehmen_id\": \"' + $json.unternehmen.id + '\",',\n        '  \"name\": \"Abteilungsname\",',\n        '  \"ebene\": Zahl (1-' + $json.config.hierarchie_ebenen + '),',\n        '  \"parent_id\": \"dept_XXX\" oder null für Ebene 1,',\n        '  \"budget_euro\": Zahl,',\n        '  \"mitarbeiteranzahl\": Zahl',\n        '}',\n        '',\n        'Wichtig:',\n        '- Ebene 1: Geschäftsleitung (1 Abteilung)',\n        '- Ebene 2: Hauptabteilungen (4-6 Abteilungen)',\n        '- Ebene 3+: Unterabteilungen',\n        '- parent_id muss auf existierende übergeordnete Abteilung verweisen',\n        '- Summe der Mitarbeiter sollte ca. ' + $json.unternehmen.mitarbeiteranzahl + ' ergeben',\n        '',\n        'Antworte NUR mit dem JSON-Array, ohne zusätzlichen Text.'\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.7\n}) }}",
         "options": {}
       },
       "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
       "name": "HTTP: Abteilungen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1050, 300]
+      "position": [
+        1050,
+        300
+      ]
     },
     {
       "parameters": {
@@ -134,7 +149,10 @@
       "name": "JSON parsen (Abteilungen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1250, 300]
+      "position": [
+        1250,
+        300
+      ]
     },
     {
       "parameters": {
@@ -155,14 +173,17 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein HR-Experte. Definiere realistische Rollen und Positionen für jede Abteilung eines Unternehmens.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Definiere für folgendes Unternehmen alle benötigten Rollen pro Abteilung:\\n\\nUnternehmen: \" + $json.unternehmen.name + \"\\nBranche: \" + $json.unternehmen.branche + \"\\n\\nAbteilungen:\\n\" + JSON.stringify($json.abteilungen.map(a => ({name: a.name, ebene: a.ebene, mitarbeiter: a.mitarbeiteranzahl})), null, 2) + \"\\n\\nErstelle ein JSON-Array mit Rollen. Jede Rolle hat:\\n{\\n  \\\"id\\\": \\\"role_XXX\\\",\\n  \\\"abteilung_id\\\": \\\"dept_XXX\\\",\\n  \\\"titel\\\": \\\"Rollentitel\\\",\\n  \\\"beschreibung\\\": \\\"Was macht diese Rolle\\\",\\n  \\\"ebene\\\": \\\"Entry/Mid/Senior/Lead/Executive\\\",\\n  \\\"anzahl_personen\\\": Zahl (wie viele Personen in dieser Rolle),\\n  \\\"gehalt_min\\\": Zahl,\\n  \\\"gehalt_max\\\": Zahl,\\n  \\\"anforderungen\\\": [\\\"Skill 1\\\", \\\"Skill 2\\\"]\\n}\\n\\nWichtig:\\n- Definiere 2-6 verschiedene Rollen pro Abteilung\\n- Berücksichtige Hierarchie (Leiter, Manager, Spezialisten, Mitarbeiter)\\n- Die Summe aller anzahl_personen pro Abteilung sollte ungefähr der Mitarbeiteranzahl der Abteilung entsprechen\\n- Gehälter realistisch nach Branche und Rolle\\n\\nAntworte NUR mit dem JSON-Array, ohne zusätzlichen Text.\"\n    }\n  ],\n  \"temperature\": 0.7\n} }}",
+        "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein HR-Experte. Definiere realistische Rollen und Positionen für jede Abteilung eines Unternehmens.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Definiere für folgendes Unternehmen alle benötigten Rollen pro Abteilung:',\n        '',\n        'Unternehmen: ' + $json.unternehmen.name,\n        'Branche: ' + $json.unternehmen.branche,\n        '',\n        'Abteilungen:',\n        JSON.stringify($json.abteilungen.map(a => ({ name: a.name, ebene: a.ebene, mitarbeiter: a.mitarbeiteranzahl })), null, 2),\n        '',\n        'Erstelle ein JSON-Array mit Rollen. Jede Rolle hat:',\n        '{',\n        '  \"id\": \"role_XXX\",',\n        '  \"abteilung_id\": \"dept_XXX\",',\n        '  \"titel\": \"Rollentitel\",',\n        '  \"beschreibung\": \"Was macht diese Rolle\",',\n        '  \"ebene\": \"Entry/Mid/Senior/Lead/Executive\",',\n        '  \"anzahl_personen\": Zahl (wie viele Personen in dieser Rolle),',\n        '  \"gehalt_min\": Zahl,',\n        '  \"gehalt_max\": Zahl,',\n        '  \"anforderungen\": [\"Skill 1\", \"Skill 2\"]',\n        '}',\n        '',\n        'Wichtig:',\n        '- Definiere 2-6 verschiedene Rollen pro Abteilung',\n        '- Berücksichtige Hierarchie (Leiter, Manager, Spezialisten, Mitarbeiter)',\n        '- Die Summe aller anzahl_personen pro Abteilung sollte ungefähr der Mitarbeiteranzahl der Abteilung entsprechen',\n        '- Gehälter realistisch nach Branche und Rolle',\n        '',\n        'Antworte NUR mit dem JSON-Array, ohne zusätzlichen Text.'\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.7\n}) }}",
         "options": {}
       },
       "id": "d1e2f3a4-b5c6-7890-cdef-234567890131",
       "name": "HTTP: Rollen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1450, 300]
+      "position": [
+        1450,
+        300
+      ]
     },
     {
       "parameters": {
@@ -172,7 +193,10 @@
       "name": "JSON parsen (Rollen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1650, 300]
+      "position": [
+        1650,
+        300
+      ]
     },
     {
       "parameters": {
@@ -193,14 +217,17 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Du bist ein HR-Experte. Erstelle realistische fiktive Mitarbeiterprofile mit Namen, die zur Unternehmenskultur und zum Land passen.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Erstelle fiktive Mitarbeiter für folgendes Unternehmen:\\n\\nUnternehmen: \" + $json.unternehmen.name + \"\\nLand: \" + $json.config.land + \"\\nBranche: \" + $json.unternehmen.branche + \"\\n\\nRollen:\\n\" + JSON.stringify($json.rollen.slice(0, 20).map(r => ({titel: r.titel, abteilung_id: r.abteilung_id, anzahl: r.anzahl_personen, gehalt_range: r.gehalt_min + '-' + r.gehalt_max})), null, 2) + \"\\n\\nErstelle ein JSON-Array mit Mitarbeitern. Jeder Mitarbeiter hat:\\n{\\n  \\\"id\\\": \\\"emp_XXX\\\",\\n  \\\"rolle_id\\\": \\\"role_XXX\\\",\\n  \\\"abteilung_id\\\": \\\"dept_XXX\\\",\\n  \\\"vorname\\\": \\\"Vorname\\\",\\n  \\\"nachname\\\": \\\"Nachname\\\",\\n  \\\"email\\\": \\\"vorname.nachname@domain.de\\\",\\n  \\\"telefon\\\": \\\"+49 ...\\\",\\n  \\\"alter\\\": Zahl (25-65),\\n  \\\"gehalt_euro\\\": Zahl (innerhalb der Rolle),\\n  \\\"eintrittsdatum\\\": \\\"YYYY-MM-DD\\\",\\n  \\\"vertrag\\\": \\\"Vollzeit/Teilzeit\\\",\\n  \\\"standort\\\": \\\"\" + $json.unternehmen.hauptsitz + \"\\\"\\n}\\n\\nWichtig:\\n- Erstelle die in anzahl_personen angegebene Anzahl von Mitarbeitern pro Rolle\\n- Namen sollten zum Land passen (\" + $json.config.land + \")\\n- Diverse Namen verwenden (Geschlecht, Herkunft)\\n- Gehalt im angegebenen Bereich der Rolle\\n- Email-Domain: \" + ($json.unternehmen.webseite ? $json.unternehmen.webseite.replace('www.', '') : 'beispiel.de') + \"\\n- Eintrittsdatum zwischen Gründungsjahr (\" + $json.unternehmen.gruendungsjahr + \") und heute\\n- 85% Vollzeit, 15% Teilzeit\\n\\nAntworte NUR mit dem JSON-Array, ohne zusätzlichen Text.\"\n    }\n  ],\n  \"temperature\": 0.9\n} }}",
+        "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein HR-Experte. Erstelle realistische fiktive Mitarbeiterprofile mit Namen, die zur Unternehmenskultur und zum Land passen.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Erstelle fiktive Mitarbeiter für folgendes Unternehmen:',\n        '',\n        'Unternehmen: ' + $json.unternehmen.name,\n        'Land: ' + $json.config.land,\n        'Branche: ' + $json.unternehmen.branche,\n        '',\n        'Rollen:',\n        JSON.stringify($json.rollen.slice(0, 20).map(r => ({ titel: r.titel, abteilung_id: r.abteilung_id, anzahl: r.anzahl_personen, gehalt_range: r.gehalt_min + '-' + r.gehalt_max })), null, 2),\n        '',\n        'Erstelle ein JSON-Array mit Mitarbeitern. Jeder Mitarbeiter hat:',\n        '{',\n        '  \"id\": \"emp_XXX\",',\n        '  \"rolle_id\": \"role_XXX\",',\n        '  \"abteilung_id\": \"dept_XXX\",',\n        '  \"vorname\": \"Vorname\",',\n        '  \"nachname\": \"Nachname\",',\n        '  \"email\": \"vorname.nachname@domain.de\",',\n        '  \"telefon\": \"+49 ...\",',\n        '  \"alter\": Zahl (25-65),',\n        '  \"gehalt_euro\": Zahl (innerhalb der Rolle),',\n        '  \"eintrittsdatum\": \"YYYY-MM-DD\",',\n        '  \"vertrag\": \"Vollzeit/Teilzeit\",',\n        '  \"standort\": \"' + $json.unternehmen.hauptsitz + '\"',\n        '}',\n        '',\n        'Wichtig:',\n        '- Erstelle die in anzahl_personen angegebene Anzahl von Mitarbeitern pro Rolle',\n        '- Namen sollten zum Land passen (' + $json.config.land + ')',\n        '- Diverse Namen verwenden (Geschlecht, Herkunft)',\n        '- Gehalt im angegebenen Bereich der Rolle',\n        '- Email-Domain: ' + ($json.unternehmen.webseite ? $json.unternehmen.webseite.replace('www.', '') : 'beispiel.de'),\n        '- Eintrittsdatum zwischen Gründungsjahr (' + $json.unternehmen.gruendungsjahr + ') und heute',\n        '- 85% Vollzeit, 15% Teilzeit',\n        '',\n        'Antworte NUR mit dem JSON-Array, ohne zusätzlichen Text.'\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.9\n}) }}",
         "options": {}
       },
       "id": "d3e4f5a6-b7c8-9012-cdef-234567890133",
       "name": "HTTP: Mitarbeiter erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1850, 300]
+      "position": [
+        1850,
+        300
+      ]
     },
     {
       "parameters": {
@@ -210,7 +237,10 @@
       "name": "JSON parsen (Mitarbeiter)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2050, 300]
+      "position": [
+        2050,
+        300
+      ]
     },
     {
       "parameters": {
@@ -220,7 +250,10 @@
       "name": "Unternehmen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2250, 150]
+      "position": [
+        2250,
+        150
+      ]
     },
     {
       "parameters": {
@@ -230,7 +263,10 @@
       "name": "Abteilungen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2250, 250]
+      "position": [
+        2250,
+        250
+      ]
     },
     {
       "parameters": {
@@ -240,7 +276,10 @@
       "name": "Rollen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2250, 350]
+      "position": [
+        2250,
+        350
+      ]
     },
     {
       "parameters": {
@@ -250,7 +289,10 @@
       "name": "Mitarbeiter extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2250, 450]
+      "position": [
+        2250,
+        450
+      ]
     },
     {
       "parameters": {
@@ -263,7 +305,10 @@
       "name": "Unternehmen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [2450, 150]
+      "position": [
+        2450,
+        150
+      ]
     },
     {
       "parameters": {
@@ -276,7 +321,10 @@
       "name": "Abteilungen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [2450, 250]
+      "position": [
+        2450,
+        250
+      ]
     },
     {
       "parameters": {
@@ -289,7 +337,10 @@
       "name": "Rollen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [2450, 350]
+      "position": [
+        2450,
+        350
+      ]
     },
     {
       "parameters": {
@@ -302,7 +353,10 @@
       "name": "Mitarbeiter JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [2450, 450]
+      "position": [
+        2450,
+        450
+      ]
     },
     {
       "parameters": {
@@ -314,7 +368,10 @@
       "name": "Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
-      "position": [2650, 300]
+      "position": [
+        2650,
+        300
+      ]
     },
     {
       "parameters": {
@@ -326,7 +383,10 @@
       "name": "Dateien + Rollen zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
-      "position": [2850, 300]
+      "position": [
+        2850,
+        300
+      ]
     },
     {
       "parameters": {
@@ -338,7 +398,10 @@
       "name": "Alle Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
-      "position": [3050, 300]
+      "position": [
+        3050,
+        300
+      ]
     }
   ],
   "connections": {
