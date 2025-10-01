@@ -1,0 +1,427 @@
+{
+  "name": "Unternehmensstruktur Generator mit LLM",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "config_branche",
+              "name": "branche",
+              "value": "Technologie",
+              "type": "string"
+            },
+            {
+              "id": "config_groesse",
+              "name": "unternehmensgroesse",
+              "value": "Mittel (100-500 Mitarbeiter)",
+              "type": "string"
+            },
+            {
+              "id": "config_land",
+              "name": "land",
+              "value": "Deutschland",
+              "type": "string"
+            },
+            {
+              "id": "config_besonderheit",
+              "name": "besonderheit",
+              "value": "Fokus auf nachhaltige Lösungen",
+              "type": "string"
+            },
+            {
+              "id": "config_hierarchie",
+              "name": "hierarchie_ebenen",
+              "value": "3",
+              "type": "number"
+            },
+            {
+              "id": "config_apikey",
+              "name": "openai_api_key",
+              "value": "DEIN-OPENAI-API-KEY",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a0b1c2d3-e4f5-6789-abcd-ef0123456789",
+      "name": "Konfiguration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [450, 300],
+      "notes": "HIER ANPASSEN: Branche, Größe, Land, Besonderheiten und OpenAI API Key"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.openai_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4o-mini"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{\"role\": \"system\", \"content\": \"Du bist ein Experte für Unternehmensstrukturen. Erstelle realistische fiktive Unternehmensdaten im JSON-Format.\"}, {\"role\": \"user\", \"content\": \"Erstelle ein fiktives Unternehmen mit folgenden Vorgaben:\\n- Branche: \" + $json.branche + \"\\n- Größe: \" + $json.unternehmensgroesse + \"\\n- Land: \" + $json.land + \"\\n- Besonderheit: \" + $json.besonderheit + \"\\n\\nErstelle ein JSON-Objekt mit folgenden Feldern:\\n{\\n  \\\"id\\\": \\\"company_001\\\",\\n  \\\"name\\\": \\\"Firmenname\\\",\\n  \\\"branche\\\": \\\"Branche\\\",\\n  \\\"groesse\\\": \\\"Größenkategorie\\\",\\n  \\\"mitarbeiteranzahl\\\": Zahl,\\n  \\\"gruendungsjahr\\\": Jahr,\\n  \\\"hauptsitz\\\": \\\"Stadt\\\",\\n  \\\"beschreibung\\\": \\\"Beschreibung\\\",\\n  \\\"umsatz_mio\\\": Zahl,\\n  \\\"webseite\\\": \\\"www.beispiel.de\\\"\\n}\\n\\nAntworte NUR mit dem JSON-Objekt, ohne zusätzlichen Text.\"}] }}"
+            },
+            {
+              "name": "temperature",
+              "value": "0.8"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "HTTP: Unternehmen erstellen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// JSON aus OpenAI-Response extrahieren und parsen\nconst config = $('Konfiguration').first().json;\nconst response = $input.first().json.choices[0].message.content;\n\n// JSON extrahieren (falls in Markdown Code-Block)\nlet jsonStr = response;\nif (response.includes('```json')) {\n  jsonStr = response.split('```json')[1].split('```')[0].trim();\n} else if (response.includes('```')) {\n  jsonStr = response.split('```')[1].split('```')[0].trim();\n}\n\nconst unternehmen = JSON.parse(jsonStr);\n\n// Konfiguration mit Unternehmen zurückgeben\nreturn {\n  unternehmen,\n  config\n};"
+      },
+      "id": "b3c4d5e6-f7a8-9012-bcde-f12345678902",
+      "name": "JSON parsen (Unternehmen)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.config.openai_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4o-mini"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{\"role\": \"system\", \"content\": \"Du bist ein Experte für Organisationsstrukturen. Erstelle realistische hierarchische Abteilungsstrukturen im JSON-Format.\"}, {\"role\": \"user\", \"content\": \"Erstelle eine hierarchische Abteilungsstruktur für folgendes Unternehmen:\\n\\nUnternehmen: \" + $json.unternehmen.name + \"\\nBranche: \" + $json.unternehmen.branche + \"\\nMitarbeiter: \" + $json.unternehmen.mitarbeiteranzahl + \"\\n\\nErstelle \" + $json.config.hierarchie_ebenen + \" Hierarchie-Ebenen mit passenden Abteilungen.\\n\\nErstelle ein JSON-Array mit Abteilungen. Jede Abteilung hat:\\n{\\n  \\\"id\\\": \\\"dept_XXX\\\",\\n  \\\"unternehmen_id\\\": \\\"\" + $json.unternehmen.id + \"\\\",\\n  \\\"name\\\": \\\"Abteilungsname\\\",\\n  \\\"ebene\\\": Zahl (1-\" + $json.config.hierarchie_ebenen + \"),\\n  \\\"parent_id\\\": \\\"dept_XXX\\\" oder null für Ebene 1,\\n  \\\"budget_euro\\\": Zahl,\\n  \\\"mitarbeiteranzahl\\\": Zahl\\n}\\n\\nWichtig:\\n- Ebene 1: Geschäftsleitung (1 Abteilung)\\n- Ebene 2: Hauptabteilungen (4-6 Abteilungen)\\n- Ebene 3+: Unterabteilungen\\n- parent_id muss auf existierende übergeordnete Abteilung verweisen\\n- Summe der Mitarbeiter sollte ca. \" + $json.unternehmen.mitarbeiteranzahl + \" ergeben\\n\\nAntworte NUR mit dem JSON-Array, ohne zusätzlichen Text.\"}] }}"
+            },
+            {
+              "name": "temperature",
+              "value": "0.7"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "name": "HTTP: Abteilungen erstellen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// JSON aus OpenAI-Response extrahieren und parsen\nconst response = $input.first().json.choices[0].message.content;\nconst unternehmen = $input.first().json.unternehmen;\n\n// JSON extrahieren (falls in Markdown Code-Block)\nlet jsonStr = response;\nif (response.includes('```json')) {\n  jsonStr = response.split('```json')[1].split('```')[0].trim();\n} else if (response.includes('```')) {\n  jsonStr = response.split('```')[1].split('```')[0].trim();\n}\n\nconst abteilungen = JSON.parse(jsonStr);\n\nreturn { unternehmen, abteilungen };"
+      },
+      "id": "c4d5e6f7-a8b9-0123-cdef-123456789013",
+      "name": "JSON parsen (Abteilungen)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mitarbeiter erstellen und Abteilungen zuordnen\nconst data = $input.first().json;\nconst unternehmen = data.unternehmen;\nconst abteilungen = data.abteilungen;\n\nconst vornamen = ['Max', 'Anna', 'Thomas', 'Julia', 'Michael', 'Sarah', 'Andreas', 'Laura', 'Stefan', 'Lisa', 'Markus', 'Sandra', 'Christian', 'Nina', 'Daniel', 'Katharina', 'Sebastian', 'Maria', 'Florian', 'Jennifer', 'Peter', 'Sophie', 'Martin', 'Emma', 'Oliver'];\nconst nachnamen = ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann', 'Koch', 'Richter', 'Klein', 'Wolf', 'Schröder', 'Neumann', 'Schwarz', 'Zimmermann', 'Braun', 'Hofmann', 'Krause', 'Hartmann', 'Lange', 'Werner', 'Schmitt'];\n\n// Typische Positionen nach Hierarchie-Ebene\nconst positionenNachEbene = {\n  1: ['CEO', 'CFO', 'CTO', 'COO', 'Geschäftsführer'],\n  2: ['Abteilungsleiter', 'Bereichsleiter', 'Director', 'Head of'],\n  3: ['Teamleiter', 'Manager', 'Senior Spezialist', 'Lead'],\n  4: ['Spezialist', 'Mitarbeiter', 'Koordinator', 'Referent']\n};\n\nconst mitarbeiter = [];\nlet mitarbeiter_counter = 1;\nconst verwendeteNamen = new Set();\n\n// Für jede Abteilung Mitarbeiter erstellen\nabteilungen.forEach(abt => {\n  // Anzahl Mitarbeiter basierend auf Abteilungsgröße (reduziert für Demo)\n  const anzahl = Math.max(2, Math.ceil(abt.mitarbeiteranzahl / 15));\n  const ebene = abt.ebene || 2;\n  const positionen = positionenNachEbene[ebene] || positionenNachEbene[3];\n  \n  for (let i = 0; i < anzahl; i++) {\n    // Eindeutige Namen generieren\n    let vorname, nachname, vollname;\n    let versuche = 0;\n    do {\n      vorname = vornamen[Math.floor(Math.random() * vornamen.length)];\n      nachname = nachnamen[Math.floor(Math.random() * nachnamen.length)];\n      vollname = `${vorname} ${nachname}`;\n      versuche++;\n    } while (verwendeteNamen.has(vollname) && versuche < 100);\n    \n    verwendeteNamen.add(vollname);\n    \n    const alter = 25 + Math.floor(Math.random() * 30);\n    const gehalt = 35000 + (ebene * 15000) + Math.floor(Math.random() * 30000);\n    const domain = unternehmen.webseite ? unternehmen.webseite.replace('www.', '') : 'beispiel.de';\n    \n    // Position basierend auf Hierarchie und Index\n    let position;\n    if (i === 0 && ebene <= 2) {\n      position = abt.name + '-Leiter';\n    } else {\n      position = positionen[Math.floor(Math.random() * positionen.length)];\n    }\n    \n    mitarbeiter.push({\n      id: `emp_${String(mitarbeiter_counter).padStart(3, '0')}`,\n      unternehmen_id: unternehmen.id,\n      abteilung_id: abt.id,\n      vorname: vorname,\n      nachname: nachname,\n      vollname: vollname,\n      position: position,\n      email: `${vorname.toLowerCase()}.${nachname.toLowerCase()}@${domain}`,\n      telefon: `+49 ${Math.floor(Math.random() * 900 + 100)} ${Math.floor(Math.random() * 9000000 + 1000000)}`,\n      alter: alter,\n      gehalt_euro: gehalt,\n      eintrittsdatum: `${unternehmen.gruendungsjahr + Math.floor(Math.random() * (2025 - unternehmen.gruendungsjahr))}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-01`,\n      vertrag: Math.random() > 0.15 ? 'Vollzeit' : 'Teilzeit'\n    });\n    \n    mitarbeiter_counter++;\n  }\n});\n\nreturn { unternehmen, abteilungen, mitarbeiter };"
+      },
+      "id": "d4e5f6a7-b8c9-0123-def0-123456789013",
+      "name": "Mitarbeiter erstellen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nur Unternehmen extrahieren\nconst { unternehmen } = $input.first().json;\nreturn { json: unternehmen };"
+      },
+      "id": "e1f2a3b4-c5d6-7890-ef01-234567890121",
+      "name": "Unternehmen extrahieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nur Abteilungen extrahieren\nconst { abteilungen } = $input.first().json;\nreturn abteilungen.map(abt => ({ json: abt }));"
+      },
+      "id": "e2f3a4b5-c6d7-8901-ef12-234567890122",
+      "name": "Abteilungen extrahieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nur Mitarbeiter extrahieren\nconst { mitarbeiter } = $input.first().json;\nreturn mitarbeiter.map(ma => ({ json: ma }));"
+      },
+      "id": "e3f4a5b6-c7d8-9012-ef23-234567890123",
+      "name": "Mitarbeiter extrahieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, 400]
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "fileName": "unternehmen.json"
+        }
+      },
+      "id": "e5f6a7b8-c9d0-1234-ef01-234567890124",
+      "name": "Unternehmen JSON",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [1850, 200]
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "fileName": "abteilungen.json"
+        }
+      },
+      "id": "f6a7b8c9-d0e1-2345-f012-345678901235",
+      "name": "Abteilungen JSON",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [1850, 300]
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "fileName": "mitarbeiter.json"
+        }
+      },
+      "id": "a7b8c9d0-e1f2-3456-0123-456789012346",
+      "name": "Mitarbeiter JSON",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [1850, 400]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "id": "b8c9d0e1-f2a3-4567-1234-567890123457",
+      "name": "Dateien zusammenführen",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [2050, 300]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Konfiguration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konfiguration": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Unternehmen erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Unternehmen erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Unternehmen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Unternehmen)": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Abteilungen erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Abteilungen erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Abteilungen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Abteilungen)": {
+      "main": [
+        [
+          {
+            "node": "Mitarbeiter erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mitarbeiter erstellen": {
+      "main": [
+        [
+          {
+            "node": "Unternehmen extrahieren",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Abteilungen extrahieren",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mitarbeiter extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unternehmen extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Unternehmen JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abteilungen extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Abteilungen JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mitarbeiter extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Mitarbeiter JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unternehmen JSON": {
+      "main": [
+        [
+          {
+            "node": "Dateien zusammenführen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abteilungen JSON": {
+      "main": [
+        [
+          {
+            "node": "Dateien zusammenführen",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Mitarbeiter JSON": {
+      "main": [
+        [
+          {
+            "node": "Dateien zusammenführen",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-01T12:00:00.000Z",
+  "versionId": "1"
+}
