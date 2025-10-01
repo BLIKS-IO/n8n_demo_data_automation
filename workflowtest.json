@@ -54,8 +54,8 @@
             },
             {
               "id": "config_apqc_url",
-              "name": "apqc_file_url",
-              "value": "https://raw.githubusercontent.com/BLIKS-IO/n8n_demo_data_automation/main/APQC%20Cross%20industry%20deutsch.xlsx",
+              "name": "apqc_data_url",
+              "value": "https://raw.githubusercontent.com/BLIKS-IO/n8n_demo_data_automation/main/apqc.json",
               "type": "string"
             }
           ]
@@ -412,8 +412,8 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ $json.apqc_file_url }}",
-        "responseFormat": "file",
+        "url": "={{ $json.apqc_data_url }}",
+        "responseFormat": "json",
         "options": {}
       },
       "id": "f8a9b0c1-d2e3-4567-f890-123456789147",
@@ -427,20 +427,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const item = $input.first();\nif (!item.binary || !item.binary.data || !item.binary.data.data) {\n  throw new Error('Keine Excel-Binärdaten gefunden (binary.data)');\n}\nconst buffer = Buffer.from(item.binary.data.data, 'base64');\nconst xlsx = require('xlsx');\nconst workbook = xlsx.read(buffer, { type: 'buffer' });\nconst sheetName = workbook.SheetNames[0];\nif (!sheetName) {\n  return [];\n}\nconst sheet = workbook.Sheets[sheetName];\nconst rows = xlsx.utils.sheet_to_json(sheet, { defval: '' });\nreturn rows.map(row => ({ json: row }));"
-      },
-      "id": "f9a0b1c2-d3e4-5678-f901-234567890148",
-      "name": "APQC Tabelle zu JSON",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        850,
-        120
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const rows = $input.all().map(item => item.json);\nconst processes = rows\n  .filter(row => String(row['Hierarchy'] ?? row['Hierarchy ID']).trim() === '3')\n  .map(row => ({\n    pcf_id: row['PCF ID'],\n    hierarchy_id: row['Hierarchy ID'],\n    name: row['Name'] ?? row['Name (German Translation) (not veriied)'] ?? row['Name (German Translation) (not verified)'] ?? '',\n    description: row['Element Description'] ?? row['Element Description (German Translation) (not verfied)'] ?? row['Element Description (German Translation) (not verified)'] ?? ''\n  }));\nreturn [{ json: { apqcProcesses: processes } }];"
+        "jsCode": "const items = $input.all();\nlet rows = [];\nfor (const item of items) {\n  const data = item.json;\n  if (Array.isArray(data)) {\n    rows = rows.concat(data);\n  } else if (data && Array.isArray(data.data)) {\n    rows = rows.concat(data.data);\n  } else if (data) {\n    rows.push(data);\n  }\n}\nconst processes = rows\n  .filter(row => String(row['Hierarchy ID'] ?? row['Hierarchy']).trim() === '3')\n  .map(row => ({\n    pcf_id: row['PCF ID'],\n    hierarchy_id: row['Hierarchy ID'],\n    name: row['Name'] ?? row['Name (German Translation) (not veriied)'] ?? row['Name (German Translation) (not verified)'] ?? '',\n    description: row['Element Description'] ?? row['Element Description (German Translation) (not verfied)'] ?? row['Element Description (German Translation) (not verified)'] ?? ''\n  }));\nreturn [{ json: { apqcProcesses: processes } }];"
       },
       "id": "g0a1b2c3-d4e5-6789-fa01-345678901459",
       "name": "APQC Prozesse filtern",
@@ -799,7 +786,7 @@
       "main": [
         [
           {
-            "node": "APQC Tabelle zu JSON",
+            "node": "APQC Prozesse filtern",
             "type": "main",
             "index": 0
           }
