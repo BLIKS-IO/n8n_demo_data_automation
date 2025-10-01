@@ -53,9 +53,9 @@
               "type": "string"
             },
             {
-              "id": "config_apqc_path",
-              "name": "apqc_file_path",
-              "value": "/data/apqc_process_framework.xlsx",
+              "id": "config_apqc_url",
+              "name": "apqc_file_url",
+              "value": "https://raw.githubusercontent.com/BLIKS-IO/n8n_demo_data_automation/main/APQC%20Cross%20industry%20deutsch.xlsx",
               "type": "string"
             }
           ]
@@ -411,12 +411,15 @@
     },
     {
       "parameters": {
-        "filePath": "={{ $json.apqc_file_path }}"
+        "method": "GET",
+        "url": "={{ $json.apqc_file_url }}",
+        "responseFormat": "file",
+        "options": {}
       },
       "id": "f8a9b0c1-d2e3-4567-f890-123456789147",
       "name": "APQC Datei lesen",
-      "type": "n8n-nodes-base.readBinaryFile",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         650,
         120
@@ -439,7 +442,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const rows = $input.all().map(item => item.json);\nconst processes = rows\n  .filter(row => String(row['Hierarchy ID']).trim() === '3')\n  .map(row => ({\n    pcf_id: row['PCF ID'],\n    hierarchy_id: row['Hierarchy ID'],\n    name: row['Name'],\n    description: row['Element Description']\n  }));\nreturn [{ json: { apqcProcesses: processes } }];"
+        "jsCode": "const rows = $input.all().map(item => item.json);\nconst processes = rows\n  .filter(row => String(row['Hierarchy'] ?? row['Hierarchy ID']).trim() === '3')\n  .map(row => ({\n    pcf_id: row['PCF ID'],\n    hierarchy_id: row['Hierarchy ID'],\n    name: row['Name'] ?? row['Name (German Translation) (not veriied)'] ?? row['Name (German Translation) (not verified)'] ?? '',\n    description: row['Element Description'] ?? row['Element Description (German Translation) (not verfied)'] ?? row['Element Description (German Translation) (not verified)'] ?? ''\n  }));\nreturn [{ json: { apqcProcesses: processes } }];"
       },
       "id": "g0a1b2c3-d4e5-6789-fa01-345678901459",
       "name": "APQC Prozesse filtern",
