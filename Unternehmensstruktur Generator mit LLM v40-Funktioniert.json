@@ -1412,6 +1412,11 @@
             "node": "JSON parsen (Prozesse)",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Aktivitätsiteration vorbereiten",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -1421,17 +1426,6 @@
         [
           {
             "node": "Prozessiteration vorbereiten",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Prozessiteration Abschluss": {
-      "main": [
-        [
-          {
-            "node": "Aktivitätsiteration vorbereiten",
             "type": "main",
             "index": 0
           }
