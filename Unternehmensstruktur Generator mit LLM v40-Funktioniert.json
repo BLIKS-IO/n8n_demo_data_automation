@@ -73,7 +73,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    return {};\n  }\n};\n\n// Try to get context from either Demo-Daten or JSON parsen (Rollen)\nconst demoData = getNodeJson('Demo-Daten (Alle)');\nconst apiData = getNodeJson('JSON parsen (Rollen)');\nconst contextData = demoData.unternehmen ? demoData : apiData;\n\nconst processData = getNodeJson('APQC Prozesse filtern');\nconst activityData = getNodeJson('APQC Aktivitäten filtern');\n\nreturn [{\n  json: {\n    ...contextData,\n    apqcProcesses: processData.apqcProcesses ?? [],\n    apqcActivities: activityData.apqcActivities ?? [],\n    apqcActivitiesByProcess: activityData.apqcActivitiesByProcess ?? {},\n  },\n}];\n"
+        "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    console.log('Error getting node', nodeName, ':', error.message);\n    return {};\n  }\n};\n\n// Try to get context from either Demo-Daten or JSON parsen (Rollen)\nconst demoData = getNodeJson('Demo-Daten (Alle)');\nconst apiData = getNodeJson('JSON parsen (Rollen)');\nconst contextData = demoData.unternehmen ? demoData : apiData;\n\nconst processData = getNodeJson('APQC Prozesse filtern');\nconst activityData = getNodeJson('APQC Aktivitäten filtern');\n\n// DEBUG: Zeige was von den anderen Nodes kommt\nconsole.log('=== KONTEXT + PROZESSE DEBUG ===');\nconsole.log('Demo data has unternehmen:', !!demoData.unternehmen);\nconsole.log('API data has unternehmen:', !!apiData.unternehmen);\nconsole.log('Using demo data:', demoData.unternehmen ? true : false);\nconsole.log('Process data keys:', Object.keys(processData));\nconsole.log('APQC Processes:', processData.apqcProcesses?.length ?? 0);\nconsole.log('First 3 APQC:', processData.apqcProcesses?.slice(0, 3).map(p => ({ pcf_id: p.pcf_id, name: p.name })));\n\nreturn [{\n  json: {\n    ...contextData,\n    apqcProcesses: processData.apqcProcesses ?? [],\n    apqcActivities: activityData.apqcActivities ?? [],\n    apqcActivitiesByProcess: activityData.apqcActivitiesByProcess ?? {},\n  },\n}];\n"
       },
       "id": "13e451fb-4c04-4d52-a0ea-c39841f4e9aa",
       "name": "Kontext + Prozesse",
@@ -94,7 +94,13 @@
     {
       "parameters": {
         "url": "={{ $json.apqc_data_url }}",
-        "options": {}
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
       },
       "id": "d503f05c-f695-4fc1-a0ea-8ead5400cf0f",
       "name": "APQC Datei lesen",
