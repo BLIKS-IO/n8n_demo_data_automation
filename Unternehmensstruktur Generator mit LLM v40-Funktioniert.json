@@ -76,7 +76,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    return {};\n  }\n};\n\nconst processData = getNodeJson('APQC Prozesse filtern');\nconst activityData = getNodeJson('APQC Aktivitäten filtern');\nconst demoData = getNodeJson('Demo-Daten (Alle)');\n\nreturn [{\n  json: {\n    unternehmen: demoData.unternehmen ?? {},\n    abteilungen: demoData.abteilungen ?? [],\n    rollen: demoData.rollen ?? [],\n    config: demoData.config ?? {},\n    apqcProcesses: processData.apqcProcesses ?? [],\n    apqcActivities: activityData.apqcActivities ?? [],\n    apqcActivitiesByProcess: activityData.apqcActivitiesByProcess ?? {},\n  },\n}];\n"
+        "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    return {};\n  }\n};\n\nconst contextData = getNodeJson('JSON parsen (Rollen)');\nconst processData = getNodeJson('APQC Prozesse filtern');\nconst activityData = getNodeJson('APQC Aktivitäten filtern');\n\nreturn [{\n  json: {\n    ...contextData,\n    apqcProcesses: processData.apqcProcesses ?? [],\n    apqcActivities: activityData.apqcActivities ?? [],\n    apqcActivitiesByProcess: activityData.apqcActivitiesByProcess ?? {},\n  },\n}];\n"
       },
       "id": "4f85c2d7-8406-450f-8def-c30c8040856e",
       "name": "Kontext + Prozesse",
@@ -367,13 +367,23 @@
     },
     {
       "parameters": {
-        "jsCode": "const config = $('Konfiguration').first().json;\n\nconst unternehmen = {\n  \"id\": \"12345678\",\n  \"name\": \"EcoTech Solutions GmbH\",\n  \"branche\": \"Technologie\",\n  \"groesse\": \"Mittel\",\n  \"mitarbeiteranzahl\": 250,\n  \"gruendungsjahr\": 2015,\n  \"hauptsitz\": \"Berlin, Deutschland\",\n  \"beschreibung\": \"EcoTech Solutions GmbH entwickelt innovative Technologien mit einem klaren Fokus auf nachhaltige Lösungen. Unsere Produkte und Dienstleistungen unterstützen Unternehmen dabei, umweltfreundlicher zu arbeiten und ihre CO2-Bilanz zu verbessern.\",\n  \"umsatz_mio\": 45,\n  \"webseite\": \"www.ecotechsolutions.de\"\n};\n\nconst abteilungen = [\n  {\"id\": \"dept_001\", \"unternehmen_id\": \"12345678\", \"name\": \"Geschäftsführung\", \"ebene\": 1, \"parent_id\": null, \"budget_euro\": 500000, \"mitarbeiteranzahl\": 5},\n  {\"id\": \"dept_002\", \"unternehmen_id\": \"12345678\", \"name\": \"Forschung & Entwicklung\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 1200000, \"mitarbeiteranzahl\": 80},\n  {\"id\": \"dept_003\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertrieb\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 800000, \"mitarbeiteranzahl\": 40},\n  {\"id\": \"dept_004\", \"unternehmen_id\": \"12345678\", \"name\": \"Marketing\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 600000, \"mitarbeiteranzahl\": 30},\n  {\"id\": \"dept_005\", \"unternehmen_id\": \"12345678\", \"name\": \"IT-Support\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 300000, \"mitarbeiteranzahl\": 15},\n  {\"id\": \"dept_006\", \"unternehmen_id\": \"12345678\", \"name\": \"Finanzen\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 400000, \"mitarbeiteranzahl\": 10},\n  {\"id\": \"dept_007\", \"unternehmen_id\": \"12345678\", \"name\": \"Produktentwicklung\", \"ebene\": 3, \"parent_id\": \"dept_002\", \"budget_euro\": 700000, \"mitarbeiteranzahl\": 50},\n  {\"id\": \"dept_008\", \"unternehmen_id\": \"12345678\", \"name\": \"Qualitätssicherung\", \"ebene\": 3, \"parent_id\": \"dept_002\", \"budget_euro\": 200000, \"mitarbeiteranzahl\": 20},\n  {\"id\": \"dept_009\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertrieb Innendienst\", \"ebene\": 3, \"parent_id\": \"dept_003\", \"budget_euro\": 300000, \"mitarbeiteranzahl\": 20},\n  {\"id\": \"dept_010\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertrieb Außendienst\", \"ebene\": 3, \"parent_id\": \"dept_003\", \"budget_euro\": 500000, \"mitarbeiteranzahl\": 20},\n  {\"id\": \"dept_011\", \"unternehmen_id\": \"12345678\", \"name\": \"Content Marketing\", \"ebene\": 3, \"parent_id\": \"dept_004\", \"budget_euro\": 250000, \"mitarbeiteranzahl\": 10},\n  {\"id\": \"dept_012\", \"unternehmen_id\": \"12345678\", \"name\": \"SEO/SEM\", \"ebene\": 3, \"parent_id\": \"dept_004\", \"budget_euro\": 200000, \"mitarbeiteranzahl\": 10},\n  {\"id\": \"dept_013\", \"unternehmen_id\": \"12345678\", \"name\": \"Helpdesk\", \"ebene\": 3, \"parent_id\": \"dept_005\", \"budget_euro\": 150000, \"mitarbeiteranzahl\": 5}\n];\n\nconst rollen = [\n  {\"id\": \"role_001\", \"abteilung_id\": \"dept_001\", \"titel\": \"Geschäftsführer\", \"beschreibung\": \"Leitet das Unternehmen und verantwortet die strategische Ausrichtung.\", \"ebene\": \"Executive\", \"anzahl_personen\": 1, \"gehalt_min\": 120000, \"gehalt_max\": 180000, \"anforderungen\": [\"Führungskompetenz\", \"Strategisches Denken\"]},\n  {\"id\": \"role_002\", \"abteilung_id\": \"dept_001\", \"titel\": \"Assistenz der Geschäftsführung\", \"beschreibung\": \"Unterstützt die Geschäftsführung bei administrativen Aufgaben und Projekten.\", \"ebene\": \"Mid\", \"anzahl_personen\": 1, \"gehalt_min\": 50000, \"gehalt_max\": 70000, \"anforderungen\": [\"Organisationstalent\", \"Kommunikationsfähigkeit\"]},\n  {\"id\": \"role_003\", \"abteilung_id\": \"dept_002\", \"titel\": \"Forschungsleiter\", \"beschreibung\": \"Leitet das Forschungsteam und koordiniert Forschungsprojekte.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 90000, \"gehalt_max\": 130000, \"anforderungen\": [\"Projektmanagement\", \"Technisches Wissen\"]},\n  {\"id\": \"role_004\", \"abteilung_id\": \"dept_002\", \"titel\": \"Forschungsingenieur\", \"beschreibung\": \"Entwickelt neue Technologien und Produkte im Bereich Forschung.\", \"ebene\": \"Senior\", \"anzahl_personen\": 5, \"gehalt_min\": 70000, \"gehalt_max\": 100000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Programmierung\"]},\n  {\"id\": \"role_005\", \"abteilung_id\": \"dept_002\", \"titel\": \"Praktikant Forschung\", \"beschreibung\": \"Unterstützt das Team bei der Durchführung von Experimenten und Analysen.\", \"ebene\": \"Entry\", \"anzahl_personen\": 5, \"gehalt_min\": 30000, \"gehalt_max\": 40000, \"anforderungen\": [\"Kommunikationsfähigkeit\", \"Teamarbeit\"]},\n  {\"id\": \"role_006\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsleiter\", \"beschreibung\": \"Leitet das Vertriebsteam und entwickelt Vertriebsstrategien.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 80000, \"gehalt_max\": 120000, \"anforderungen\": [\"Verhandlungsgeschick\", \"Kundenorientierung\"]},\n  {\"id\": \"role_007\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsmitarbeiter Innendienst\", \"beschreibung\": \"Bearbeitet Kundenanfragen und unterstützt den Außendienst.\", \"ebene\": \"Mid\", \"anzahl_personen\": 10, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Verkaufskompetenz\", \"Kundenservice\"]},\n  {\"id\": \"role_008\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsmitarbeiter Außendienst\", \"beschreibung\": \"Akquiriert neue Kunden und pflegt bestehende Kundenbeziehungen.\", \"ebene\": \"Senior\", \"anzahl_personen\": 9, \"gehalt_min\": 60000, \"gehalt_max\": 90000, \"anforderungen\": [\"Selbstmotivation\", \"Verhandlungsgeschick\"]},\n  {\"id\": \"role_009\", \"abteilung_id\": \"dept_004\", \"titel\": \"Marketingmanager\", \"beschreibung\": \"Entwickelt und implementiert Marketingstrategien.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 70000, \"gehalt_max\": 100000, \"anforderungen\": [\"Kreativität\", \"Analytische Fähigkeiten\"]},\n  {\"id\": \"role_010\", \"abteilung_id\": \"dept_004\", \"titel\": \"Content Creator\", \"beschreibung\": \"Erstellt Inhalte für verschiedene Marketingkanäle.\", \"ebene\": \"Mid\", \"anzahl_personen\": 5, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Schreibkompetenz\", \"Kreativität\"]},\n  {\"id\": \"role_011\", \"abteilung_id\": \"dept_004\", \"titel\": \"SEO/SEM Spezialist\", \"beschreibung\": \"Optimiert die Online-Sichtbarkeit und führt Kampagnen durch.\", \"ebene\": \"Senior\", \"anzahl_personen\": 4, \"gehalt_min\": 50000, \"gehalt_max\": 80000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Technisches Wissen\"]},\n  {\"id\": \"role_012\", \"abteilung_id\": \"dept_005\", \"titel\": \"IT-Support Spezialist\", \"beschreibung\": \"Bietet technischen Support und löst IT-Probleme.\", \"ebene\": \"Mid\", \"anzahl_personen\": 7, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Technisches Wissen\", \"Problemlösungsfähigkeiten\"]},\n  {\"id\": \"role_013\", \"abteilung_id\": \"dept_005\", \"titel\": \"Helpdesk Mitarbeiter\", \"beschreibung\": \"Bearbeitet Supportanfragen und sorgt für Kundenzufriedenheit.\", \"ebene\": \"Entry\", \"anzahl_personen\": 5, \"gehalt_min\": 30000, \"gehalt_max\": 40000, \"anforderungen\": [\"Kommunikationsfähigkeit\", \"Technisches Wissen\"]},\n  {\"id\": \"role_014\", \"abteilung_id\": \"dept_006\", \"titel\": \"Finanzleiter\", \"beschreibung\": \"Verantwortet die Finanzstrategie und das Budget des Unternehmens.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 80000, \"gehalt_max\": 120000, \"anforderungen\": [\"Finanzanalyse\", \"Führungskompetenz\"]},\n  {\"id\": \"role_015\", \"abteilung_id\": \"dept_006\", \"titel\": \"Buchhalter\", \"beschreibung\": \"Verarbeitet Buchhaltungsunterlagen und erstellt Finanzberichte.\", \"ebene\": \"Mid\", \"anzahl_personen\": 4, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Detailgenauigkeit\", \"Analytische Fähigkeiten\"]},\n  {\"id\": \"role_016\", \"abteilung_id\": \"dept_006\", \"titel\": \"Finanzanalyst\", \"beschreibung\": \"Analysiert Finanzdaten und unterstützt bei der Budgetplanung.\", \"ebene\": \"Senior\", \"anzahl_personen\": 5, \"gehalt_min\": 60000, \"gehalt_max\": 90000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Finanzkenntnisse\"]}\n];\n\nreturn [{ json: { unternehmen, abteilungen, rollen, config } }];\n"
+        "jsCode": "const config = $('Konfiguration').first().json;\n\n// Nur ausführen, wenn use_demo_data aktiviert ist\nif (config.use_demo_data !== true) {\n  return [];\n}\n\nconst unternehmen = {\n  \"id\": \"12345678\",\n  \"name\": \"EcoTech Solutions GmbH\",\n  \"branche\": \"Technologie\",\n  \"groesse\": \"Mittel\",\n  \"mitarbeiteranzahl\": 250,\n  \"gruendungsjahr\": 2015,\n  \"hauptsitz\": \"Berlin, Deutschland\",\n  \"beschreibung\": \"EcoTech Solutions GmbH entwickelt innovative Technologien mit einem klaren Fokus auf nachhaltige Lösungen. Unsere Produkte und Dienstleistungen unterstützen Unternehmen dabei, umweltfreundlicher zu arbeiten und ihre CO2-Bilanz zu verbessern.\",\n  \"umsatz_mio\": 45,\n  \"webseite\": \"www.ecotechsolutions.de\"\n};\n\nconst abteilungen = [\n  {\"id\": \"dept_001\", \"unternehmen_id\": \"12345678\", \"name\": \"Geschäftsführung\", \"ebene\": 1, \"parent_id\": null, \"budget_euro\": 500000, \"mitarbeiteranzahl\": 5},\n  {\"id\": \"dept_002\", \"unternehmen_id\": \"12345678\", \"name\": \"Forschung & Entwicklung\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 1200000, \"mitarbeiteranzahl\": 80},\n  {\"id\": \"dept_003\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertrieb\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 800000, \"mitarbeiteranzahl\": 40},\n  {\"id\": \"dept_004\", \"unternehmen_id\": \"12345678\", \"name\": \"Marketing\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 600000, \"mitarbeiteranzahl\": 30},\n  {\"id\": \"dept_005\", \"unternehmen_id\": \"12345678\", \"name\": \"IT-Support\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 300000, \"mitarbeiteranzahl\": 15},\n  {\"id\": \"dept_006\", \"unternehmen_id\": \"12345678\", \"name\": \"Finanzen\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 400000, \"mitarbeiteranzahl\": 10},\n  {\"id\": \"dept_007\", \"unternehmen_id\": \"12345678\", \"name\": \"Produktentwicklung\", \"ebene\": 3, \"parent_id\": \"dept_002\", \"budget_euro\": 700000, \"mitarbeiteranzahl\": 50},\n  {\"id\": \"dept_008\", \"unternehmen_id\": \"12345678\", \"name\": \"Qualitätssicherung\", \"ebene\": 3, \"parent_id\": \"dept_002\", \"budget_euro\": 200000, \"mitarbeiteranzahl\": 20},\n  {\"id\": \"dept_009\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertrieb Innendienst\", \"ebene\": 3, \"parent_id\": \"dept_003\", \"budget_euro\": 300000, \"mitarbeiteranzahl\": 20},\n  {\"id\": \"dept_010\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertrieb Außendienst\", \"ebene\": 3, \"parent_id\": \"dept_003\", \"budget_euro\": 500000, \"mitarbeiteranzahl\": 20},\n  {\"id\": \"dept_011\", \"unternehmen_id\": \"12345678\", \"name\": \"Content Marketing\", \"ebene\": 3, \"parent_id\": \"dept_004\", \"budget_euro\": 250000, \"mitarbeiteranzahl\": 10},\n  {\"id\": \"dept_012\", \"unternehmen_id\": \"12345678\", \"name\": \"SEO/SEM\", \"ebene\": 3, \"parent_id\": \"dept_004\", \"budget_euro\": 200000, \"mitarbeiteranzahl\": 10},\n  {\"id\": \"dept_013\", \"unternehmen_id\": \"12345678\", \"name\": \"Helpdesk\", \"ebene\": 3, \"parent_id\": \"dept_005\", \"budget_euro\": 150000, \"mitarbeiteranzahl\": 5}\n];\n\nconst rollen = [\n  {\"id\": \"role_001\", \"abteilung_id\": \"dept_001\", \"titel\": \"Geschäftsführer\", \"beschreibung\": \"Leitet das Unternehmen und verantwortet die strategische Ausrichtung.\", \"ebene\": \"Executive\", \"anzahl_personen\": 1, \"gehalt_min\": 120000, \"gehalt_max\": 180000, \"anforderungen\": [\"Führungskompetenz\", \"Strategisches Denken\"]},\n  {\"id\": \"role_002\", \"abteilung_id\": \"dept_001\", \"titel\": \"Assistenz der Geschäftsführung\", \"beschreibung\": \"Unterstützt die Geschäftsführung bei administrativen Aufgaben und Projekten.\", \"ebene\": \"Mid\", \"anzahl_personen\": 1, \"gehalt_min\": 50000, \"gehalt_max\": 70000, \"anforderungen\": [\"Organisationstalent\", \"Kommunikationsfähigkeit\"]},\n  {\"id\": \"role_003\", \"abteilung_id\": \"dept_002\", \"titel\": \"Forschungsleiter\", \"beschreibung\": \"Leitet das Forschungsteam und koordiniert Forschungsprojekte.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 90000, \"gehalt_max\": 130000, \"anforderungen\": [\"Projektmanagement\", \"Technisches Wissen\"]},\n  {\"id\": \"role_004\", \"abteilung_id\": \"dept_002\", \"titel\": \"Forschungsingenieur\", \"beschreibung\": \"Entwickelt neue Technologien und Produkte im Bereich Forschung.\", \"ebene\": \"Senior\", \"anzahl_personen\": 5, \"gehalt_min\": 70000, \"gehalt_max\": 100000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Programmierung\"]},\n  {\"id\": \"role_005\", \"abteilung_id\": \"dept_002\", \"titel\": \"Praktikant Forschung\", \"beschreibung\": \"Unterstützt das Team bei der Durchführung von Experimenten und Analysen.\", \"ebene\": \"Entry\", \"anzahl_personen\": 5, \"gehalt_min\": 30000, \"gehalt_max\": 40000, \"anforderungen\": [\"Kommunikationsfähigkeit\", \"Teamarbeit\"]},\n  {\"id\": \"role_006\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsleiter\", \"beschreibung\": \"Leitet das Vertriebsteam und entwickelt Vertriebsstrategien.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 80000, \"gehalt_max\": 120000, \"anforderungen\": [\"Verhandlungsgeschick\", \"Kundenorientierung\"]},\n  {\"id\": \"role_007\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsmitarbeiter Innendienst\", \"beschreibung\": \"Bearbeitet Kundenanfragen und unterstützt den Außendienst.\", \"ebene\": \"Mid\", \"anzahl_personen\": 10, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Verkaufskompetenz\", \"Kundenservice\"]},\n  {\"id\": \"role_008\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsmitarbeiter Außendienst\", \"beschreibung\": \"Akquiriert neue Kunden und pflegt bestehende Kundenbeziehungen.\", \"ebene\": \"Senior\", \"anzahl_personen\": 9, \"gehalt_min\": 60000, \"gehalt_max\": 90000, \"anforderungen\": [\"Selbstmotivation\", \"Verhandlungsgeschick\"]},\n  {\"id\": \"role_009\", \"abteilung_id\": \"dept_004\", \"titel\": \"Marketingmanager\", \"beschreibung\": \"Entwickelt und implementiert Marketingstrategien.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 70000, \"gehalt_max\": 100000, \"anforderungen\": [\"Kreativität\", \"Analytische Fähigkeiten\"]},\n  {\"id\": \"role_010\", \"abteilung_id\": \"dept_004\", \"titel\": \"Content Creator\", \"beschreibung\": \"Erstellt Inhalte für verschiedene Marketingkanäle.\", \"ebene\": \"Mid\", \"anzahl_personen\": 5, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Schreibkompetenz\", \"Kreativität\"]},\n  {\"id\": \"role_011\", \"abteilung_id\": \"dept_004\", \"titel\": \"SEO/SEM Spezialist\", \"beschreibung\": \"Optimiert die Online-Sichtbarkeit und führt Kampagnen durch.\", \"ebene\": \"Senior\", \"anzahl_personen\": 4, \"gehalt_min\": 50000, \"gehalt_max\": 80000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Technisches Wissen\"]},\n  {\"id\": \"role_012\", \"abteilung_id\": \"dept_005\", \"titel\": \"IT-Support Spezialist\", \"beschreibung\": \"Bietet technischen Support und löst IT-Probleme.\", \"ebene\": \"Mid\", \"anzahl_personen\": 7, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Technisches Wissen\", \"Problemlösungsfähigkeiten\"]},\n  {\"id\": \"role_013\", \"abteilung_id\": \"dept_005\", \"titel\": \"Helpdesk Mitarbeiter\", \"beschreibung\": \"Bearbeitet Supportanfragen und sorgt für Kundenzufriedenheit.\", \"ebene\": \"Entry\", \"anzahl_personen\": 5, \"gehalt_min\": 30000, \"gehalt_max\": 40000, \"anforderungen\": [\"Kommunikationsfähigkeit\", \"Technisches Wissen\"]},\n  {\"id\": \"role_014\", \"abteilung_id\": \"dept_006\", \"titel\": \"Finanzleiter\", \"beschreibung\": \"Verantwortet die Finanzstrategie und das Budget des Unternehmens.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 80000, \"gehalt_max\": 120000, \"anforderungen\": [\"Finanzanalyse\", \"Führungskompetenz\"]},\n  {\"id\": \"role_015\", \"abteilung_id\": \"dept_006\", \"titel\": \"Buchhalter\", \"beschreibung\": \"Verarbeitet Buchhaltungsunterlagen und erstellt Finanzberichte.\", \"ebene\": \"Mid\", \"anzahl_personen\": 4, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Detailgenauigkeit\", \"Analytische Fähigkeiten\"]},\n  {\"id\": \"role_016\", \"abteilung_id\": \"dept_006\", \"titel\": \"Finanzanalyst\", \"beschreibung\": \"Analysiert Finanzdaten und unterstützt bei der Budgetplanung.\", \"ebene\": \"Senior\", \"anzahl_personen\": 5, \"gehalt_min\": 60000, \"gehalt_max\": 90000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Finanzkenntnisse\"]}\n];\n\nreturn [{ json: { unternehmen, abteilungen, rollen, config } }];\n"
       },
       "id": "demo-data-all",
       "name": "Demo-Daten (Alle)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [-5344, -80]
+    },
+    {
+      "parameters": {
+        "jsCode": "const config = $input.first().json;\n\n// Nur ausführen, wenn use_demo_data NICHT aktiviert ist\nif (config.use_demo_data === true) {\n  return [];\n}\n\nreturn [{ json: config }];\n"
+      },
+      "id": "filter-for-api-calls",
+      "name": "Filter für API-Calls",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-5568, 48]
     },
     {
       "parameters": {
@@ -401,7 +411,7 @@
       "name": "HTTP: Unternehmen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5344, -80]
+      "position": [-5344, 48]
     },
     {
       "parameters": {
@@ -926,11 +936,93 @@
             "node": "Demo-Daten (Alle)",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Filter für API-Calls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter für API-Calls": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Unternehmen erstellen",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
     },
     "Demo-Daten (Alle)": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP: Unternehmen erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Unternehmen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Unternehmen)": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Abteilungen erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Abteilungen erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Abteilungen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Abteilungen)": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Rollen erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: Rollen erstellen": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Rollen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parsen (Rollen)": {
       "main": [
         [
           {
