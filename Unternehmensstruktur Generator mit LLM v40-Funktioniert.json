@@ -44,7 +44,7 @@
     },
     {
       "parameters": {
-        "jsCode": "\n            const getNodeJson = (nodeName) => {\n              try {\n                const item = $(nodeName).first();\n                return item?.json ?? {};\n              } catch (error) {\n                return {};\n              }\n            };\n\n            const message = $input.first().json?.choices?.[0]?.message;\n            if (!message) {\n              throw new Error('Antwort der Prozesse-API fehlt oder ist leer.');\n            }\n\n            const {\n              unternehmen = {},\n              abteilungen = [],\n              rollen = [],\n              apqcProcesses = [],\n              apqcActivities = [],\n              apqcActivitiesByProcess = {},\n              config = {}\n            } = getNodeJson('Kontext + Prozesse');\n\n            let raw = message.content;\n            if (Array.isArray(raw)) {\n              const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n              if (jsonPart?.json) {\n                raw = jsonPart.json;\n              } else {\n                raw = raw.map(part => part.text ?? '').join('\n');\n              }\n            }\n\n            if (typeof raw === 'object') {\n              raw = JSON.stringify(raw);\n            }\n\n            const data = JSON.parse(raw);\n            const prozesse = data.prozesse ?? [];\n\n            return [{\n              json: {\n                unternehmen,\n                abteilungen,\n                rollen,\n                prozesse,\n                apqcProcesses,\n                apqcActivities,\n                apqcActivitiesByProcess,\n                config,\n              }\n            }];\n"
+        "jsCode": "const data = $input.first()?.json ?? {};\nreturn [{ json: data }];"
       },
       "id": "97661fe5-335d-43bb-a6ef-850c48fae15f",
       "name": "JSON parsen (Prozesse)",
@@ -74,14 +74,17 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ ({\n  model: 'gpt-4o',\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'prozesse_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          prozesse: {\n            type: 'array',\n            minItems: 1,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                pcf_id: { type: 'string', pattern: '^[0-9]+$' },\n                hierarchy_id: { type: 'string', pattern: '^[0-9]+\\\\.[0-9]+\\\\.[0-9]+$' },\n                name: { type: 'string' },\n                description: { type: 'string' },\n                abteilung_id: { type: 'string' },\n                abteilung_name: { type: 'string' },\n                begruendung: { type: 'string' },\n                prioritaet: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] }\n              },\n              required: ['pcf_id', 'hierarchy_id', 'name', 'description', 'abteilung_id', 'abteilung_name']\n            }\n          }\n        },\n        required: ['prozesse']\n      }\n    }\n  },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist Organisations- und Prozessberater. Analysiere die gelieferten APQC-Level-3-Prozesse und ordne sie den Abteilungen des Unternehmens zu. Gehe iterativ vor: Sortiere die Abteilungen zuerst nach Ebene (klein nach groß) und innerhalb der Ebene nach Mitarbeiterzahl (absteigend). Für jede Abteilung wählst du 2-4 passende Prozesse aus dem verfügbaren Pool, entfernst sie danach aus dem Pool und gehst zur nächsten Abteilung über. Nutze ausschließlich die gelieferten PCF- und Hierarchy-IDs sowie Name/Beschreibung unverändert. Wenn du keine geeigneten Prozesse findest, nutze die bestmögliche Übereinstimmung, aber verwende jeden Prozess höchstens einmal. Antworte strikt im JSON-Format laut Schema.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Unternehmenskontext:',\n        JSON.stringify({\n          name: $json.unternehmen.name,\n          branche: $json.unternehmen.branche,\n          mitarbeiteranzahl: $json.unternehmen.mitarbeiteranzahl,\n          besonderheit: $json.config.besonderheit\n        }, null, 2),\n        '',\n        'Abteilungen (mit Ebene und Mitarbeitern):',\n        JSON.stringify($json.abteilungen.map(a => ({ id: a.id, name: a.name, ebene: a.ebene, mitarbeiter: a.mitarbeiteranzahl })), null, 2),\n        '',\n        'Referenz-Rollen pro Abteilung (max. 15):',\n        JSON.stringify($json.rollen.slice(0, 15).map(r => ({ id: r.id, abteilung_id: r.abteilung_id, titel: r.titel, ebene: r.ebene })), null, 2),\n        '',\n        'Verfügbare APQC-Prozesse Level 3 (max. 250 Einträge):',\n        JSON.stringify(($json.apqcProcesses || []).slice(0, 250), null, 2),\n        '',\n        'Aufgabe:',\n        [\n          '1. Sortiere die Abteilungen nach Ebene (aufsteigend) und innerhalb einer Ebene nach Mitarbeiterzahl (absteigend).',\n          '2. Iteriere über die sortierten Abteilungen, wähle je Abteilung 2-4 passende Prozesse aus dem aktuellen Pool und entferne gewählte Prozesse sofort aus dem Pool.',\n          '3. Verwende PCF ID, Hierarchy ID, Name und Beschreibung exakt wie geliefert.',\n          '4. Gib je Prozess eine prägnante Begründung und eine Priorität (hoch/mittel/niedrig) an.'\n        ].join('\\n')\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.2\n}) }}"
+        "jsonBody": "\n={{ ({\n  model: 'gpt-4o-mini',\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'prozesse_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          prozesse: {\n            type: 'array',\n            minItems: 1,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                pcf_id: { type: 'string', pattern: '^[0-9]+$' },\n                hierarchy_id: { type: 'string', pattern: '^[0-9]+\\\\.[0-9]+\\\\.[0-9]+$' },\n                name: { type: 'string' },\n                description: { type: 'string' },\n                abteilung_id: { type: 'string' },\n                abteilung_name: { type: 'string' },\n                begruendung: { type: 'string' },\n                prioritaet: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] }\n              },\n              required: ['pcf_id', 'hierarchy_id', 'name', 'description', 'abteilung_id', 'abteilung_name']\n            }\n          }\n        },\n        required: ['prozesse']\n      }\n    }\n  },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist Organisations- und Prozessberater. Erstelle für die angegebene Abteilung 2-4 passende APQC-Prozesse auf Ebene 3. Verwende ausschließlich die bereitgestellten Prozessdaten (PCF ID, Hierarchy ID, Name, Beschreibung) unverändert. Jeder Prozess darf nur einmal verwendet werden.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Unternehmenskontext:',\n        JSON.stringify({\n          name: $json.unternehmen.name,\n          branche: $json.unternehmen.branche,\n          mitarbeiteranzahl: $json.unternehmen.mitarbeiteranzahl,\n          besonderheit: ($json.config && $json.config.besonderheit)\n        }, null, 2),\n        '',\n        'Abteilung:',\n        JSON.stringify({ id: $json.abteilung.id, name: $json.abteilung.name, ebene: $json.abteilung.ebene, mitarbeiter: $json.abteilung.mitarbeiteranzahl }, null, 2),\n        '',\n        'Rollen in dieser Abteilung (Auszug):',\n        JSON.stringify(($json.rollen || []).slice(0, 10).map(r => ({ id: r.id, titel: r.titel, ebene: r.ebene })), null, 2),\n        '',\n        'Verfügbare APQC-Prozesse Level 3:',\n        JSON.stringify($json.prozessPool || [], null, 2),\n        '',\n        'Aufgabe:',\n        'Wähle 2-4 Prozesse aus der Liste aus, die bestmöglich zu den Aufgaben der Abteilung passen. Verwende die gelieferten IDs, Namen und Beschreibungen unverändert. Gib je Prozess eine kurze Begründung und eine Priorität (hoch/mittel/niedrig) an. Antworte im JSON-Format laut Schema.'\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.2\n}) }}\n",
+        "options": {
+          "responsePropertyName": "openaiResponse"
+        }
       },
       "id": "2e73e822-b2ba-40b4-a959-cda672261be9",
       "name": "HTTP: Prozesse erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1472,
+        2144,
         496
       ]
     },
@@ -717,6 +720,84 @@
       ],
       "id": "abb76dab-8b61-43ac-bfdd-0abee8efb7bb",
       "name": "Convert to File"
+    },
+    {
+      "id": "691b4fcc-aa06-4f9d-a103-8253066e1090",
+      "name": "Prozessiteration vorbereiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        496
+      ],
+      "parameters": {
+        "jsCode": "\nconst item = $input.first()?.json ?? {};\nconst { unternehmen = {}, abteilungen = [], rollen = [], apqcProcesses = [], apqcActivities = [], apqcActivitiesByProcess = {}, config = {} } = item;\n\nconst sortAbteilungen = (list) => {\n  return [...list]\n    .map((abteilung, index) => ({ ...abteilung, __index: index }))\n    .sort((a, b) => {\n      const levelA = Number(a.ebene ?? 999);\n      const levelB = Number(b.ebene ?? 999);\n      if (Number.isFinite(levelA) && Number.isFinite(levelB)) {\n        if (levelA !== levelB) return levelA - levelB;\n      } else if (Number.isFinite(levelA)) {\n        return -1;\n      } else if (Number.isFinite(levelB)) {\n        return 1;\n      }\n      const mitA = Number(a.mitarbeiteranzahl ?? 0);\n      const mitB = Number(b.mitarbeiteranzahl ?? 0);\n      if (mitA !== mitB) return mitB - mitA;\n      return a.name.localeCompare(b.name);\n    });\n};\n\nconst sortedWithIndex = sortAbteilungen(abteilungen);\nconst sortedAbteilungen = sortedWithIndex.map(({ __index, ...rest }) => rest);\n\nconst globalData = getWorkflowStaticData('global');\nglobalData.availableProcesses = Array.isArray(apqcProcesses) ? apqcProcesses.map(proc => ({ ...proc })) : [];\nglobalData.assignedProcesses = [];\nglobalData.context = { unternehmen, abteilungen: sortedAbteilungen, rollen, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\nglobalData.remainingDepartments = sortedAbteilungen.length;\n\nreturn sortedAbteilungen.map((abteilung, index) => ({ json: { abteilung, position: index } }));\n"
+      }
+    },
+    {
+      "id": "c6e91fb1-abff-44a2-903c-a51ca08fffde",
+      "name": "Abteilungen iterieren",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        496
+      ],
+      "parameters": {
+        "batchSize": 1
+      }
+    },
+    {
+      "id": "3fbc0a6e-e186-4e8e-a637-35cbec330cb1",
+      "name": "Abteilungskontext erstellen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        496
+      ],
+      "parameters": {
+        "jsCode": "\nconst batch = $input.first()?.json ?? {};\nconst { abteilung } = batch;\n\nconst globalData = getWorkflowStaticData('global');\nconst context = globalData.context ?? {};\nconst availableProcesses = Array.isArray(globalData.availableProcesses) ? globalData.availableProcesses : [];\n\nconst limitProcesses = (processes, limit = 120) => {\n  if (processes.length <= limit) return processes;\n  return processes.slice(0, limit);\n};\n\nconst prozessPool = limitProcesses(availableProcesses);\nconst rollen = Array.isArray(context.rollen) ? context.rollen.filter(rolle => rolle.abteilung_id === abteilung.id) : [];\n\nreturn [{ json: {\n  unternehmen: context.unternehmen ?? {},\n  abteilung,\n  rollen,\n  prozessPool,\n  config: context.config ?? {},\n  position: batch.position\n} }];\n"
+      }
+    },
+    {
+      "id": "8c4d852c-6271-4913-8cf7-90fedb1fe47d",
+      "name": "Prozessantwort parsen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2368,
+        496
+      ],
+      "parameters": {
+        "jsCode": "\n            const item = $input.first()?.json ?? {};\n            const response = item.openaiResponse ?? {};\n            const message = response.choices?.[0]?.message;\n            let raw = message?.content;\n            if (!raw) {\n              throw new Error('Antwort der Prozesse-API fehlt oder ist leer.');\n            }\n\n            if (Array.isArray(raw)) {\n              const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n              if (jsonPart?.json) {\n                raw = jsonPart.json;\n              } else {\n                raw = raw.map(part => part.text ?? '').join('\n');\n              }\n            }\n\n            let data;\n            if (typeof raw === 'object') {\n              data = raw;\n            } else {\n              try {\n                data = JSON.parse(raw);\n              } catch (error) {\n                throw new Error('Antwort konnte nicht als JSON geparst werden: ' + error.message);\n              }\n            }\n\n            if (!data || !Array.isArray(data.prozesse)) {\n              throw new Error('Die KI-Antwort enthält keine gültige Prozessliste.');\n            }\n\n            const globalData = getWorkflowStaticData('global');\n            const assigned = Array.isArray(globalData.assignedProcesses) ? globalData.assignedProcesses : [];\n\n            for (const prozess of data.prozesse) {\n              assigned.push({\n                ...prozess,\n                abteilung_id: prozess.abteilung_id ?? item.abteilung?.id,\n                abteilung_name: prozess.abteilung_name ?? item.abteilung?.name\n              });\n            }\n\n            globalData.assignedProcesses = assigned;\n\n            return [{\n              json: {\n                abteilung: item.abteilung,\n                prozesse: data.prozesse\n              }\n            }];\n"
+      }
+    },
+    {
+      "id": "400bd61f-81d3-4c4a-85ac-0d945cbb8c3d",
+      "name": "Verfügbare Prozesse aktualisieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2592,
+        496
+      ],
+      "parameters": {
+        "jsCode": "\nconst data = $input.first()?.json ?? {};\nconst selected = Array.isArray(data.prozesse) ? data.prozesse : [];\nconst globalData = getWorkflowStaticData('global');\nconst available = Array.isArray(globalData.availableProcesses) ? globalData.availableProcesses : [];\n\nconst remaining = available.filter(proc => !selected.some(sel => String(sel.pcf_id).trim() === String(proc.pcf_id).trim()));\n\nglobalData.availableProcesses = remaining;\nglobalData.remainingDepartments = Math.max(0, (globalData.remainingDepartments ?? remaining.length) - 1);\n\nconst isFinal = (globalData.remainingDepartments ?? 0) === 0;\n\nreturn [{ json: { ...data, isFinal } }];\n"
+      }
+    },
+    {
+      "id": "83d75651-1fc3-4117-8c2c-43b10c830077",
+      "name": "Prozessiteration Abschluss",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2816,
+        496
+      ],
+      "parameters": {
+        "jsCode": "\nconst item = $input.first()?.json ?? {};\nif (!item.isFinal) {\n  return [];\n}\nconst globalData = getWorkflowStaticData('global');\nconst context = globalData.context ?? {};\nconst result = {\n  unternehmen: context.unternehmen ?? {},\n  abteilungen: context.abteilungen ?? [],\n  rollen: context.rollen ?? [],\n  prozesse: globalData.assignedProcesses ?? [],\n  apqcProcesses: context.apqcProcesses ?? [],\n  apqcActivities: context.apqcActivities ?? [],\n  apqcActivitiesByProcess: context.apqcActivitiesByProcess ?? {},\n  config: context.config ?? {}\n};\n\nglobalData.availableProcesses = [];\nglobalData.assignedProcesses = [];\nglobalData.context = {};\n\nreturn [{ json: result }];\n"
+      }
     }
   ],
   "pinData": {},
@@ -763,7 +844,7 @@
       "main": [
         [
           {
-            "node": "JSON parsen (Prozesse)",
+            "node": "Prozessantwort parsen",
             "type": "main",
             "index": 0
           }
@@ -772,13 +853,12 @@
     },
     "Kontext + Prozesse": {
       "main": [
-        [
-          {
-            "node": "HTTP: Prozesse erstellen",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [],
+        {
+          "node": "Prozessiteration vorbereiten",
+          "type": "main",
+          "index": 0
+        }
       ]
     },
     "APQC Prozesse filtern": {
@@ -1179,6 +1259,79 @@
         [
           {
             "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prozessiteration vorbereiten": {
+      "main": [
+        [
+          {
+            "node": "Abteilungen iterieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abteilungen iterieren": {
+      "main": [
+        [
+          {
+            "node": "Abteilungskontext erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abteilungskontext erstellen": {
+      "main": [
+        [
+          {
+            "node": "HTTP: Prozesse erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prozessantwort parsen": {
+      "main": [
+        [
+          {
+            "node": "Verfügbare Prozesse aktualisieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verfügbare Prozesse aktualisieren": {
+      "main": [
+        [
+          {
+            "node": "Abteilungen iterieren",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prozessiteration Abschluss",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prozessiteration Abschluss": {
+      "main": [
+        [
+          {
+            "node": "JSON parsen (Prozesse)",
             "type": "main",
             "index": 0
           }
