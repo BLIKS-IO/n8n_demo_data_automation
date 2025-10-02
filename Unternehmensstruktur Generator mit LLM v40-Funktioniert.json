@@ -5,8 +5,8 @@
       "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-4000, -176],
-      "id": "853c1867-3a9a-4bd9-a1b1-a5aa51054502",
+      "position": [1072, 8],
+      "id": "767c98ed-47e9-4124-9069-2bff4b3cfa05",
       "name": "Merge"
     },
     {
@@ -17,31 +17,31 @@
           "fileName": "prozesse.json"
         }
       },
-      "id": "34c806e9-3046-4ca7-b2bd-2d0f9d060574",
+      "id": "a4911948-6a0d-43d7-8efb-dcde557a0ea0",
       "name": "Prozesse JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-4224, 440]
+      "position": [4432, -352]
     },
     {
       "parameters": {
         "jsCode": "const { prozesse } = $input.first().json;\nreturn prozesse.map(prozess => ({ json: prozess }));"
       },
-      "id": "ee050ba8-b450-4255-9633-be2ddd6d2f62",
+      "id": "c8a7231c-e0f5-4b1d-a341-9f6bbc08b463",
       "name": "Prozesse extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4448, 440]
+      "position": [4208, -352]
     },
     {
       "parameters": {
         "jsCode": "const data = $input.first()?.json ?? {};\nreturn [{ json: data }];"
       },
-      "id": "453f118f-3601-472b-8210-716c3949eedf",
+      "id": "3e6ce5ae-b60c-4e96-ad71-7336dd1fad2e",
       "name": "JSON parsen (Prozesse)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5568, 704]
+      "position": [3088, 8]
     },
     {
       "parameters": {
@@ -63,47 +63,44 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ $json.requestPayload }}",
-        "options": {
-          "fullResponse": true,
-          "responsePropertyName": "body"
-        }
+        "options": {}
       },
-      "id": "10362b7c-0cfc-44b2-8e78-94bf6827c948",
+      "id": "d513e07a-b17e-46ff-88f3-dcad199ad288",
       "name": "HTTP: Prozesse erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5120, 144]
+      "position": [2192, -64]
     },
     {
       "parameters": {
-        "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    return {};\n  }\n};\n\nconst contextData = getNodeJson('JSON parsen (Rollen)');\nconst processData = getNodeJson('APQC Prozesse filtern');\nconst activityData = getNodeJson('APQC Aktivitäten filtern');\n\nreturn [{\n  json: {\n    ...contextData,\n    apqcProcesses: processData.apqcProcesses ?? [],\n    apqcActivities: activityData.apqcActivities ?? [],\n    apqcActivitiesByProcess: activityData.apqcActivitiesByProcess ?? {},\n  },\n}];\n"
+        "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    return {};\n  }\n};\n\n// Try to get context from either Demo-Daten or JSON parsen (Rollen)\nconst demoData = getNodeJson('Demo-Daten (Alle)');\nconst apiData = getNodeJson('JSON parsen (Rollen)');\nconst contextData = demoData.unternehmen ? demoData : apiData;\n\nconst processData = getNodeJson('APQC Prozesse filtern');\nconst activityData = getNodeJson('APQC Aktivitäten filtern');\n\nreturn [{\n  json: {\n    ...contextData,\n    apqcProcesses: processData.apqcProcesses ?? [],\n    apqcActivities: activityData.apqcActivities ?? [],\n    apqcActivitiesByProcess: activityData.apqcActivitiesByProcess ?? {},\n  },\n}];\n"
       },
-      "id": "4f85c2d7-8406-450f-8def-c30c8040856e",
+      "id": "13e451fb-4c04-4d52-a0ea-c39841f4e9aa",
       "name": "Kontext + Prozesse",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3776, -176]
+      "position": [1296, 8]
     },
     {
       "parameters": {
         "jsCode": "const items = $input.all();\nlet rows = [];\nfor (const item of items) {\n  const data = item.json;\n  if (Array.isArray(data)) {\n    rows = rows.concat(data);\n  } else if (data && Array.isArray(data.data)) {\n    rows = rows.concat(data.data);\n  } else if (data) {\n    rows.push(data);\n  }\n}\nconst processes = rows\n  .filter(row => String(row['Hierarchy'] ?? row['Hierarchy ID'] ?? '').trim() === '3')\n  .map((row, index) => {\n    const hierarchyId = String(row['Hierarchy ID'] ?? '').trim();\n    const pcfId = String(row['PCF ID'] ?? '').trim();\n    const rawName = row['Name (German Translation) (not verified)'] ?? row['Name (German Translation) (not veriied)'] ?? row['Name'];\n    const rawDescription = row['Element Description (German Translation) (not verified)'] ?? row['Element Description (German Translation) (not verfied)'] ?? row['Element Description'];\n    const name = typeof rawName === 'string' ? rawName.trim() : '';\n    const description = typeof rawDescription === 'string' ? rawDescription.trim() : '';\n    return {\n      source_index: index,\n      pcf_id: pcfId,\n      hierarchy_id: hierarchyId,\n      name,\n      description\n    };\n  })\n  .filter(process => process.pcf_id && process.hierarchy_id && process.name && process.hierarchy_id.split('.').length === 3);\nreturn [{ json: { apqcProcesses: processes } }];"
       },
-      "id": "522ff954-f8d7-485e-bf35-aab7818baea8",
+      "id": "3c23c4c0-21ed-4b5e-a401-f7d76aeac617",
       "name": "APQC Prozesse filtern",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4224, -272]
+      "position": [848, 104]
     },
     {
       "parameters": {
         "url": "={{ $json.apqc_data_url }}",
         "options": {}
       },
-      "id": "d18d90b3-5ae4-4edc-9795-a5dd1cf02199",
+      "id": "d503f05c-f695-4fc1-a0ea-8ead5400cf0f",
       "name": "APQC Datei lesen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-4448, -368]
+      "position": [624, 200]
     },
     {
       "parameters": {
@@ -113,11 +110,11 @@
           "fileName": "mitarbeiter.json"
         }
       },
-      "id": "68822ce3-1855-4a3b-8487-6b4d862bd219",
+      "id": "b48cb796-af37-4172-bd08-99174f488150",
       "name": "Mitarbeiter JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-3104, 1376]
+      "position": [5552, 584]
     },
     {
       "parameters": {
@@ -127,11 +124,11 @@
           "fileName": "rollen.json"
         }
       },
-      "id": "eb56f797-a046-4581-be35-2d3e8b40b67c",
+      "id": "c78c829c-1183-445e-8b5e-70e58f32e4c6",
       "name": "Rollen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-4448, 992]
+      "position": [4208, 200]
     },
     {
       "parameters": {
@@ -141,11 +138,11 @@
           "fileName": "abteilungen.json"
         }
       },
-      "id": "aecc6593-415f-494c-9277-2f1f87ba7166",
+      "id": "c8371f86-f15a-49a9-b19e-f28a4c9259ee",
       "name": "Abteilungen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-4672, 800]
+      "position": [3984, 8]
     },
     {
       "parameters": {
@@ -155,61 +152,61 @@
           "fileName": "unternehmen.json"
         }
       },
-      "id": "0bc66b8b-98ac-4309-8e50-aff64851ac4e",
+      "id": "b43e1472-879d-4781-a8ba-257954c13377",
       "name": "Unternehmen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-4672, 608]
+      "position": [3984, -184]
     },
     {
       "parameters": {
         "jsCode": "const { mitarbeiter } = $input.first().json;\nreturn mitarbeiter.map(ma => ({ json: ma }));"
       },
-      "id": "ceb93663-ca7c-4f99-be0f-340b0d3bafde",
+      "id": "a079fc64-2055-43db-8f53-0f53a6a9a72d",
       "name": "Mitarbeiter extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3328, 1376]
+      "position": [5328, 584]
     },
     {
       "parameters": {
         "jsCode": "const { rollen } = $input.first().json;\nreturn rollen.map(rolle => ({ json: rolle }));"
       },
-      "id": "9d65ba3e-a09e-42e5-a935-dac0d1a80ecd",
+      "id": "b8fc1cd0-4dab-4a32-859b-2611b5c260a5",
       "name": "Rollen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4672, 992]
+      "position": [3984, 200]
     },
     {
       "parameters": {
         "jsCode": "const { abteilungen } = $input.first().json;\nreturn abteilungen.map(abt => ({ json: abt }));"
       },
-      "id": "bf83e5c6-d718-47a5-9098-08c189d7524c",
+      "id": "d5e5bacd-8e84-4d1c-b164-f324d31e90ad",
       "name": "Abteilungen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4896, 800]
+      "position": [3760, 8]
     },
     {
       "parameters": {
         "jsCode": "const { unternehmen } = $input.first().json;\nreturn [{ json: unternehmen }];"
       },
-      "id": "9a1118ec-e25b-462d-95cc-df0b54e4683a",
+      "id": "d6f760ed-0678-409c-b7fa-bc934e79aa35",
       "name": "Unternehmen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4896, 608]
+      "position": [3760, -184]
     },
     {
       "parameters": {
         "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    return {};\n  }\n};\n\nconst message = $input.first().json?.choices?.[0]?.message;\nif (!message) {\n  throw new Error('Antwort der Rollen-API fehlt oder ist leer.');\n}\n\nconst {\n  unternehmen = {},\n  abteilungen = [],\n  rollen = [],\n  prozesse = [],\n  apqcProcesses = [],\n  apqcActivities = [],\n  apqcActivitiesByProcess = {},\n  config = {},\n} = getNodeJson('JSON parsen (Prozesse)');\n\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart?.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\n\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\n\nconst data = JSON.parse(raw);\nlet mitarbeiter = data.mitarbeiter ?? data;\n\nmitarbeiter = mitarbeiter.map((ma, index) => ({\n  ...ma,\n  id: `emp_${String(index + 1).padStart(3, '0')}`,\n  unternehmen_id: unternehmen.id ?? '',\n  vollname: `${ma.vorname ?? ''} ${ma.nachname ?? ''}`.trim(),\n}));\n\nreturn { unternehmen, abteilungen, rollen, prozesse, mitarbeiter, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\n"
       },
-      "id": "e6d5788f-bc59-426a-8c99-ca64e4c50576",
+      "id": "e79d936e-95e7-4d5f-ae86-ea093ba8c58c",
       "name": "JSON parsen (Mitarbeiter)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5120, 992]
+      "position": [3536, 176]
     },
     {
       "parameters": {
@@ -233,41 +230,21 @@
         "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein HR-Experte. Antworte immer mit validem JSON im Format: {\"mitarbeiter\": [...]}'\n    },\n    {\n      role: 'user',\n      content: 'Erstelle Mitarbeiter für ' + $json.unternehmen.name + ' (Land: ' + $json.config.land + ', Branche: ' + $json.unternehmen.branche + '). Es gibt ' + $json.rollen.length + ' Rollen. Jeder Mitarbeiter braucht: id (emp_XXX), rolle_id, abteilung_id, vorname, nachname, email, telefon, alter (25-65), gehalt_euro, eintrittsdatum (YYYY-MM-DD), vertrag (Vollzeit/Teilzeit), standort (' + $json.unternehmen.hauptsitz + '). Domain: ' + ($json.unternehmen.webseite ? $json.unternehmen.webseite.replace('www.','') : 'beispiel.de') + '. Namen zum Land passend. 85% Vollzeit.'\n    }\n  ],\n  temperature: 0.9\n}) }}",
         "options": {}
       },
-      "id": "a91efaad-f2dd-4e7b-b837-ddf3e1cf3113",
+      "id": "942a9d8f-d377-42d1-9de1-ca8e87e0c6a3",
       "name": "HTTP: Mitarbeiter erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5344, 992]
+      "position": [3312, 176]
     },
     {
       "parameters": {
         "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, config } = $('JSON parsen (Abteilungen)').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst rollen = data.rollen ?? data;\nreturn { unternehmen, abteilungen, rollen, config };"
       },
-      "id": "33d038d2-5b13-4b62-87fb-201d840348b0",
+      "id": "8627518e-9799-4805-bc73-3cf540aa73d7",
       "name": "JSON parsen (Rollen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4224, -80]
-    },
-    {
-      "parameters": {
-        "jsCode": "const { unternehmen, abteilungen, config } = $('Demo-Daten oder KI (Abteilungen)').first().json;\n\nif (config.use_demo_data_rollen === true) {\n  // Demo-Daten für Rollen - Output 1\n  const rollen = [\n    {\"id\": \"role_001\", \"abteilung_id\": \"dept_001\", \"titel\": \"Geschäftsführer\", \"beschreibung\": \"Leitet das Unternehmen und verantwortet die strategische Ausrichtung.\", \"ebene\": \"Executive\", \"anzahl_personen\": 1, \"gehalt_min\": 120000, \"gehalt_max\": 180000, \"anforderungen\": [\"Führungskompetenz\", \"Strategisches Denken\"]},\n    {\"id\": \"role_002\", \"abteilung_id\": \"dept_001\", \"titel\": \"Assistenz der Geschäftsführung\", \"beschreibung\": \"Unterstützt die Geschäftsführung bei administrativen Aufgaben und Projekten.\", \"ebene\": \"Mid\", \"anzahl_personen\": 1, \"gehalt_min\": 50000, \"gehalt_max\": 70000, \"anforderungen\": [\"Organisationstalent\", \"Kommunikationsfähigkeit\"]},\n    {\"id\": \"role_003\", \"abteilung_id\": \"dept_002\", \"titel\": \"Forschungsleiter\", \"beschreibung\": \"Leitet das Forschungsteam und koordiniert Forschungsprojekte.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 90000, \"gehalt_max\": 130000, \"anforderungen\": [\"Projektmanagement\", \"Technisches Wissen\"]},\n    {\"id\": \"role_004\", \"abteilung_id\": \"dept_002\", \"titel\": \"Forschungsingenieur\", \"beschreibung\": \"Entwickelt neue Technologien und Produkte im Bereich Forschung.\", \"ebene\": \"Senior\", \"anzahl_personen\": 5, \"gehalt_min\": 70000, \"gehalt_max\": 100000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Programmierung\"]},\n    {\"id\": \"role_005\", \"abteilung_id\": \"dept_002\", \"titel\": \"Praktikant Forschung\", \"beschreibung\": \"Unterstützt das Team bei der Durchführung von Experimenten und Analysen.\", \"ebene\": \"Entry\", \"anzahl_personen\": 5, \"gehalt_min\": 30000, \"gehalt_max\": 40000, \"anforderungen\": [\"Kommunikationsfähigkeit\", \"Teamarbeit\"]},\n    {\"id\": \"role_006\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsleiter\", \"beschreibung\": \"Leitet das Vertriebsteam und entwickelt Vertriebsstrategien.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 80000, \"gehalt_max\": 120000, \"anforderungen\": [\"Verhandlungsgeschick\", \"Kundenorientierung\"]},\n    {\"id\": \"role_007\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsmitarbeiter Innendienst\", \"beschreibung\": \"Bearbeitet Kundenanfragen und unterstützt den Außendienst.\", \"ebene\": \"Mid\", \"anzahl_personen\": 10, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Verkaufskompetenz\", \"Kundenservice\"]},\n    {\"id\": \"role_008\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsmitarbeiter Außendienst\", \"beschreibung\": \"Akquiriert neue Kunden und pflegt bestehende Kundenbeziehungen.\", \"ebene\": \"Senior\", \"anzahl_personen\": 9, \"gehalt_min\": 60000, \"gehalt_max\": 90000, \"anforderungen\": [\"Selbstmotivation\", \"Verhandlungsgeschick\"]},\n    {\"id\": \"role_009\", \"abteilung_id\": \"dept_004\", \"titel\": \"Marketingmanager\", \"beschreibung\": \"Entwickelt und implementiert Marketingstrategien.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 70000, \"gehalt_max\": 100000, \"anforderungen\": [\"Kreativität\", \"Analytische Fähigkeiten\"]},\n    {\"id\": \"role_010\", \"abteilung_id\": \"dept_004\", \"titel\": \"Content Creator\", \"beschreibung\": \"Erstellt Inhalte für verschiedene Marketingkanäle.\", \"ebene\": \"Mid\", \"anzahl_personen\": 5, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Schreibkompetenz\", \"Kreativität\"]},\n    {\"id\": \"role_011\", \"abteilung_id\": \"dept_004\", \"titel\": \"SEO/SEM Spezialist\", \"beschreibung\": \"Optimiert die Online-Sichtbarkeit und führt Kampagnen durch.\", \"ebene\": \"Senior\", \"anzahl_personen\": 4, \"gehalt_min\": 50000, \"gehalt_max\": 80000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Technisches Wissen\"]},\n    {\"id\": \"role_012\", \"abteilung_id\": \"dept_005\", \"titel\": \"IT-Support Spezialist\", \"beschreibung\": \"Bietet technischen Support und löst IT-Probleme.\", \"ebene\": \"Mid\", \"anzahl_personen\": 7, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Technisches Wissen\", \"Problemlösungsfähigkeiten\"]},\n    {\"id\": \"role_013\", \"abteilung_id\": \"dept_005\", \"titel\": \"Helpdesk Mitarbeiter\", \"beschreibung\": \"Bearbeitet Supportanfragen und sorgt für Kundenzufriedenheit.\", \"ebene\": \"Entry\", \"anzahl_personen\": 5, \"gehalt_min\": 30000, \"gehalt_max\": 40000, \"anforderungen\": [\"Kommunikationsfähigkeit\", \"Technisches Wissen\"]},\n    {\"id\": \"role_014\", \"abteilung_id\": \"dept_006\", \"titel\": \"Finanzleiter\", \"beschreibung\": \"Verantwortet die Finanzstrategie und das Budget des Unternehmens.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 80000, \"gehalt_max\": 120000, \"anforderungen\": [\"Finanzanalyse\", \"Führungskompetenz\"]},\n    {\"id\": \"role_015\", \"abteilung_id\": \"dept_006\", \"titel\": \"Buchhalter\", \"beschreibung\": \"Verarbeitet Buchhaltungsunterlagen und erstellt Finanzberichte.\", \"ebene\": \"Mid\", \"anzahl_personen\": 4, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Detailgenauigkeit\", \"Analytische Fähigkeiten\"]},\n    {\"id\": \"role_016\", \"abteilung_id\": \"dept_006\", \"titel\": \"Finanzanalyst\", \"beschreibung\": \"Analysiert Finanzdaten und unterstützt bei der Budgetplanung.\", \"ebene\": \"Senior\", \"anzahl_personen\": 5, \"gehalt_min\": 60000, \"gehalt_max\": 90000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Finanzkenntnisse\"]}\n  ];\n  return [null, [{ json: { unternehmen, abteilungen, rollen, config } }]];\n} else {\n  // Weiterleitung zu HTTP-Call - Output 0\n  return [[{ json: { unternehmen, abteilungen, config } }], null];\n}\n"
-      },
-      "id": "demo-data-rollen-switch",
-      "name": "Demo-Daten Rollen?",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [-4448, -176]
-    },
-    {
-      "parameters": {
-        "jsCode": "const input = $input.first()?.json;\n\nif (input.useDemo === true && input.abteilungen) {\n  // Kam von Demo-Daten, direkt weitergeben\n  return [{ json: { unternehmen: input.unternehmen, abteilungen: input.abteilungen, config: input.config } }];\n} else if (input.choices) {\n  // Kam vom HTTP-Call, parsen\n  const message = input.choices[0].message;\n  const { unternehmen, config } = $('Demo-Daten oder KI (Unternehmen)').first().json;\n  let raw = message.content;\n  if (Array.isArray(raw)) {\n    const jsonPart = raw.find(part => part.type === 'json_object' || part.type === 'json_schema' || part.type === 'output_json');\n    if (jsonPart && jsonPart.json) {\n      raw = jsonPart.json;\n    } else {\n      raw = raw.map(part => part.text ?? '').join('\\n');\n    }\n  }\n  if (typeof raw === 'object') {\n    raw = JSON.stringify(raw);\n  }\n  const data = JSON.parse(raw);\n  const abteilungen = data.abteilungen ?? data;\n  return [{ json: { unternehmen, abteilungen, config } }];\n} else {\n  throw new Error('Unerwartetes Input-Format in Demo-Daten oder KI (Abteilungen)');\n}\n"
-      },
-      "id": "demo-data-abteilungen-merge",
-      "name": "Demo-Daten oder KI (Abteilungen)",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [-4896, -272]
+      "position": [848, -280]
     },
     {
       "parameters": {
@@ -291,41 +268,21 @@
         "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'rollen_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          rollen: {\n            type: 'array',\n            minItems: 1,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                id: { type: 'string' },\n                abteilung_id: { type: 'string' },\n                titel: { type: 'string' },\n                beschreibung: { type: 'string' },\n                ebene: { type: 'string', enum: ['Entry', 'Mid', 'Senior', 'Lead', 'Executive'] },\n                anzahl_personen: { type: 'integer', minimum: 1 },\n                gehalt_min: { type: 'number' },\n                gehalt_max: { type: 'number' },\n                anforderungen: {\n                  type: 'array',\n                  items: { type: 'string' },\n                  minItems: 2\n                }\n              },\n              required: ['id', 'abteilung_id', 'titel', 'beschreibung', 'ebene', 'anzahl_personen', 'gehalt_min', 'gehalt_max', 'anforderungen']\n            }\n          }\n        },\n        required: ['rollen']\n      }\n    }\n  },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein HR-Experte. Erstelle Rollen-Definitionen als JSON, das exakt dem gelieferten Schema entspricht. Verwende nur Daten aus dem Kontext.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Definiere Rollen für das folgende Unternehmen und seine Abteilungen.',\n        '',\n        'Kontext (Unternehmen):',\n        JSON.stringify({\n          id: $json.unternehmen.id,\n          name: $json.unternehmen.name,\n          branche: $json.unternehmen.branche,\n          mitarbeiteranzahl: $json.unternehmen.mitarbeiteranzahl,\n          gruendungsjahr: $json.unternehmen.gruendungsjahr,\n          hauptstandort: $json.unternehmen.hauptsitz\n        }, null, 2),\n        '',\n        'Abteilungen (Input):',\n        JSON.stringify($json.abteilungen, null, 2),\n        '',\n        'Anforderungen:',\n        '- Definiere 2-6 Rollen pro Abteilung mit unterschiedlichen Verantwortungsniveaus.',\n        '- Ebene muss einer der Werte Entry/Mid/Senior/Lead/Executive sein.',\n        '- anzahl_personen pro Abteilung soll in Summe zur mitarbeiteranzahl passen.',\n        '- Setze realistische Gehaltsbereiche basierend auf Branche und Ebene.',\n        '- anforderungen muss mindestens zwei Skills enthalten.',\n        '',\n        'Gib nur JSON zurück, keine Erklärungen.'\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.6\n}) }}",
         "options": {}
       },
-      "id": "ab845e2f-f966-4e65-b1ca-44648fe93ed2",
+      "id": "fc6b8db0-aea1-4917-bc47-b45402ec7003",
       "name": "HTTP: Rollen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-4448, -80]
+      "position": [624, -280]
     },
     {
       "parameters": {
         "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, config } = $('JSON parsen (Unternehmen)').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_object' || part.type === 'json_schema' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst abteilungen = data.abteilungen ?? data;\nreturn { unternehmen, abteilungen, config };"
       },
-      "id": "3a2cc552-2365-4c5d-af89-c647246333e8",
+      "id": "2e7bc7d9-9ffe-45bd-b9d3-0c96bbbd0cd7",
       "name": "JSON parsen (Abteilungen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4672, -80]
-    },
-    {
-      "parameters": {
-        "jsCode": "const { unternehmen, config } = $('Demo-Daten oder KI (Unternehmen)').first().json;\n\nif (config.use_demo_data_abteilungen === true) {\n  // Demo-Daten für Abteilungen - Output 1\n  const abteilungen = [\n    {\n      \"id\": \"dept_001\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Geschäftsführung\",\n      \"ebene\": 1,\n      \"parent_id\": null,\n      \"budget_euro\": 500000,\n      \"mitarbeiteranzahl\": 5\n    },\n    {\n      \"id\": \"dept_002\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Forschung & Entwicklung\",\n      \"ebene\": 2,\n      \"parent_id\": \"dept_001\",\n      \"budget_euro\": 1200000,\n      \"mitarbeiteranzahl\": 80\n    },\n    {\n      \"id\": \"dept_003\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Vertrieb\",\n      \"ebene\": 2,\n      \"parent_id\": \"dept_001\",\n      \"budget_euro\": 800000,\n      \"mitarbeiteranzahl\": 40\n    },\n    {\n      \"id\": \"dept_004\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Marketing\",\n      \"ebene\": 2,\n      \"parent_id\": \"dept_001\",\n      \"budget_euro\": 600000,\n      \"mitarbeiteranzahl\": 30\n    },\n    {\n      \"id\": \"dept_005\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"IT-Support\",\n      \"ebene\": 2,\n      \"parent_id\": \"dept_001\",\n      \"budget_euro\": 300000,\n      \"mitarbeiteranzahl\": 15\n    },\n    {\n      \"id\": \"dept_006\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Finanzen\",\n      \"ebene\": 2,\n      \"parent_id\": \"dept_001\",\n      \"budget_euro\": 400000,\n      \"mitarbeiteranzahl\": 10\n    },\n    {\n      \"id\": \"dept_007\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Produktentwicklung\",\n      \"ebene\": 3,\n      \"parent_id\": \"dept_002\",\n      \"budget_euro\": 700000,\n      \"mitarbeiteranzahl\": 50\n    },\n    {\n      \"id\": \"dept_008\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Qualitätssicherung\",\n      \"ebene\": 3,\n      \"parent_id\": \"dept_002\",\n      \"budget_euro\": 200000,\n      \"mitarbeiteranzahl\": 20\n    },\n    {\n      \"id\": \"dept_009\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Vertrieb Innendienst\",\n      \"ebene\": 3,\n      \"parent_id\": \"dept_003\",\n      \"budget_euro\": 300000,\n      \"mitarbeiteranzahl\": 20\n    },\n    {\n      \"id\": \"dept_010\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Vertrieb Außendienst\",\n      \"ebene\": 3,\n      \"parent_id\": \"dept_003\",\n      \"budget_euro\": 500000,\n      \"mitarbeiteranzahl\": 20\n    },\n    {\n      \"id\": \"dept_011\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Content Marketing\",\n      \"ebene\": 3,\n      \"parent_id\": \"dept_004\",\n      \"budget_euro\": 250000,\n      \"mitarbeiteranzahl\": 10\n    },\n    {\n      \"id\": \"dept_012\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"SEO/SEM\",\n      \"ebene\": 3,\n      \"parent_id\": \"dept_004\",\n      \"budget_euro\": 200000,\n      \"mitarbeiteranzahl\": 10\n    },\n    {\n      \"id\": \"dept_013\",\n      \"unternehmen_id\": \"12345678\",\n      \"name\": \"Helpdesk\",\n      \"ebene\": 3,\n      \"parent_id\": \"dept_005\",\n      \"budget_euro\": 150000,\n      \"mitarbeiteranzahl\": 5\n    }\n  ];\n  return [null, [{ json: { unternehmen, abteilungen, config, useDemo: true } }]];\n} else {\n  // Weiterleitung zu HTTP-Call - Output 0\n  return [[{ json: { unternehmen, config } }], null];\n}\n"
-      },
-      "id": "demo-data-abteilungen-switch",
-      "name": "Demo-Daten Abteilungen?",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [-4896, -176]
-    },
-    {
-      "parameters": {
-        "jsCode": "const input = $input.first()?.json;\n\nif (input.useDemo === true && input.unternehmen) {\n  // Kam von Demo-Daten, direkt weitergeben\n  return [{ json: { unternehmen: input.unternehmen, config: input.config } }];\n} else if (input.choices) {\n  // Kam vom HTTP-Call, parsen\n  const config = $('Konfiguration').first().json;\n  const response = input.choices[0].message.content;\n  const unternehmen = JSON.parse(response);\n  return [{ json: { unternehmen, config } }];\n} else {\n  throw new Error('Unerwartetes Input-Format in Demo-Daten oder KI (Unternehmen)');\n}\n"
-      },
-      "id": "demo-data-unternehmen-merge",
-      "name": "Demo-Daten oder KI (Unternehmen)",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [-5344, -176]
+      "position": [400, -280]
     },
     {
       "parameters": {
@@ -349,41 +306,41 @@
         "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Experte für Organisationsstrukturen. Antworte immer mit validem JSON im Format: {\"abteilungen\": [...]}'\n    },\n    {\n      role: 'user',\n      content: 'Erstelle eine hierarchische Abteilungsstruktur für: ' + $json.unternehmen.name + ' (Branche: ' + $json.unternehmen.branche + ', Mitarbeiter: ' + $json.unternehmen.mitarbeiteranzahl + '). Erstelle ' + $json.config.hierarchie_ebenen + ' Hierarchie-Ebenen. Jede Abteilung braucht: id (dept_XXX), unternehmen_id (' + $json.unternehmen.id + '), name, ebene (1-' + $json.config.hierarchie_ebenen + '), parent_id (null für Ebene 1), budget_euro, mitarbeiteranzahl.'\n    }\n  ],\n  temperature: 0.7\n}) }}",
         "options": {}
       },
-      "id": "3efe1b4c-ddd1-42fc-9a92-6c87401b56d7",
+      "id": "7c9504e7-a408-4a9f-bba9-1a06b545caff",
       "name": "HTTP: Abteilungen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-4896, -80]
+      "position": [176, -280]
     },
     {
       "parameters": {
         "jsCode": "const config = $('Konfiguration').first().json;\nconst response = $input.first().json.choices[0].message.content;\nconst unternehmen = JSON.parse(response);\nreturn { unternehmen, config };"
       },
-      "id": "c65970b4-88e6-4461-9844-ebc1188db53a",
+      "id": "84aae939-d3ad-48ac-bb4f-1ee48271d859",
       "name": "JSON parsen (Unternehmen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5120, -80]
+      "position": [-48, -280]
     },
     {
       "parameters": {
-        "jsCode": "const config = $('Konfiguration').first().json;\n\n// Nur ausführen, wenn use_demo_data aktiviert ist\nif (config.use_demo_data !== true) {\n  return [];\n}\n\nconst unternehmen = {\n  \"id\": \"12345678\",\n  \"name\": \"EcoTech Solutions GmbH\",\n  \"branche\": \"Technologie\",\n  \"groesse\": \"Mittel\",\n  \"mitarbeiteranzahl\": 250,\n  \"gruendungsjahr\": 2015,\n  \"hauptsitz\": \"Berlin, Deutschland\",\n  \"beschreibung\": \"EcoTech Solutions GmbH entwickelt innovative Technologien mit einem klaren Fokus auf nachhaltige Lösungen. Unsere Produkte und Dienstleistungen unterstützen Unternehmen dabei, umweltfreundlicher zu arbeiten und ihre CO2-Bilanz zu verbessern.\",\n  \"umsatz_mio\": 45,\n  \"webseite\": \"www.ecotechsolutions.de\"\n};\n\nconst abteilungen = [\n  {\"id\": \"dept_001\", \"unternehmen_id\": \"12345678\", \"name\": \"Geschäftsführung\", \"ebene\": 1, \"parent_id\": null, \"budget_euro\": 500000, \"mitarbeiteranzahl\": 5},\n  {\"id\": \"dept_002\", \"unternehmen_id\": \"12345678\", \"name\": \"Forschung & Entwicklung\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 1200000, \"mitarbeiteranzahl\": 80},\n  {\"id\": \"dept_003\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertrieb\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 800000, \"mitarbeiteranzahl\": 40},\n  {\"id\": \"dept_004\", \"unternehmen_id\": \"12345678\", \"name\": \"Marketing\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 600000, \"mitarbeiteranzahl\": 30},\n  {\"id\": \"dept_005\", \"unternehmen_id\": \"12345678\", \"name\": \"IT-Support\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 300000, \"mitarbeiteranzahl\": 15},\n  {\"id\": \"dept_006\", \"unternehmen_id\": \"12345678\", \"name\": \"Finanzen\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"budget_euro\": 400000, \"mitarbeiteranzahl\": 10},\n  {\"id\": \"dept_007\", \"unternehmen_id\": \"12345678\", \"name\": \"Produktentwicklung\", \"ebene\": 3, \"parent_id\": \"dept_002\", \"budget_euro\": 700000, \"mitarbeiteranzahl\": 50},\n  {\"id\": \"dept_008\", \"unternehmen_id\": \"12345678\", \"name\": \"Qualitätssicherung\", \"ebene\": 3, \"parent_id\": \"dept_002\", \"budget_euro\": 200000, \"mitarbeiteranzahl\": 20},\n  {\"id\": \"dept_009\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertrieb Innendienst\", \"ebene\": 3, \"parent_id\": \"dept_003\", \"budget_euro\": 300000, \"mitarbeiteranzahl\": 20},\n  {\"id\": \"dept_010\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertrieb Außendienst\", \"ebene\": 3, \"parent_id\": \"dept_003\", \"budget_euro\": 500000, \"mitarbeiteranzahl\": 20},\n  {\"id\": \"dept_011\", \"unternehmen_id\": \"12345678\", \"name\": \"Content Marketing\", \"ebene\": 3, \"parent_id\": \"dept_004\", \"budget_euro\": 250000, \"mitarbeiteranzahl\": 10},\n  {\"id\": \"dept_012\", \"unternehmen_id\": \"12345678\", \"name\": \"SEO/SEM\", \"ebene\": 3, \"parent_id\": \"dept_004\", \"budget_euro\": 200000, \"mitarbeiteranzahl\": 10},\n  {\"id\": \"dept_013\", \"unternehmen_id\": \"12345678\", \"name\": \"Helpdesk\", \"ebene\": 3, \"parent_id\": \"dept_005\", \"budget_euro\": 150000, \"mitarbeiteranzahl\": 5}\n];\n\nconst rollen = [\n  {\"id\": \"role_001\", \"abteilung_id\": \"dept_001\", \"titel\": \"Geschäftsführer\", \"beschreibung\": \"Leitet das Unternehmen und verantwortet die strategische Ausrichtung.\", \"ebene\": \"Executive\", \"anzahl_personen\": 1, \"gehalt_min\": 120000, \"gehalt_max\": 180000, \"anforderungen\": [\"Führungskompetenz\", \"Strategisches Denken\"]},\n  {\"id\": \"role_002\", \"abteilung_id\": \"dept_001\", \"titel\": \"Assistenz der Geschäftsführung\", \"beschreibung\": \"Unterstützt die Geschäftsführung bei administrativen Aufgaben und Projekten.\", \"ebene\": \"Mid\", \"anzahl_personen\": 1, \"gehalt_min\": 50000, \"gehalt_max\": 70000, \"anforderungen\": [\"Organisationstalent\", \"Kommunikationsfähigkeit\"]},\n  {\"id\": \"role_003\", \"abteilung_id\": \"dept_002\", \"titel\": \"Forschungsleiter\", \"beschreibung\": \"Leitet das Forschungsteam und koordiniert Forschungsprojekte.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 90000, \"gehalt_max\": 130000, \"anforderungen\": [\"Projektmanagement\", \"Technisches Wissen\"]},\n  {\"id\": \"role_004\", \"abteilung_id\": \"dept_002\", \"titel\": \"Forschungsingenieur\", \"beschreibung\": \"Entwickelt neue Technologien und Produkte im Bereich Forschung.\", \"ebene\": \"Senior\", \"anzahl_personen\": 5, \"gehalt_min\": 70000, \"gehalt_max\": 100000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Programmierung\"]},\n  {\"id\": \"role_005\", \"abteilung_id\": \"dept_002\", \"titel\": \"Praktikant Forschung\", \"beschreibung\": \"Unterstützt das Team bei der Durchführung von Experimenten und Analysen.\", \"ebene\": \"Entry\", \"anzahl_personen\": 5, \"gehalt_min\": 30000, \"gehalt_max\": 40000, \"anforderungen\": [\"Kommunikationsfähigkeit\", \"Teamarbeit\"]},\n  {\"id\": \"role_006\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsleiter\", \"beschreibung\": \"Leitet das Vertriebsteam und entwickelt Vertriebsstrategien.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 80000, \"gehalt_max\": 120000, \"anforderungen\": [\"Verhandlungsgeschick\", \"Kundenorientierung\"]},\n  {\"id\": \"role_007\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsmitarbeiter Innendienst\", \"beschreibung\": \"Bearbeitet Kundenanfragen und unterstützt den Außendienst.\", \"ebene\": \"Mid\", \"anzahl_personen\": 10, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Verkaufskompetenz\", \"Kundenservice\"]},\n  {\"id\": \"role_008\", \"abteilung_id\": \"dept_003\", \"titel\": \"Vertriebsmitarbeiter Außendienst\", \"beschreibung\": \"Akquiriert neue Kunden und pflegt bestehende Kundenbeziehungen.\", \"ebene\": \"Senior\", \"anzahl_personen\": 9, \"gehalt_min\": 60000, \"gehalt_max\": 90000, \"anforderungen\": [\"Selbstmotivation\", \"Verhandlungsgeschick\"]},\n  {\"id\": \"role_009\", \"abteilung_id\": \"dept_004\", \"titel\": \"Marketingmanager\", \"beschreibung\": \"Entwickelt und implementiert Marketingstrategien.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 70000, \"gehalt_max\": 100000, \"anforderungen\": [\"Kreativität\", \"Analytische Fähigkeiten\"]},\n  {\"id\": \"role_010\", \"abteilung_id\": \"dept_004\", \"titel\": \"Content Creator\", \"beschreibung\": \"Erstellt Inhalte für verschiedene Marketingkanäle.\", \"ebene\": \"Mid\", \"anzahl_personen\": 5, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Schreibkompetenz\", \"Kreativität\"]},\n  {\"id\": \"role_011\", \"abteilung_id\": \"dept_004\", \"titel\": \"SEO/SEM Spezialist\", \"beschreibung\": \"Optimiert die Online-Sichtbarkeit und führt Kampagnen durch.\", \"ebene\": \"Senior\", \"anzahl_personen\": 4, \"gehalt_min\": 50000, \"gehalt_max\": 80000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Technisches Wissen\"]},\n  {\"id\": \"role_012\", \"abteilung_id\": \"dept_005\", \"titel\": \"IT-Support Spezialist\", \"beschreibung\": \"Bietet technischen Support und löst IT-Probleme.\", \"ebene\": \"Mid\", \"anzahl_personen\": 7, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Technisches Wissen\", \"Problemlösungsfähigkeiten\"]},\n  {\"id\": \"role_013\", \"abteilung_id\": \"dept_005\", \"titel\": \"Helpdesk Mitarbeiter\", \"beschreibung\": \"Bearbeitet Supportanfragen und sorgt für Kundenzufriedenheit.\", \"ebene\": \"Entry\", \"anzahl_personen\": 5, \"gehalt_min\": 30000, \"gehalt_max\": 40000, \"anforderungen\": [\"Kommunikationsfähigkeit\", \"Technisches Wissen\"]},\n  {\"id\": \"role_014\", \"abteilung_id\": \"dept_006\", \"titel\": \"Finanzleiter\", \"beschreibung\": \"Verantwortet die Finanzstrategie und das Budget des Unternehmens.\", \"ebene\": \"Lead\", \"anzahl_personen\": 1, \"gehalt_min\": 80000, \"gehalt_max\": 120000, \"anforderungen\": [\"Finanzanalyse\", \"Führungskompetenz\"]},\n  {\"id\": \"role_015\", \"abteilung_id\": \"dept_006\", \"titel\": \"Buchhalter\", \"beschreibung\": \"Verarbeitet Buchhaltungsunterlagen und erstellt Finanzberichte.\", \"ebene\": \"Mid\", \"anzahl_personen\": 4, \"gehalt_min\": 40000, \"gehalt_max\": 60000, \"anforderungen\": [\"Detailgenauigkeit\", \"Analytische Fähigkeiten\"]},\n  {\"id\": \"role_016\", \"abteilung_id\": \"dept_006\", \"titel\": \"Finanzanalyst\", \"beschreibung\": \"Analysiert Finanzdaten und unterstützt bei der Budgetplanung.\", \"ebene\": \"Senior\", \"anzahl_personen\": 5, \"gehalt_min\": 60000, \"gehalt_max\": 90000, \"anforderungen\": [\"Analytische Fähigkeiten\", \"Finanzkenntnisse\"]}\n];\n\nreturn [{ json: { unternehmen, abteilungen, rollen, config } }];\n"
+        "jsCode": "const config = $input.first().json;\n\nif (config.use_demo_data) {\n  const unternehmen = {\n    id: '12345678',\n    name: 'EcoTech Solutions GmbH',\n    branche: 'Technologie',\n    groesse: 'Mittel',\n    mitarbeiteranzahl: 250,\n    gruendungsjahr: 2015,\n    hauptsitz: 'Berlin, Deutschland',\n    beschreibung: 'EcoTech Solutions GmbH entwickelt innovative Technologien für nachhaltige Energielösungen und Smart-City-Anwendungen.',\n    umsatz_mio: 45,\n    webseite: 'www.ecotechsolutions.de'\n  };\n\n  const abteilungen = [\n    { id: 'dept_001', unternehmen_id: '12345678', name: 'Geschäftsführung', ebene: 1, parent_id: null, beschreibung: 'Strategische Leitung', mitarbeiteranzahl: 5 },\n    { id: 'dept_002', unternehmen_id: '12345678', name: 'Vertrieb & Marketing', ebene: 2, parent_id: 'dept_001', beschreibung: 'Kundenakquise', mitarbeiteranzahl: 35 },\n    { id: 'dept_003', unternehmen_id: '12345678', name: 'Produktentwicklung', ebene: 2, parent_id: 'dept_001', beschreibung: 'Forschung und Entwicklung', mitarbeiteranzahl: 80 },\n    { id: 'dept_004', unternehmen_id: '12345678', name: 'IT & Infrastruktur', ebene: 2, parent_id: 'dept_001', beschreibung: 'Systemadministration', mitarbeiteranzahl: 15 },\n    { id: 'dept_005', unternehmen_id: '12345678', name: 'Personal & Organisation', ebene: 2, parent_id: 'dept_001', beschreibung: 'HR', mitarbeiteranzahl: 8 },\n    { id: 'dept_006', unternehmen_id: '12345678', name: 'Finanzen & Controlling', ebene: 2, parent_id: 'dept_001', beschreibung: 'Buchhaltung', mitarbeiteranzahl: 12 },\n    { id: 'dept_007', unternehmen_id: '12345678', name: 'Kundenservice', ebene: 2, parent_id: 'dept_001', beschreibung: 'Support', mitarbeiteranzahl: 25 },\n    { id: 'dept_008', unternehmen_id: '12345678', name: 'Einkauf & Logistik', ebene: 2, parent_id: 'dept_001', beschreibung: 'Beschaffung', mitarbeiteranzahl: 18 },\n    { id: 'dept_009', unternehmen_id: '12345678', name: 'Qualitätsmanagement', ebene: 2, parent_id: 'dept_001', beschreibung: 'QM', mitarbeiteranzahl: 10 },\n    { id: 'dept_010', unternehmen_id: '12345678', name: 'Recht & Compliance', ebene: 2, parent_id: 'dept_001', beschreibung: 'Legal', mitarbeiteranzahl: 6 },\n    { id: 'dept_011', unternehmen_id: '12345678', name: 'Projektmanagement', ebene: 3, parent_id: 'dept_003', beschreibung: 'Projektsteuerung', mitarbeiteranzahl: 12 },\n    { id: 'dept_012', unternehmen_id: '12345678', name: 'Vertriebsinnendienst', ebene: 3, parent_id: 'dept_002', beschreibung: 'Angebote', mitarbeiteranzahl: 8 },\n    { id: 'dept_013', unternehmen_id: '12345678', name: 'Marketing & Kommunikation', ebene: 3, parent_id: 'dept_002', beschreibung: 'Content-Marketing', mitarbeiteranzahl: 12 }\n  ];\n\n  const rollen = [\n    { id: 'role_001', abteilung_id: 'dept_001', titel: 'Geschäftsführer', beschreibung: 'Strategische Unternehmensführung', ebene: 1, min_mitarbeiter: 1, max_mitarbeiter: 2 },\n    { id: 'role_002', abteilung_id: 'dept_002', titel: 'Vertriebsleiter', beschreibung: 'Leitung Vertriebsteam', ebene: 2, min_mitarbeiter: 1, max_mitarbeiter: 1 },\n    { id: 'role_003', abteilung_id: 'dept_002', titel: 'Account Manager', beschreibung: 'Kundenbetreuung', ebene: 3, min_mitarbeiter: 3, max_mitarbeiter: 5 },\n    { id: 'role_004', abteilung_id: 'dept_003', titel: 'Entwicklungsleiter', beschreibung: 'Leitung Produktentwicklung', ebene: 2, min_mitarbeiter: 1, max_mitarbeiter: 1 },\n    { id: 'role_005', abteilung_id: 'dept_003', titel: 'Software-Entwickler', beschreibung: 'Programmierung', ebene: 3, min_mitarbeiter: 8, max_mitarbeiter: 12 },\n    { id: 'role_006', abteilung_id: 'dept_004', titel: 'IT-Leiter', beschreibung: 'IT-Infrastruktur', ebene: 2, min_mitarbeiter: 1, max_mitarbeiter: 1 },\n    { id: 'role_007', abteilung_id: 'dept_004', titel: 'Systemadministrator', beschreibung: 'Server & Netzwerke', ebene: 3, min_mitarbeiter: 2, max_mitarbeiter: 3 },\n    { id: 'role_008', abteilung_id: 'dept_005', titel: 'Personalleiter', beschreibung: 'HR-Strategie', ebene: 2, min_mitarbeiter: 1, max_mitarbeiter: 1 },\n    { id: 'role_009', abteilung_id: 'dept_005', titel: 'HR-Referent', beschreibung: 'Recruiting', ebene: 3, min_mitarbeiter: 2, max_mitarbeiter: 3 },\n    { id: 'role_010', abteilung_id: 'dept_006', titel: 'Kaufmännischer Leiter', beschreibung: 'Finanzsteuerung', ebene: 2, min_mitarbeiter: 1, max_mitarbeiter: 1 },\n    { id: 'role_011', abteilung_id: 'dept_006', titel: 'Buchhalter', beschreibung: 'Finanzbuchhaltung', ebene: 3, min_mitarbeiter: 2, max_mitarbeiter: 3 },\n    { id: 'role_012', abteilung_id: 'dept_007', titel: 'Kundenservice-Leiter', beschreibung: 'Leitung Support', ebene: 2, min_mitarbeiter: 1, max_mitarbeiter: 1 },\n    { id: 'role_013', abteilung_id: 'dept_007', titel: 'Support-Mitarbeiter', beschreibung: 'Technischer Support', ebene: 3, min_mitarbeiter: 4, max_mitarbeiter: 6 },\n    { id: 'role_014', abteilung_id: 'dept_011', titel: 'Projektmanager', beschreibung: 'Projektplanung', ebene: 3, min_mitarbeiter: 2, max_mitarbeiter: 3 },\n    { id: 'role_015', abteilung_id: 'dept_012', titel: 'Vertriebsassistent', beschreibung: 'Vertriebsinnendienst', ebene: 3, min_mitarbeiter: 2, max_mitarbeiter: 3 },\n    { id: 'role_016', abteilung_id: 'dept_013', titel: 'Marketing Manager', beschreibung: 'Marketingkampagnen', ebene: 3, min_mitarbeiter: 1, max_mitarbeiter: 2 }\n  ];\n\n  return [{ json: { unternehmen, abteilungen, rollen, config } }];\n} else {\n  return [];\n}"
       },
-      "id": "demo-data-all",
+      "id": "b90c1370-2983-42cd-8850-f134f5453175",
       "name": "Demo-Daten (Alle)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5344, -80]
+      "position": [848, -88]
     },
     {
       "parameters": {
-        "jsCode": "const config = $input.first().json;\n\n// Nur ausführen, wenn use_demo_data NICHT aktiviert ist\nif (config.use_demo_data === true) {\n  return [];\n}\n\nreturn [{ json: config }];\n"
+        "jsCode": "const config = $input.first().json;\n\nif (config.use_demo_data) {\n  return [];\n} else {\n  return [{ json: config }];\n}"
       },
-      "id": "filter-for-api-calls",
+      "id": "eb92adc2-9d60-47d5-8d1b-7843258e4f3d",
       "name": "Filter für API-Calls",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5568, 48]
+      "position": [-496, -280]
     },
     {
       "parameters": {
@@ -407,11 +364,11 @@
         "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Experte für Unternehmensstrukturen. Erstelle realistische fiktive Unternehmensdaten. Antworte immer mit validem JSON.'\n    },\n    {\n      role: 'user',\n      content: 'Erstelle ein fiktives Unternehmen mit folgenden Vorgaben: Branche: ' + $json.branche + ', Größe: ' + $json.unternehmensgroesse + ', Land: ' + $json.land + ', Besonderheit: ' + $json.besonderheit + '. Erstelle ein JSON-Objekt mit den Feldern: id, name, branche, groesse, mitarbeiteranzahl, gruendungsjahr, hauptsitz, beschreibung, umsatz_mio, webseite.'\n    }\n  ],\n  temperature: 0.8\n}) }}",
         "options": {}
       },
-      "id": "2612544a-a71e-4efd-8a7e-eb4aabebb161",
+      "id": "4efa98c4-1e85-40de-b470-ab2c2b0c52e9",
       "name": "HTTP: Unternehmen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5344, 48]
+      "position": [-272, -280]
     },
     {
       "parameters": {
@@ -450,7 +407,7 @@
             {
               "id": "config_apikey",
               "name": "openai_api_key",
-              "value": "hey hier",
+              "value": "key hier",
               "type": "string"
             },
             {
@@ -469,30 +426,30 @@
         },
         "options": {}
       },
-      "id": "2338115a-30fc-4ac1-8077-b881a4086811",
+      "id": "f642b77f-f328-4f27-ab6e-4e59cead59bf",
       "name": "Konfiguration",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.3,
-      "position": [-5568, -272],
+      "position": [-720, -88],
       "notes": "HIER ANPASSEN: Branche, Größe, Land, Besonderheiten und OpenAI API Key"
     },
     {
       "parameters": {},
-      "id": "d683d4c5-2705-4ebb-8091-730e5691355a",
+      "id": "d70df3ea-2c27-47f9-943d-4c44d5bab04d",
       "name": "Start",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [-5792, -272]
+      "position": [-944, -88]
     },
     {
       "parameters": {
         "jsCode": "const items = $input.all();\nlet rows = [];\nfor (const item of items) {\n  const data = item.json;\n  if (Array.isArray(data)) {\n    rows = rows.concat(data);\n  } else if (data && Array.isArray(data.data)) {\n    rows = rows.concat(data.data);\n  } else if (data) {\n    rows.push(data);\n  }\n}\nconst activities = rows\n  .filter(row => String(row['Hierarchy'] ?? row['Hierarchy ID'] ?? '').trim() === '4')\n  .map(row => {\n    const hierarchyId = String(row['Hierarchy ID'] ?? '').trim();\n    const parentHierarchyId = hierarchyId.includes('.') ? hierarchyId.split('.').slice(0, -1).join('.') : '';\n    return {\n      pcf_id: row['PCF ID'],\n      hierarchy_id: hierarchyId,\n      parent_hierarchy_id: parentHierarchyId,\n      name: row['Name (German Translation) (not veriied)'] ?? row['Name (German Translation) (not verified)'] ?? row['Name'] ?? '',\n      description: row['Element Description (German Translation) (not verfied)'] ?? row['Element Description (German Translation) (not verified)'] ?? row['Element Description'] ?? ''\n    };\n  });\nconst activitiesByProcess = activities.reduce((acc, activity) => {\n  const key = activity.parent_hierarchy_id || '';\n  if (!acc[key]) acc[key] = [];\n  acc[key].push(activity);\n  return acc;\n}, {});\nreturn [{ json: { apqcActivities: activities, apqcActivitiesByProcess: activitiesByProcess } }];\n"
       },
-      "id": "d83b9d26-24ce-4b05-b3d3-f650021c71e1",
+      "id": "cc240279-fe9c-4b65-a6e0-5563c092af9a",
       "name": "APQC Aktivitäten filtern",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4224, -464]
+      "position": [848, 296]
     },
     {
       "parameters": {
@@ -517,30 +474,30 @@
         "options": {}
       },
       "name": "HTTP: Aktivitäten erstellen",
-      "id": "d94738a8-e39a-47e7-996d-66d2de392145",
+      "id": "b9e33afa-664e-412e-a2d1-510f62a5b4a0",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-4896, 1184]
+      "position": [3760, 392]
     },
     {
       "parameters": {
         "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, rollen, prozesse, mitarbeiter, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config } = $('JSON parsen (Mitarbeiter)').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst aktivitaeten = data.aktivitaeten ?? data;\nreturn { unternehmen, abteilungen, rollen, prozesse, mitarbeiter, aktivitaeten, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };"
       },
       "name": "JSON parsen (Aktivitäten)",
-      "id": "637520c5-bdc8-4df7-8df0-cfc481359823",
+      "id": "c8e67a6a-2026-420b-9db1-9ce84864cc35",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4672, 1184]
+      "position": [3984, 392]
     },
     {
       "parameters": {
         "jsCode": "// Hole alle Daten aus dem vorherigen Node\nconst { unternehmen, abteilungen, rollen, prozesse, mitarbeiter, aktivitaeten, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config } = $input.first().json;\n\n// Erstelle Lookup-Maps für schnellen Zugriff\nconst mitarbeiterMap = new Map(mitarbeiter.map(m => [m.id, m]));\nconst rollenMap = new Map(rollen.map(r => [r.id, r]));\nconst abteilungenMap = new Map(abteilungen.map(a => [a.id, a]));\nconst prozesseMap = new Map(prozesse.map(p => [p.pcf_id, p]));\n\n// Reichere jede Aktivität mit vollständigem Kontext an\nconst aktivitaetenMitKontext = aktivitaeten.map(aktivitaet => {\n  const mitarbeiter = mitarbeiterMap.get(aktivitaet.mitarbeiter_id) || {};\n  const rolle = rollenMap.get(mitarbeiter.rolle_id) || {};\n  const abteilung = abteilungenMap.get(mitarbeiter.abteilung_id) || {};\n  const prozess = prozesseMap.get(aktivitaet.prozess_id) || {};\n  \n  return {\n    json: {\n      ...aktivitaet,\n      mitarbeiter_kontext: {\n        id: mitarbeiter.id,\n        vollname: mitarbeiter.vollname,\n        vorname: mitarbeiter.vorname,\n        nachname: mitarbeiter.nachname,\n        rolle_id: mitarbeiter.rolle_id,\n        rolle_titel: rolle.titel,\n        rolle_ebene: rolle.ebene,\n        abteilung_id: mitarbeiter.abteilung_id,\n        abteilung_name: abteilung.name,\n        erfahrung_jahre: mitarbeiter.alter ? Math.floor((mitarbeiter.alter - 20) / 2) : 5\n      },\n      prozess_kontext: {\n        pcf_id: prozess.pcf_id,\n        name: prozess.name,\n        abteilung_name: prozess.abteilung_name\n      },\n      config: config\n    }\n  };\n});\n\nreturn aktivitaetenMitKontext;"
       },
       "name": "Aktivitäten mit Mitarbeiter-Kontext anreichern",
-      "id": "589e6e25-0dd2-4baf-98cd-c2887543c9e8",
+      "id": "0cbfa7b2-ff60-4fae-8683-cb41e57ce82e",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4448, 1184]
+      "position": [4208, 392]
     },
     {
       "parameters": {
@@ -565,40 +522,40 @@
         "options": {}
       },
       "name": "HTTP: Mitarbeiterbeschreibungen generieren",
-      "id": "93df8a36-273f-4d43-9c0f-6444b3afbfab",
+      "id": "7f047b9f-9081-4c7f-86e5-557788682c7a",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-4224, 1184]
+      "position": [4432, 392]
     },
     {
       "parameters": {
         "jsCode": "// Hole die ursprüngliche Aktivität und die API-Antwort\nconst originalAktivitaet = $input.first().json;\nconst apiResponse = $input.first().json.choices?.[0]?.message?.content;\n\nif (!apiResponse) {\n  // Falls keine Antwort, gebe Originalaktivität zurück\n  const { mitarbeiter_kontext, prozess_kontext, config, ...aktivitaetOhneTemp } = originalAktivitaet;\n  return [{\n    json: {\n      ...aktivitaetOhneTemp,\n      beschreibung_mitarbeiter: 'Beschreibung konnte nicht generiert werden.'\n    }\n  }];\n}\n\n// Parse die API-Antwort\nlet parsedResponse;\ntry {\n  parsedResponse = typeof apiResponse === 'string' ? JSON.parse(apiResponse) : apiResponse;\n} catch (e) {\n  parsedResponse = { beschreibung_mitarbeiter: 'Fehler beim Parsen der Beschreibung.' };\n}\n\n// Entferne die temporären Kontextfelder und füge die Mitarbeiterbeschreibung hinzu\nconst { mitarbeiter_kontext, prozess_kontext, config, choices, ...aktivitaetOhneTemp } = originalAktivitaet;\n\nreturn [{\n  json: {\n    ...aktivitaetOhneTemp,\n    beschreibung_mitarbeiter: parsedResponse.beschreibung_mitarbeiter || 'Keine Beschreibung verfügbar.'\n  }\n}];"
       },
       "name": "Beschreibungen zusammenführen",
-      "id": "b439f356-79ad-49a2-9e73-dd7edc267af9",
+      "id": "83fbd8df-f298-47c9-8877-ad3f25db9a6f",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4000, 1184]
+      "position": [4656, 392]
     },
     {
       "parameters": {
         "jsCode": "// Sammle alle angereicherten Aktivitäten\nconst aktivitaeten = $input.all().map(item => item.json);\n\nreturn [{ json: { aktivitaeten } }];"
       },
       "name": "Aktivitäten aggregieren",
-      "id": "41053e8a-60d3-4748-9945-d605d4106dde",
+      "id": "60deaf51-881b-4c13-9ed6-1ef6699c4f1d",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3776, 1184]
+      "position": [4880, 392]
     },
     {
       "parameters": {
         "jsCode": "const { aktivitaeten } = $input.first().json;\nreturn aktivitaeten.map(act => ({ json: act }));"
       },
       "name": "Aktivitäten extrahieren",
-      "id": "7134cab2-47f5-412f-85a1-0770d0813011",
+      "id": "fa9381d1-ffd0-4ab4-a7ed-081f3d4b213d",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3552, 1184]
+      "position": [5104, 392]
     },
     {
       "parameters": {
@@ -609,50 +566,50 @@
         }
       },
       "name": "Aktivitäten JSON",
-      "id": "030540fb-6fde-4ff9-ac8e-3418d2f75f9c",
+      "id": "a82f607d-2397-4f24-98b3-d4abe2c4bcda",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-3328, 1184]
+      "position": [5328, 392]
     },
     {
       "parameters": {},
-      "id": "d38e5734-adae-4fb6-84e3-dff2768fc8b7",
+      "id": "a7b2ee37-5d99-4f84-b659-e9a97f66aadb",
       "name": "Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-4448, 704]
+      "position": [4208, -88]
     },
     {
       "parameters": {},
-      "id": "75e66d4e-52bf-42c2-97c0-a8061a84ae4c",
+      "id": "e986b927-a7f1-4c19-8687-5576ab0d1b2b",
       "name": "Dateien + Rollen zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-4224, 800]
+      "position": [4432, -64]
     },
     {
       "parameters": {},
-      "id": "dde04a76-0b6e-46c4-8025-fc71348abe4a",
+      "id": "90b1f97c-25e9-4e3e-b898-4cc16e27330c",
       "name": "Dateien + Prozesse zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-4000, 704]
+      "position": [4656, -184]
     },
     {
       "parameters": {},
-      "id": "c7c31859-6de1-4e2c-bdea-8f576847832b",
+      "id": "544eb316-3e3e-4593-81c0-c7a73763c5ee",
       "name": "Dateien + Aktivitäten zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-3104, 800]
+      "position": [5552, -88]
     },
     {
       "parameters": {},
-      "id": "bb99420b-8b1f-4d74-9ff9-f33f5058dc8d",
+      "id": "af8b1128-5d0f-46fe-aa58-0187e967dba8",
       "name": "Alle Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-2880, 896]
+      "position": [5776, 8]
     },
     {
       "parameters": {
@@ -661,90 +618,70 @@
       },
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-2656, 896],
-      "id": "057784ac-7189-46d4-b248-567c5f554c08",
+      "position": [6000, 8],
+      "id": "f4842662-0b6f-4688-8658-b73e6b5ea9cd",
       "name": "Convert to File"
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst {\n  unternehmen = {},\n  abteilungen = [],\n  rollen = [],\n  apqcProcesses = [],\n  apqcActivities = [],\n  apqcActivitiesByProcess = {},\n  config = {},\n} = input;\n\nconst sortAbteilungen = (list) => {\n  return [...list]\n    .map((abteilung, index) => ({ ...abteilung, __index: index }))\n    .sort((a, b) => {\n      const levelA = Number(a.ebene ?? 999);\n      const levelB = Number(b.ebene ?? 999);\n      if (Number.isFinite(levelA) && Number.isFinite(levelB)) {\n        if (levelA !== levelB) return levelA - levelB;\n      } else if (Number.isFinite(levelA)) {\n        return -1;\n      } else if (Number.isFinite(levelB)) {\n        return 1;\n      }\n      const mitA = Number(a.mitarbeiteranzahl ?? 0);\n      const mitB = Number(b.mitarbeiteranzahl ?? 0);\n      if (mitA !== mitB) return mitB - mitA;\n      return (a.name || '').localeCompare(b.name || '');\n    });\n};\n\nconst sortedWithIndex = sortAbteilungen(abteilungen);\nconst sortedAbteilungen = sortedWithIndex.map(({ __index, ...rest }) => rest);\n\nconst globalData = $getWorkflowStaticData('global');\nglobalData.availableProcesses = Array.isArray(apqcProcesses) ? apqcProcesses.map(proc => ({ ...proc })) : [];\nglobalData.assignedProcesses = [];\nglobalData.context = { unternehmen, abteilungen: sortedAbteilungen, rollen, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\nglobalData.remainingDepartments = sortedAbteilungen.length;\n\nreturn sortedAbteilungen.map((abteilung, index) => ({ json: { abteilung, position: index } }));"
       },
-      "id": "9e80d400-02ed-44cd-a17a-741cd20328b6",
+      "id": "54f4461a-9d9f-48ae-825c-940cb0d02056",
       "name": "Prozessiteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5792, 216]
+      "position": [1520, 8]
     },
     {
       "parameters": {
         "batchSize": 1,
         "options": {}
       },
-      "id": "85c75415-8c60-4138-b44b-2d0de2a27954",
+      "id": "de1cb8f5-0d13-467a-8e9a-4713f7542456",
       "name": "Abteilungen iterieren",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-5568, 216]
+      "position": [1744, 8]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst abteilung = input.abteilung || {};\nconst position = input.position ?? 0;\n\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.context || {};\nconst availableProcesses = Array.isArray(globalData.availableProcesses) ? globalData.availableProcesses : [];\n\nconst limitProcesses = (processes, limit = 120) => {\n  if (processes.length <= limit) return processes;\n  return processes.slice(0, limit);\n};\n\nconst prozessPool = limitProcesses(availableProcesses);\nconst rollenGesamt = Array.isArray(context.rollen) ? context.rollen : [];\nconst rollen = rollenGesamt.filter(rolle => rolle.abteilung_id === abteilung.id).slice(0, 10);\n\nconst unternehmen = context.unternehmen || {};\nconst config = context.config || {};\n\nconst systemPrompt = \"Du bist Organisations- und Prozessberater. Erstelle für die angegebene Abteilung 2-4 passende APQC-Prozesse auf Ebene 3. Verwende ausschließlich die bereitgestellten Prozessdaten (PCF ID, Hierarchy ID, Name, Beschreibung) unverändert. Jeder Prozess darf nur einmal verwendet werden.\";\n\nconst abteilungsInfo = {\n  id: abteilung.id,\n  name: abteilung.name,\n  ebene: abteilung.ebene,\n  mitarbeiter: abteilung.mitarbeiteranzahl,\n};\n\nconst rollenInfo = rollen.map(rolle => ({\n  id: rolle.id,\n  titel: rolle.titel,\n  ebene: rolle.ebene,\n}));\n\nconst unternehmensInfo = {\n  name: unternehmen.name,\n  branche: unternehmen.branche,\n  mitarbeiteranzahl: unternehmen.mitarbeiteranzahl,\n  besonderheit: config.besonderheit || null,\n};\n\nconst userSections = [\n  \"Unternehmenskontext:\",\n  JSON.stringify(unternehmensInfo, null, 2),\n  \"\",\n  \"Abteilung:\",\n  JSON.stringify(abteilungsInfo, null, 2),\n  \"\",\n  \"Rollen in dieser Abteilung (Auszug):\",\n  JSON.stringify(rollenInfo, null, 2),\n  \"\",\n  \"Verfügbare APQC-Prozesse Level 3:\",\n  JSON.stringify(prozessPool, null, 2),\n  \"\",\n  \"Aufgabe:\",\n  \"Wähle 2-4 Prozesse aus der Liste aus, die bestmöglich zu den Aufgaben der Abteilung passen. Verwende die gelieferten IDs, Namen und Beschreibungen unverändert. Gib je Prozess eine kurze Begründung und eine Priorität (hoch/mittel/niedrig) an. Antworte im JSON-Format laut Schema.\",\n];\n\nconst requestPayload = {\n  model: \"gpt-4o-mini\",\n  temperature: 0.2,\n  response_format: {\n    type: \"json_schema\",\n    json_schema: {\n      name: \"prozesse_response\",\n      schema: {\n        type: \"object\",\n        additionalProperties: false,\n        properties: {\n          prozesse: {\n            type: \"array\",\n            minItems: 1,\n            items: {\n              type: \"object\",\n              additionalProperties: false,\n              properties: {\n                pcf_id: { type: \"string\", pattern: \"^[0-9]+$\" },\n                hierarchy_id: { type: \"string\", pattern: \"^[0-9]+\\.[0-9]+\\.[0-9]+$\" },\n                name: { type: \"string\" },\n                description: { type: \"string\" },\n                abteilung_id: { type: \"string\" },\n                abteilung_name: { type: \"string\" },\n                begruendung: { type: \"string\" },\n                prioritaet: { type: \"string\", enum: [\"hoch\", \"mittel\", \"niedrig\"] },\n              },\n              required: [\"pcf_id\", \"hierarchy_id\", \"name\", \"description\", \"abteilung_id\", \"abteilung_name\"],\n            },\n          },\n        },\n        required: [\"prozesse\"],\n      },\n    },\n  },\n  messages: [\n    { role: \"system\", content: systemPrompt },\n    { role: \"user\", content: userSections.join(\"\\n\") },\n  ],\n};\n\nreturn [\n  {\n    json: {\n      unternehmen,\n      abteilung,\n      rollen,\n      prozessPool,\n      config,\n      position,\n      requestPayload,\n    },\n  },\n];"
       },
-      "id": "4878ed7c-8cfe-4662-b47e-c1c0becfb26f",
+      "id": "5b99ddfb-d88b-4482-a1cd-a3826d67055b",
       "name": "Abteilungskontext erstellen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5344, 144]
+      "position": [1968, -64]
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first()?.json ?? {};\nconst response = input.body ?? input;\nconst message = response.choices?.[0]?.message;\nlet raw = message?.content;\nif (!raw) {\n  throw new Error('Antwort der Prozesse-API fehlt oder ist leer.');\n}\n\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart?.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\n');\n  }\n}\n\nlet data;\nif (typeof raw === 'object') {\n  data = raw;\n} else {\n  try {\n    data = JSON.parse(raw);\n  } catch (error) {\n    throw new Error('Antwort konnte nicht als JSON geparst werden: ' + error.message);\n  }\n}\n\nif (!data || !Array.isArray(data.prozesse)) {\n  throw new Error('Die KI-Antwort enthält keine gültige Prozessliste.');\n}\n\nconst globalData = $getWorkflowStaticData('global');\nconst assigned = Array.isArray(globalData.assignedProcesses) ? globalData.assignedProcesses : [];\n\nfor (const prozess of data.prozesse) {\n  assigned.push({\n    ...prozess,\n    abteilung_id: prozess.abteilung_id,\n    abteilung_name: prozess.abteilung_name,\n  });\n}\n\nglobalData.assignedProcesses = assigned;\n\ndata.prozesse = data.prozesse.map(prozess => ({ ...prozess }));\n\nreturn [\n  {\n    json: {\n      prozesse: data.prozesse,\n    },\n  },\n];"
+        "jsCode": "const input = $input.first()?.json ?? {};\nconst response = input.body ?? input;\nconst message = response.choices?.[0]?.message;\nlet raw = message?.content;\nif (!raw) {\n  throw new Error('Antwort der Prozesse-API fehlt oder ist leer.');\n}\n\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart?.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\n\nlet data;\nif (typeof raw === 'object') {\n  data = raw;\n} else {\n  try {\n    data = JSON.parse(raw);\n  } catch (error) {\n    throw new Error('Antwort konnte nicht als JSON geparst werden: ' + error.message);\n  }\n}\n\nif (!data || !Array.isArray(data.prozesse)) {\n  throw new Error('Die KI-Antwort enthält keine gültige Prozessliste.');\n}\n\nconst globalData = $getWorkflowStaticData('global');\nconst assigned = Array.isArray(globalData.assignedProcesses) ? globalData.assignedProcesses : [];\n\nfor (const prozess of data.prozesse) {\n  assigned.push({\n    ...prozess,\n    abteilung_id: prozess.abteilung_id,\n    abteilung_name: prozess.abteilung_name,\n  });\n}\n\nglobalData.assignedProcesses = assigned;\n\ndata.prozesse = data.prozesse.map(prozess => ({ ...prozess }));\n\nreturn [\n  {\n    json: {\n      prozesse: data.prozesse,\n    },\n  },\n];"
       },
-      "id": "ca4b42e0-9546-4aff-962e-b660789b69ec",
+      "id": "a6a7e28d-65c7-422f-8222-71ea9a523908",
       "name": "Prozessantwort parsen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4896, 144]
+      "position": [2416, -64]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst selected = Array.isArray(input.prozesse) ? input.prozesse : [];\nconst globalData = $getWorkflowStaticData('global');\nconst available = Array.isArray(globalData.availableProcesses) ? globalData.availableProcesses : [];\n\nconst selectedIds = new Set(selected.map(prozess => String(prozess.pcf_id || '').trim()));\nconst remaining = available.filter(proc => !selectedIds.has(String(proc.pcf_id || '').trim()));\n\nglobalData.availableProcesses = remaining;\nconst currentRemaining = Number(globalData.remainingDepartments ?? remaining.length);\nconst updatedRemaining = Math.max(0, currentRemaining - 1);\nglobalData.remainingDepartments = updatedRemaining;\n\nconst isFinal = updatedRemaining === 0;\n\nreturn [\n  {\n    json: {\n      prozesse: selected,\n      isFinal,\n    },\n  },\n];"
       },
-      "id": "ccc98c30-a86f-485c-9f75-7431c0216871",
+      "id": "1150789f-5fb2-433f-a8e2-5c2752177055",
       "name": "Verfügbare Prozesse aktualisieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4672, 216]
+      "position": [2640, 8]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nif (!input.isFinal) {\n  return [];\n}\n\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.context || {};\nconst result = {\n  unternehmen: context.unternehmen || {},\n  abteilungen: context.abteilungen || [],\n  rollen: context.rollen || [],\n  prozesse: globalData.assignedProcesses || [],\n  apqcProcesses: context.apqcProcesses || [],\n  apqcActivities: context.apqcActivities || [],\n  apqcActivitiesByProcess: context.apqcActivitiesByProcess || {},\n  config: context.config || {},\n};\n\nglobalData.availableProcesses = [];\nglobalData.assignedProcesses = [];\nglobalData.context = {};\nglobalData.remainingDepartments = 0;\n\nreturn [\n  {\n    json: result,\n  },\n];"
       },
-      "id": "2d8e0d36-6cd9-42a1-873c-b36028e509c1",
+      "id": "40dadfee-3694-4b55-8c64-edfe08948bbc",
       "name": "Prozessiteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5792, 704]
-    },
-    {
-      "parameters": {
-        "jsCode": "const config = $input.first().json;\n\nif (config.use_demo_data) {\n  const unternehmen = {\n    \"id\": \"12345678\",\n    \"name\": \"EcoTech Solutions GmbH\",\n    \"branche\": \"Technologie\",\n    \"groesse\": \"Mittel\",\n    \"mitarbeiteranzahl\": 250,\n    \"gruendungsjahr\": 2015,\n    \"hauptsitz\": \"Berlin, Deutschland\",\n    \"beschreibung\": \"EcoTech Solutions GmbH entwickelt innovative Technologien für nachhaltige Energielösungen und Smart-City-Anwendungen. Das Unternehmen bietet Softwareplattformen, IoT-Devices und Beratungsleistungen für Kommunen und mittelständische Unternehmen.\",\n    \"umsatz_mio\": 45,\n    \"webseite\": \"www.ecotechsolutions.de\"\n  };\n\n  const abteilungen = [\n    { \"id\": \"dept_001\", \"unternehmen_id\": \"12345678\", \"name\": \"Geschäftsführung\", \"ebene\": 1, \"parent_id\": null, \"beschreibung\": \"Strategische Leitung und Unternehmensführung\" },\n    { \"id\": \"dept_002\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertrieb & Marketing\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"beschreibung\": \"Kundenakquise, Marktkommunikation und Vertriebssteuerung\" },\n    { \"id\": \"dept_003\", \"unternehmen_id\": \"12345678\", \"name\": \"Produktentwicklung\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"beschreibung\": \"Forschung, Entwicklung und Innovation neuer Technologielösungen\" },\n    { \"id\": \"dept_004\", \"unternehmen_id\": \"12345678\", \"name\": \"IT & Infrastruktur\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"beschreibung\": \"Systemadministration, Netzwerke und interne IT-Services\" },\n    { \"id\": \"dept_005\", \"unternehmen_id\": \"12345678\", \"name\": \"Personal & Organisation\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"beschreibung\": \"Recruiting, Personalentwicklung und HR-Administration\" },\n    { \"id\": \"dept_006\", \"unternehmen_id\": \"12345678\", \"name\": \"Finanzen & Controlling\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"beschreibung\": \"Buchhaltung, Budgetplanung und Finanzreporting\" },\n    { \"id\": \"dept_007\", \"unternehmen_id\": \"12345678\", \"name\": \"Kundenservice\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"beschreibung\": \"Support, Wartung und Kundenbetreuung\" },\n    { \"id\": \"dept_008\", \"unternehmen_id\": \"12345678\", \"name\": \"Einkauf & Logistik\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"beschreibung\": \"Beschaffung, Lagerhaltung und Versand\" },\n    { \"id\": \"dept_009\", \"unternehmen_id\": \"12345678\", \"name\": \"Qualitätsmanagement\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"beschreibung\": \"Qualitätssicherung, Audits und Prozessoptimierung\" },\n    { \"id\": \"dept_010\", \"unternehmen_id\": \"12345678\", \"name\": \"Recht & Compliance\", \"ebene\": 2, \"parent_id\": \"dept_001\", \"beschreibung\": \"Rechtliche Beratung, Vertragsmanagement und Datenschutz\" },\n    { \"id\": \"dept_011\", \"unternehmen_id\": \"12345678\", \"name\": \"Projektmanagement\", \"ebene\": 3, \"parent_id\": \"dept_003\", \"beschreibung\": \"Steuerung und Koordination von Entwicklungsprojekten\" },\n    { \"id\": \"dept_012\", \"unternehmen_id\": \"12345678\", \"name\": \"Vertriebsinnendienst\", \"ebene\": 3, \"parent_id\": \"dept_002\", \"beschreibung\": \"Angebotserstellung, Auftragsabwicklung und CRM-Pflege\" },\n    { \"id\": \"dept_013\", \"unternehmen_id\": \"12345678\", \"name\": \"Marketing & Kommunikation\", \"ebene\": 3, \"parent_id\": \"dept_002\", \"beschreibung\": \"Content-Marketing, PR und Events\" }\n  ];\n\n  const rollen = [\n    { \"id\": \"role_001\", \"abteilung_id\": \"dept_001\", \"titel\": \"Geschäftsführer\", \"beschreibung\": \"Verantwortlich für die strategische Unternehmensführung\", \"ebene\": 1, \"min_mitarbeiter\": 1, \"max_mitarbeiter\": 2 },\n    { \"id\": \"role_002\", \"abteilung_id\": \"dept_002\", \"titel\": \"Vertriebsleiter\", \"beschreibung\": \"Leitung des Vertriebsteams und Umsatzverantwortung\", \"ebene\": 2, \"min_mitarbeiter\": 1, \"max_mitarbeiter\": 1 },\n    { \"id\": \"role_003\", \"abteilung_id\": \"dept_002\", \"titel\": \"Account Manager\", \"beschreibung\": \"Betreuung von Bestandskunden und Neukundenakquise\", \"ebene\": 3, \"min_mitarbeiter\": 3, \"max_mitarbeiter\": 5 },\n    { \"id\": \"role_004\", \"abteilung_id\": \"dept_003\", \"titel\": \"Entwicklungsleiter\", \"beschreibung\": \"Leitung der Produktentwicklung\", \"ebene\": 2, \"min_mitarbeiter\": 1, \"max_mitarbeiter\": 1 },\n    { \"id\": \"role_005\", \"abteilung_id\": \"dept_003\", \"titel\": \"Software-Entwickler\", \"beschreibung\": \"Programmierung und Softwareentwicklung\", \"ebene\": 3, \"min_mitarbeiter\": 8, \"max_mitarbeiter\": 12 },\n    { \"id\": \"role_006\", \"abteilung_id\": \"dept_004\", \"titel\": \"IT-Leiter\", \"beschreibung\": \"Verantwortung für IT-Infrastruktur und Systeme\", \"ebene\": 2, \"min_mitarbeiter\": 1, \"max_mitarbeiter\": 1 },\n    { \"id\": \"role_007\", \"abteilung_id\": \"dept_004\", \"titel\": \"Systemadministrator\", \"beschreibung\": \"Administration von Servern und Netzwerken\", \"ebene\": 3, \"min_mitarbeiter\": 2, \"max_mitarbeiter\": 3 },\n    { \"id\": \"role_008\", \"abteilung_id\": \"dept_005\", \"titel\": \"Personalleiter\", \"beschreibung\": \"HR-Strategie und Personalentwicklung\", \"ebene\": 2, \"min_mitarbeiter\": 1, \"max_mitarbeiter\": 1 },\n    { \"id\": \"role_009\", \"abteilung_id\": \"dept_005\", \"titel\": \"HR-Referent\", \"beschreibung\": \"Recruiting und Personalverwaltung\", \"ebene\": 3, \"min_mitarbeiter\": 2, \"max_mitarbeiter\": 3 },\n    { \"id\": \"role_010\", \"abteilung_id\": \"dept_006\", \"titel\": \"Kaufmännischer Leiter\", \"beschreibung\": \"Finanzsteuerung und Controlling\", \"ebene\": 2, \"min_mitarbeiter\": 1, \"max_mitarbeiter\": 1 },\n    { \"id\": \"role_011\", \"abteilung_id\": \"dept_006\", \"titel\": \"Buchhalter\", \"beschreibung\": \"Finanzbuchhaltung und Reporting\", \"ebene\": 3, \"min_mitarbeiter\": 2, \"max_mitarbeiter\": 3 },\n    { \"id\": \"role_012\", \"abteilung_id\": \"dept_007\", \"titel\": \"Kundenservice-Leiter\", \"beschreibung\": \"Leitung des Support-Teams\", \"ebene\": 2, \"min_mitarbeiter\": 1, \"max_mitarbeiter\": 1 },\n    { \"id\": \"role_013\", \"abteilung_id\": \"dept_007\", \"titel\": \"Support-Mitarbeiter\", \"beschreibung\": \"Technischer Support und Kundenberatung\", \"ebene\": 3, \"min_mitarbeiter\": 4, \"max_mitarbeiter\": 6 },\n    { \"id\": \"role_014\", \"abteilung_id\": \"dept_011\", \"titel\": \"Projektmanager\", \"beschreibung\": \"Planung und Steuerung von Projekten\", \"ebene\": 3, \"min_mitarbeiter\": 2, \"max_mitarbeiter\": 3 },\n    { \"id\": \"role_015\", \"abteilung_id\": \"dept_012\", \"titel\": \"Vertriebsassistent\", \"beschreibung\": \"Unterstützung im Vertriebsinnendienst\", \"ebene\": 3, \"min_mitarbeiter\": 2, \"max_mitarbeiter\": 3 },\n    { \"id\": \"role_016\", \"abteilung_id\": \"dept_013\", \"titel\": \"Marketing Manager\", \"beschreibung\": \"Konzeption und Umsetzung von Marketingkampagnen\", \"ebene\": 3, \"min_mitarbeiter\": 1, \"max_mitarbeiter\": 2 }\n  ];\n\n  return [{ json: { unternehmen, abteilungen, rollen, config } }];\n} else {\n  return [];\n}"
-      },
-      "id": "f1a2b3c4-d5e6-7f8g-9h0i-j1k2l3m4n5o6",
-      "name": "Demo-Daten (Alle)",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [-5344, -176]
-    },
-    {
-      "parameters": {
-        "jsCode": "const config = $input.first().json;\n\nif (config.use_demo_data) {\n  return [];\n} else {\n  return [{ json: config }];\n}"
-      },
-      "id": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
-      "name": "Filter für API-Calls",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [-5344, -464]
+      "position": [2864, 8]
     }
   ],
   "pinData": {},
@@ -1248,8 +1185,7 @@
             "type": "main",
             "index": 0
           }
-        ],
-        []
+        ]
       ]
     },
     "Abteilungskontext erstellen": {
