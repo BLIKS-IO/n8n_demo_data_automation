@@ -1,14 +1,11 @@
 {
-  "name": "Unternehmensstruktur Generator mit LLM v43",
+  "name": "Unternehmensstruktur Generator mit LLM v45",
   "nodes": [
     {
       "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [
-        -4704,
-        880
-      ],
+      "position": [-4704, 880],
       "id": "b8e0d558-d907-41dd-b2f2-48f9eddcfc83",
       "name": "Merge"
     },
@@ -24,10 +21,7 @@
       "name": "Prozesse JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [
-        -608,
-        -224
-      ]
+      "position": [-608, -224]
     },
     {
       "parameters": {
@@ -37,10 +31,7 @@
       "name": "Prozesse extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -832,
-        -224
-      ]
+      "position": [-832, -224]
     },
     {
       "parameters": {
@@ -50,10 +41,7 @@
       "name": "JSON parsen (Prozesse)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -2688,
-        384
-      ]
+      "position": [-2688, 384]
     },
     {
       "parameters": {
@@ -81,10 +69,7 @@
       "name": "HTTP: Prozesse erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        -3504,
-        992
-      ]
+      "position": [-3504, 992]
     },
     {
       "parameters": {
@@ -94,10 +79,7 @@
       "name": "Kontext + Prozesse",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -4480,
-        880
-      ]
+      "position": [-4480, 880]
     },
     {
       "parameters": {
@@ -107,10 +89,7 @@
       "name": "APQC Prozesse filtern",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -4928,
-        1072
-      ]
+      "position": [-4928, 1072]
     },
     {
       "parameters": {
@@ -127,10 +106,7 @@
       "name": "APQC Datei lesen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        -5152,
-        1168
-      ]
+      "position": [-5152, 1168]
     },
     {
       "parameters": {
@@ -144,10 +120,7 @@
       "name": "Mitarbeiter JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [
-        1456,
-        1424
-      ]
+      "position": [1456, 1424]
     },
     {
       "parameters": {
@@ -161,10 +134,7 @@
       "name": "Rollen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [
-        -832,
-        336
-      ]
+      "position": [-832, 336]
     },
     {
       "parameters": {
@@ -178,10 +148,7 @@
       "name": "Abteilungen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [
-        -1056,
-        128
-      ]
+      "position": [-1056, 128]
     },
     {
       "parameters": {
@@ -195,10 +162,7 @@
       "name": "Unternehmen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [
-        -1056,
-        -64
-      ]
+      "position": [-1056, -64]
     },
     {
       "parameters": {
@@ -208,10 +172,7 @@
       "name": "Mitarbeiter extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1232,
-        1424
-      ]
+      "position": [1232, 1424]
     },
     {
       "parameters": {
@@ -221,10 +182,7 @@
       "name": "Rollen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1056,
-        336
-      ]
+      "position": [-1056, 336]
     },
     {
       "parameters": {
@@ -234,10 +192,7 @@
       "name": "Abteilungen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1280,
-        128
-      ]
+      "position": [-1280, 128]
     },
     {
       "parameters": {
@@ -247,10 +202,7 @@
       "name": "Unternehmen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1280,
-        -64
-      ]
+      "position": [-1280, -64]
     },
     {
       "parameters": {
@@ -260,10 +212,7 @@
       "name": "JSON parsen (Rollen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -4928,
-        688
-      ]
+      "position": [-4928, 688]
     },
     {
       "parameters": {
@@ -291,10 +240,7 @@
       "name": "HTTP: Rollen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        -5152,
-        688
-      ]
+      "position": [-5152, 688]
     },
     {
       "parameters": {
@@ -304,10 +250,7 @@
       "name": "JSON parsen (Abteilungen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -5376,
-        688
-      ]
+      "position": [-5376, 688]
     },
     {
       "parameters": {
@@ -335,10 +278,7 @@
       "name": "HTTP: Abteilungen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        -5600,
-        688
-      ]
+      "position": [-5600, 688]
     },
     {
       "parameters": {
@@ -348,10 +288,7 @@
       "name": "JSON parsen (Unternehmen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -5824,
-        688
-      ]
+      "position": [-5824, 688]
     },
     {
       "parameters": {
@@ -361,10 +298,7 @@
       "name": "Demo-Daten (Alle)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -5024,
-        896
-      ]
+      "position": [-5024, 896]
     },
     {
       "parameters": {
@@ -374,10 +308,7 @@
       "name": "Filter für API-Calls",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -6272,
-        688
-      ]
+      "position": [-6272, 688]
     },
     {
       "parameters": {
@@ -405,10 +336,7 @@
       "name": "HTTP: Unternehmen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        -6048,
-        688
-      ]
+      "position": [-6048, 688]
     },
     {
       "parameters": {
@@ -512,10 +440,7 @@
       "name": "Konfiguration",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.3,
-      "position": [
-        -6496,
-        880
-      ],
+      "position": [-6496, 880],
       "notes": "HIER ANPASSEN: Branche, Größe, Land, Besonderheiten und OpenAI API Key"
     },
     {
@@ -524,10 +449,7 @@
       "name": "Start",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [
-        -6720,
-        880
-      ]
+      "position": [-6720, 880]
     },
     {
       "parameters": {
@@ -537,10 +459,7 @@
       "name": "APQC Aktivitäten filtern",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -4928,
-        1264
-      ]
+      "position": [-4928, 1264]
     },
     {
       "parameters": {
@@ -550,10 +469,7 @@
       "id": "b33cb743-f475-4367-843f-9affccd5420f",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        560,
-        1232
-      ]
+      "position": [560, 1232]
     },
     {
       "parameters": {
@@ -563,10 +479,7 @@
       "id": "e8afb76b-e1a3-4d41-9af3-9306a1624eec",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        784,
-        1232
-      ]
+      "position": [784, 1232]
     },
     {
       "parameters": {
@@ -576,10 +489,7 @@
       "id": "b1efa111-0ba4-40f2-8c15-9955d427a647",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1008,
-        1232
-      ]
+      "position": [1008, 1232]
     },
     {
       "parameters": {
@@ -593,10 +503,7 @@
       "id": "7e01fd4e-5501-4600-945d-1bb7fdb33a2b",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [
-        1232,
-        1232
-      ]
+      "position": [1232, 1232]
     },
     {
       "parameters": {},
@@ -604,10 +511,7 @@
       "name": "Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [
-        -832,
-        32
-      ]
+      "position": [-832, 32]
     },
     {
       "parameters": {},
@@ -615,10 +519,7 @@
       "name": "Dateien + Rollen zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [
-        -608,
-        128
-      ]
+      "position": [-608, 128]
     },
     {
       "parameters": {},
@@ -626,10 +527,7 @@
       "name": "Dateien + Prozesse zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [
-        -384,
-        32
-      ]
+      "position": [-384, 32]
     },
     {
       "parameters": {},
@@ -637,10 +535,7 @@
       "name": "Dateien + Aktivitäten zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [
-        1920,
-        432
-      ]
+      "position": [1920, 432]
     },
     {
       "parameters": {},
@@ -648,10 +543,7 @@
       "name": "Alle Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [
-        2144,
-        528
-      ]
+      "position": [2144, 528]
     },
     {
       "parameters": {
@@ -660,10 +552,7 @@
       },
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [
-        2368,
-        528
-      ],
+      "position": [2368, 528],
       "id": "e273e723-7bf0-4ac6-a811-29f5e00742fa",
       "name": "Convert to File"
     },
@@ -675,10 +564,7 @@
       "name": "Prozessiteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -4256,
-        880
-      ]
+      "position": [-4256, 880]
     },
     {
       "parameters": {
@@ -689,10 +575,7 @@
       "name": "Abteilungen iterieren",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [
-        -4000,
-        1008
-      ]
+      "position": [-4000, 1008]
     },
     {
       "parameters": {
@@ -702,10 +585,7 @@
       "name": "Abteilungskontext erstellen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -3712,
-        992
-      ]
+      "position": [-3712, 992]
     },
     {
       "parameters": {
@@ -715,10 +595,7 @@
       "name": "Prozessantwort parsen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -3296,
-        992
-      ]
+      "position": [-3296, 992]
     },
     {
       "parameters": {
@@ -728,10 +605,7 @@
       "name": "Verfügbare Prozesse aktualisieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -3104,
-        992
-      ]
+      "position": [-3104, 992]
     },
     {
       "parameters": {
@@ -741,10 +615,7 @@
       "name": "Prozessiteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -2912,
-        880
-      ]
+      "position": [-2912, 880]
     },
     {
       "parameters": {
@@ -754,10 +625,7 @@
       "name": "Aktivitätsiteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -2688,
-        1456
-      ]
+      "position": [-2688, 1456]
     },
     {
       "parameters": {
@@ -767,10 +635,7 @@
       "name": "Aktivitätskontext erstellen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -2464,
-        1456
-      ]
+      "position": [-2464, 1456]
     },
     {
       "parameters": {
@@ -800,36 +665,27 @@
       "name": "IF: APQC oder KI Aktivitäten",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [
-        -2240,
-        1456
-      ]
+      "position": [-2240, 1456]
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first()?.json ?? {};\nconst prozess = input.prozess || {};\nconst availableActivities = input.availableActivities || [];\n\n// Extrahiere APQC-Aktivitäten und formatiere sie\nconst aktivitaeten = availableActivities.map((activity, index) => ({\n  id: `act_${prozess.pcf_id}_${String(index + 1).padStart(3, '0')}`,\n  prozess_id: prozess.pcf_id,\n  prozess_hierarchy_id: prozess.hierarchy_id,\n  prozess_name: prozess.name,\n  apqc_hierarchy_id: activity.hierarchy_id,\n  apqc_pcf_id: activity.pcf_id || null,\n  name: activity.name,\n  beschreibung: activity.description || '',\n  quelle: 'APQC',\n  prioritaet: 'mittel',\n}));\n\nconsole.log('APQC Aktivitäten extrahiert:', aktivitaeten.length, 'für Prozess', prozess.name);\n\nreturn [{ json: { aktivitaeten, prozess } }];"
+        "jsCode": "const input = $input.first()?.json ?? {};\nconst prozess = input.prozess || {};\nconst availableActivities = input.availableActivities || [];\n\n// Extrahiere APQC-Aktivitäten und formatiere sie mit einheitlicher Struktur\nconst aktivitaeten = availableActivities.map((activity, index) => ({\n  id: `act_${prozess.pcf_id}_${String(index + 1).padStart(3, '0')}`,\n  prozess_id: prozess.pcf_id,\n  prozess_hierarchy_id: prozess.hierarchy_id,\n  prozess_name: prozess.name,\n  name: activity.name,\n  beschreibung: activity.description || '',\n  apqc_hierarchy_id: activity.hierarchy_id,\n  apqc_pcf_id: activity.pcf_id || null,\n  quelle: 'APQC',\n  prioritaet: 'mittel',\n  reihenfolge: index + 1,\n  geschaetzter_zeitaufwand_stunden: null,\n}));\n\nconsole.log('APQC Aktivitäten extrahiert:', aktivitaeten.length, 'für Prozess', prozess.name);\n\nreturn [{ json: { aktivitaeten, prozess } }];"
       },
       "id": "94916ded-1d7f-47bf-a603-d81e34803bd2",
       "name": "APQC Aktivitäten extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1728,
-        1104
-      ]
+      "position": [-1728, 1104]
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first()?.json ?? {};\nconst prozess = input.prozess || {};\nconst context = input.context || {};\nconst config = input.config || {};\n\nconst systemPrompt = 'Du bist Prozessberater. Erstelle 3-5 operative Aktivitäten für den gegebenen Prozess. Die Aktivitäten sollen konkret, messbar und auf den Unternehmenskontext zugeschnitten sein.';\n\nconst userSections = [\n  'Unternehmen:',\n  JSON.stringify(context.unternehmen, null, 2),\n  '',\n  'Prozess:',\n  JSON.stringify({\n    name: prozess.name,\n    description: prozess.description,\n    abteilung: prozess.abteilung_name,\n    prioritaet: prozess.prioritaet,\n  }, null, 2),\n  '',\n  'Aufgabe:',\n  'Erstelle 3-5 Aktivitäten für diesen Prozess. Jede Aktivität braucht: name, beschreibung, prioritaet (hoch/mittel/niedrig), geschaetzter_zeitaufwand_stunden.',\n];\n\nconst requestPayload = {\n  model: 'gpt-4o-mini',\n  temperature: 0.3,\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'aktivitaeten_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          aktivitaeten: {\n            type: 'array',\n            minItems: 3,\n            maxItems: 5,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                name: { type: 'string' },\n                beschreibung: { type: 'string' },\n                prioritaet: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] },\n                geschaetzter_zeitaufwand_stunden: { type: 'number' },\n              },\n              required: ['name', 'beschreibung'],\n            },\n          },\n        },\n        required: ['aktivitaeten'],\n      },\n    },\n  },\n  messages: [\n    { role: 'system', content: systemPrompt },\n    { role: 'user', content: userSections.join('\\n') },\n  ],\n};\n\nreturn [{ json: { requestPayload, prozess, config } }];"
+        "jsCode": "const input = $input.first()?.json ?? {};\nconst prozess = input.prozess || {};\nconst context = input.context || {};\nconst config = input.config || {};\n\nconst systemPrompt = `Du bist ein erfahrener Prozessberater. Erstelle 3-5 operative Aktivitäten für den gegebenen Geschäftsprozess.\n\nWICHTIG:\n- Die Aktivitäten müssen in LOGISCHER REIHENFOLGE erstellt werden (chronologisch, wie sie im Prozess ablaufen)\n- Jede Aktivität soll konkret, messbar und auf den Unternehmenskontext zugeschnitten sein\n- Berücksichtige die Branche, Größe und Priorität des Prozesses`;\n\nconst userSections = [\n  'Unternehmen:',\n  JSON.stringify(context.unternehmen, null, 2),\n  '',\n  'Prozess:',\n  JSON.stringify({\n    name: prozess.name,\n    description: prozess.description,\n    abteilung: prozess.abteilung_name,\n    prioritaet: prozess.prioritaet,\n    hierarchy_id: prozess.hierarchy_id,\n  }, null, 2),\n  '',\n  'Aufgabe:',\n  `Erstelle 3-5 Aktivitäten für diesen Prozess in CHRONOLOGISCHER REIHENFOLGE.\nJede Aktivität braucht:\n- name: Klare Bezeichnung der Aktivität\n- beschreibung: Detaillierte Beschreibung was genau getan wird\n- prioritaet: hoch/mittel/niedrig (basierend auf Wichtigkeit für den Prozess)\n- geschaetzter_zeitaufwand_stunden: Realistische Schätzung\n\nDie Aktivitäten sollen den Prozessablauf von Anfang bis Ende abdecken.`,\n];\n\nconst requestPayload = {\n  model: 'gpt-4o-mini',\n  temperature: 0.4,\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'aktivitaeten_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          aktivitaeten: {\n            type: 'array',\n            minItems: 3,\n            maxItems: 5,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                name: { type: 'string' },\n                beschreibung: { type: 'string' },\n                prioritaet: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] },\n                geschaetzter_zeitaufwand_stunden: { type: 'number', minimum: 0.5, maximum: 100 },\n              },\n              required: ['name', 'beschreibung', 'prioritaet', 'geschaetzter_zeitaufwand_stunden'],\n            },\n          },\n        },\n        required: ['aktivitaeten'],\n      },\n    },\n  },\n  messages: [\n    { role: 'system', content: systemPrompt },\n    { role: 'user', content: userSections.join('\\n') },\n  ],\n};\n\nreturn [{ json: { requestPayload, prozess, config } }];"
       },
       "id": "b9781180-40c0-4a28-ad04-5d85ef6e813b",
       "name": "KI-Aktivitäten Prompt erstellen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1632,
-        1472
-      ]
+      "position": [-1632, 1472]
     },
     {
       "parameters": {
@@ -857,23 +713,17 @@
       "name": "HTTP: Aktivitäten erstellen (KI)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        -1472,
-        1472
-      ]
+      "position": [-1472, 1472]
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first()?.json ?? {};\nconst prozess = input.prozess || {};\n\nconst message = input.choices?.[0]?.message;\nif (!message) {\n  throw new Error('KI-Antwort für Aktivitäten fehlt');\n}\n\nlet raw = message.content;\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\n\nconst data = JSON.parse(raw);\nconst aktivitaeten = (data.aktivitaeten || []).map((act, index) => ({\n  id: `act_${prozess.pcf_id}_${String(index + 1).padStart(3, '0')}`,\n  prozess_id: prozess.pcf_id,\n  prozess_hierarchy_id: prozess.hierarchy_id,\n  prozess_name: prozess.name,\n  apqc_hierarchy_id: null,\n  apqc_pcf_id: null,\n  name: act.name,\n  beschreibung: act.beschreibung || '',\n  quelle: 'KI',\n  prioritaet: act.prioritaet || 'mittel',\n  geschaetzter_zeitaufwand_stunden: act.geschaetzter_zeitaufwand_stunden || null,\n}));\n\nconsole.log('KI-Aktivitäten erstellt:', aktivitaeten.length, 'für Prozess', prozess.name);\n\nreturn [{ json: { aktivitaeten, prozess } }];"
+        "jsCode": "const input = $input.first()?.json ?? {};\nconst prozess = input.prozess || {};\n\nconst message = input.choices?.[0]?.message;\nif (!message) {\n  throw new Error('KI-Antwort für Aktivitäten fehlt');\n}\n\nlet raw = message.content;\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\n\nconst data = JSON.parse(raw);\nconst aktivitaeten = (data.aktivitaeten || []).map((act, index) => ({\n  id: `act_${prozess.pcf_id}_${String(index + 1).padStart(3, '0')}`,\n  prozess_id: prozess.pcf_id,\n  prozess_hierarchy_id: prozess.hierarchy_id,\n  prozess_name: prozess.name,\n  name: act.name,\n  beschreibung: act.beschreibung || '',\n  apqc_hierarchy_id: null,\n  apqc_pcf_id: null,\n  quelle: 'KI',\n  prioritaet: act.prioritaet || 'mittel',\n  reihenfolge: index + 1,\n  geschaetzter_zeitaufwand_stunden: act.geschaetzter_zeitaufwand_stunden || null,\n}));\n\nconsole.log('KI-Aktivitäten erstellt:', aktivitaeten.length, 'für Prozess', prozess.name);\n\nreturn [{ json: { aktivitaeten, prozess } }];"
       },
       "id": "50271aa0-450f-43f5-b1b3-ab4956265db3",
       "name": "KI-Aktivitäten parsen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1312,
-        1472
-      ]
+      "position": [-1312, 1472]
     },
     {
       "parameters": {
@@ -883,10 +733,7 @@
       "name": "APQC Aktivitäten zuordnen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1440,
-        1104
-      ]
+      "position": [-1440, 1104]
     },
     {
       "parameters": {
@@ -896,10 +743,7 @@
       "name": "Verfügbare Prozesse aktualisieren (APQC Aktivitäten)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1248,
-        1104
-      ]
+      "position": [-1248, 1104]
     },
     {
       "parameters": {
@@ -909,10 +753,7 @@
       "name": "KI Aktivitäten zuordnen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1152,
-        1472
-      ]
+      "position": [-1152, 1472]
     },
     {
       "parameters": {
@@ -922,10 +763,7 @@
       "name": "Verfügbare Prozesse aktualisieren (KI Aktivitäten)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -960,
-        1472
-      ]
+      "position": [-960, 1472]
     },
     {
       "parameters": {
@@ -935,10 +773,7 @@
       "name": "APQC Aktivitätsiteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1008,
-        1104
-      ]
+      "position": [-1008, 1104]
     },
     {
       "parameters": {
@@ -948,10 +783,7 @@
       "name": "KI Aktivitätsiteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -720,
-        1472
-      ]
+      "position": [-720, 1472]
     },
     {
       "parameters": {
@@ -962,10 +794,7 @@
       "name": "Prozesse Iterieren (APQC Aktivitäten)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [
-        -1904,
-        1120
-      ]
+      "position": [-1904, 1120]
     },
     {
       "parameters": {
@@ -976,10 +805,7 @@
       "name": "Prozesse Iterieren (KI Aktivitäten)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [
-        -1904,
-        1488
-      ]
+      "position": [-1904, 1488]
     },
     {
       "parameters": {
@@ -989,10 +815,7 @@
       "name": "Mitarbeiteriteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -2512,
-        768
-      ]
+      "position": [-2512, 768]
     },
     {
       "parameters": {
@@ -1003,10 +826,7 @@
       "name": "Rollen iterieren (Mitarbeiter-Erstellung)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [
-        -2320,
-        896
-      ]
+      "position": [-2320, 896]
     },
     {
       "parameters": {
@@ -1034,10 +854,7 @@
       "name": "HTTP: Mitarbeiter erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        -2064,
-        880
-      ]
+      "position": [-2064, 880]
     },
     {
       "parameters": {
@@ -1047,10 +864,7 @@
       "name": "Mitarbeiteriteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1456,
-        768
-      ]
+      "position": [-1456, 768]
     },
     {
       "parameters": {
@@ -1061,10 +875,7 @@
       "name": "Aktivitäten iterieren (Beschreibungs-Erstellung)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [
-        -704,
-        880
-      ]
+      "position": [-704, 880]
     },
     {
       "parameters": {
@@ -1074,10 +885,7 @@
       "id": "a9d67424-14b8-4757-b021-9406c40e8889",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -848,
-        880
-      ]
+      "position": [-848, 880]
     },
     {
       "parameters": {
@@ -1087,10 +895,7 @@
       "id": "9ef30cc4-0b2c-4d49-82ba-a15f694e1cc0",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        192,
-        944
-      ]
+      "position": [192, 944]
     },
     {
       "parameters": {
@@ -1100,10 +905,7 @@
       "id": "cfc71e27-1bdb-4392-9950-29636a980138",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -464,
-        880
-      ]
+      "position": [-464, 880]
     },
     {
       "parameters": {
@@ -1131,10 +933,7 @@
       "id": "d8f75250-2bb0-4227-b10b-bb656d9b16c4",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        -240,
-        880
-      ]
+      "position": [-240, 880]
     },
     {
       "parameters": {
@@ -1144,10 +943,7 @@
       "name": "Mitarbeiter Antwort Parsen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1840,
-        880
-      ]
+      "position": [-1840, 880]
     }
   ],
   "pinData": {},
