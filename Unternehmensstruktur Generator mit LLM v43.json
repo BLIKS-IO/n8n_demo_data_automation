@@ -5,8 +5,8 @@
       "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-4704, 880],
-      "id": "b8e0d558-d907-41dd-b2f2-48f9eddcfc83",
+      "position": [-5024, -128],
+      "id": "7aa1e18d-0a80-4f31-9f69-d72cc0976d65",
       "name": "Merge"
     },
     {
@@ -17,31 +17,31 @@
           "fileName": "prozesse.json"
         }
       },
-      "id": "a0bc37ee-9156-45b3-a7c2-c9b2d9ff9d1c",
+      "id": "0881b6f7-848a-42c7-8382-b8a2985e19d0",
       "name": "Prozesse JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-608, -224]
+      "position": [-928, -1232]
     },
     {
       "parameters": {
         "jsCode": "const { prozesse } = $input.first().json;\nreturn prozesse.map(prozess => ({ json: prozess }));"
       },
-      "id": "998b6551-b7e0-469c-b69e-b105b61954a2",
+      "id": "16d34111-3dd2-43c8-9dcc-dd3bf7acc86b",
       "name": "Prozesse extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-832, -224]
+      "position": [-1152, -1232]
     },
     {
       "parameters": {
         "jsCode": "const data = $input.first()?.json ?? {};\nreturn [{ json: data }];"
       },
-      "id": "db478c61-181b-4628-87a8-cb5653329a06",
+      "id": "bee061cc-d0ed-4708-9d3b-7bc42917bf58",
       "name": "JSON parsen (Prozesse)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-2688, 384]
+      "position": [-3008, -624]
     },
     {
       "parameters": {
@@ -65,31 +65,31 @@
         "jsonBody": "={{ $json.requestPayload }}",
         "options": {}
       },
-      "id": "6e6861ec-5cc1-4eed-80a3-9101977c42ba",
+      "id": "e8f8a8b8-3b3a-4766-a7d3-9ed34cfd1786",
       "name": "HTTP: Prozesse erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-3504, 992]
+      "position": [-3824, -16]
     },
     {
       "parameters": {
         "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    console.log('Error getting node', nodeName, ':', error.message);\n    return {};\n  }\n};\n\n// Try to get context from either Demo-Daten or JSON parsen (Rollen)\nconst demoData = getNodeJson('Demo-Daten (Alle)');\nconst apiData = getNodeJson('JSON parsen (Rollen)');\nconst contextData = demoData.unternehmen ? demoData : apiData;\n\nconst processData = getNodeJson('APQC Prozesse filtern');\nconst activityData = getNodeJson('APQC Aktivitäten filtern');\n\n// DEBUG: Zeige was von den anderen Nodes kommt\nconsole.log('=== KONTEXT + PROZESSE DEBUG ===');\nconsole.log('Demo data has unternehmen:', !!demoData.unternehmen);\nconsole.log('Demo data has mitarbeiter:', demoData.mitarbeiter?.length ?? 0);\nconsole.log('API data has unternehmen:', !!apiData.unternehmen);\nconsole.log('Using demo data:', demoData.unternehmen ? true : false);\nconsole.log('Process data keys:', Object.keys(processData));\nconsole.log('APQC Processes:', processData.apqcProcesses?.length ?? 0);\nconsole.log('First 3 APQC:', processData.apqcProcesses?.slice(0, 3).map(p => ({ pcf_id: p.pcf_id, name: p.name })));\n\n// WICHTIG: Mitarbeiter und Prozesse hier NICHT durchreichen!\n// Diese werden erst NACH dem Prozess-Loop bzw. Mitarbeiter-Loop erstellt\nreturn [{\n  json: {\n    unternehmen: contextData.unternehmen,\n    abteilungen: contextData.abteilungen,\n    rollen: contextData.rollen,\n    config: contextData.config,\n    apqcProcesses: processData.apqcProcesses ?? [],\n    apqcActivities: activityData.apqcActivities ?? [],\n    apqcActivitiesByProcess: activityData.apqcActivitiesByProcess ?? {},\n  },\n}];\n"
       },
-      "id": "7b246b23-37c3-4c88-a9f0-73df5f5f3b52",
+      "id": "2209b185-3b48-41c5-af8e-ed18771c1593",
       "name": "Kontext + Prozesse",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4480, 880]
+      "position": [-4800, -128]
     },
     {
       "parameters": {
         "jsCode": "const items = $input.all();\nlet rows = [];\nfor (const item of items) {\n  const data = item.json;\n  if (Array.isArray(data)) {\n    rows = rows.concat(data);\n  } else if (data && Array.isArray(data.data)) {\n    rows = rows.concat(data.data);\n  } else if (data) {\n    rows.push(data);\n  }\n}\nconst processes = rows\n  .filter(row => String(row['Hierarchy'] ?? row['Hierarchy ID'] ?? '').trim() === '3')\n  .map((row, index) => {\n    const hierarchyId = String(row['Hierarchy ID'] ?? '').trim();\n    const pcfId = String(row['PCF ID'] ?? '').trim();\n    const rawName = row['Name (German Translation) (not verified)'] ?? row['Name (German Translation) (not veriied)'] ?? row['Name'];\n    const rawDescription = row['Element Description (German Translation) (not verified)'] ?? row['Element Description (German Translation) (not verfied)'] ?? row['Element Description'];\n    const name = typeof rawName === 'string' ? rawName.trim() : '';\n    const description = typeof rawDescription === 'string' ? rawDescription.trim() : '';\n    return {\n      source_index: index,\n      pcf_id: pcfId,\n      hierarchy_id: hierarchyId,\n      name,\n      description\n    };\n  })\n  .filter(process => process.pcf_id && process.hierarchy_id && process.name && process.hierarchy_id.split('.').length === 3);\nreturn [{ json: { apqcProcesses: processes } }];"
       },
-      "id": "ac1ea425-9016-42c4-89dd-28fcfaec1840",
+      "id": "03e6d421-2d85-4373-a43f-594e7e763df7",
       "name": "APQC Prozesse filtern",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4928, 1072]
+      "position": [-5248, 64]
     },
     {
       "parameters": {
@@ -102,11 +102,11 @@
           }
         }
       },
-      "id": "5aaa59a1-ec4f-4b67-b688-e039c3661c74",
+      "id": "6080424b-2b0d-416c-9f58-4bab40ff971b",
       "name": "APQC Datei lesen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5152, 1168]
+      "position": [-5472, 160]
     },
     {
       "parameters": {
@@ -116,11 +116,11 @@
           "fileName": "mitarbeiter.json"
         }
       },
-      "id": "f1669fb4-69e8-437d-8f1d-34635bda76f7",
+      "id": "66cdc321-241b-4992-a168-42ed1f647695",
       "name": "Mitarbeiter JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [1456, 1424]
+      "position": [1152, 416]
     },
     {
       "parameters": {
@@ -130,11 +130,11 @@
           "fileName": "rollen.json"
         }
       },
-      "id": "6847a07b-6eea-41fc-aa6e-7eec3b124d28",
+      "id": "f360319f-7247-470a-b516-7614cf5f05fe",
       "name": "Rollen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-832, 336]
+      "position": [-1152, -672]
     },
     {
       "parameters": {
@@ -144,11 +144,11 @@
           "fileName": "abteilungen.json"
         }
       },
-      "id": "2db042ae-b405-4335-b20b-00010bdd2ee6",
+      "id": "ce3677e5-47aa-47a0-b343-cab468051f13",
       "name": "Abteilungen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-1056, 128]
+      "position": [-1376, -880]
     },
     {
       "parameters": {
@@ -158,61 +158,61 @@
           "fileName": "unternehmen.json"
         }
       },
-      "id": "9f1eb508-c095-4e87-91de-f59eff0e6534",
+      "id": "1af301c2-3e7f-4302-bf7a-8011abd30e59",
       "name": "Unternehmen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-1056, -64]
+      "position": [-1376, -1072]
     },
     {
       "parameters": {
         "jsCode": "const { mitarbeiter } = $input.first().json;\nreturn mitarbeiter.map(ma => ({ json: ma }));"
       },
-      "id": "1558c46d-14bc-4fb5-b8da-a56612c7072d",
+      "id": "ab5e3d0e-b9e3-4885-b4bd-123c8674247d",
       "name": "Mitarbeiter extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1232, 1424]
+      "position": [928, 416]
     },
     {
       "parameters": {
         "jsCode": "const { rollen } = $input.first().json;\nreturn rollen.map(rolle => ({ json: rolle }));"
       },
-      "id": "0a34c410-3d0e-4e64-831d-df1f996e6241",
+      "id": "e4f38e47-61c0-499c-bf4e-0addc3b7dff2",
       "name": "Rollen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1056, 336]
+      "position": [-1376, -672]
     },
     {
       "parameters": {
         "jsCode": "const { abteilungen } = $input.first().json;\nreturn abteilungen.map(abt => ({ json: abt }));"
       },
-      "id": "ab1ae23e-c746-4e00-8579-3287bc717dcb",
+      "id": "3fdc0cdb-ce7b-4bfb-81ff-bab957ea5fa3",
       "name": "Abteilungen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1280, 128]
+      "position": [-1600, -880]
     },
     {
       "parameters": {
         "jsCode": "const { unternehmen } = $input.first().json;\nreturn [{ json: unternehmen }];"
       },
-      "id": "c595cabd-d9e9-4795-90dc-e0b85d4b42c9",
+      "id": "fd51890f-c430-42a0-a6d1-ef663fb23cb5",
       "name": "Unternehmen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1280, -64]
+      "position": [-1600, -1072]
     },
     {
       "parameters": {
         "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, config } = $('JSON parsen (Abteilungen)').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst rollen = data.rollen ?? data;\nreturn { unternehmen, abteilungen, rollen, config };"
       },
-      "id": "37eae585-fd9e-4110-8c9c-98761a6ff6fe",
+      "id": "efb44586-d9f3-42da-b8cc-c0a04aba131c",
       "name": "JSON parsen (Rollen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4928, 688]
+      "position": [-5248, -320]
     },
     {
       "parameters": {
@@ -236,21 +236,21 @@
         "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'rollen_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          rollen: {\n            type: 'array',\n            minItems: 1,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                id: { type: 'string' },\n                abteilung_id: { type: 'string' },\n                titel: { type: 'string' },\n                beschreibung: { type: 'string' },\n                ebene: { type: 'string', enum: ['Entry', 'Mid', 'Senior', 'Lead', 'Executive'] },\n                anzahl_personen: { type: 'integer', minimum: 1 },\n                gehalt_min: { type: 'number' },\n                gehalt_max: { type: 'number' },\n                anforderungen: {\n                  type: 'array',\n                  items: { type: 'string' },\n                  minItems: 2\n                }\n              },\n              required: ['id', 'abteilung_id', 'titel', 'beschreibung', 'ebene', 'anzahl_personen', 'gehalt_min', 'gehalt_max', 'anforderungen']\n            }\n          }\n        },\n        required: ['rollen']\n      }\n    }\n  },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein HR-Experte. Erstelle Rollen-Definitionen als JSON, das exakt dem gelieferten Schema entspricht. Verwende nur Daten aus dem Kontext.'\n    },\n    {\n      role: 'user',\n      content: [\n        'Definiere Rollen für das folgende Unternehmen und seine Abteilungen.',\n        '',\n        'Kontext (Unternehmen):',\n        JSON.stringify({\n          id: $json.unternehmen.id,\n          name: $json.unternehmen.name,\n          branche: $json.unternehmen.branche,\n          mitarbeiteranzahl: $json.unternehmen.mitarbeiteranzahl,\n          gruendungsjahr: $json.unternehmen.gruendungsjahr,\n          hauptstandort: $json.unternehmen.hauptsitz\n        }, null, 2),\n        '',\n        'Abteilungen (Input):',\n        JSON.stringify($json.abteilungen, null, 2),\n        '',\n        'Anforderungen:',\n        '- Definiere 2-6 Rollen pro Abteilung mit unterschiedlichen Verantwortungsniveaus.',\n        '- Ebene muss einer der Werte Entry/Mid/Senior/Lead/Executive sein.',\n        '- anzahl_personen pro Abteilung soll in Summe zur mitarbeiteranzahl passen.',\n        '- Setze realistische Gehaltsbereiche basierend auf Branche und Ebene.',\n        '- anforderungen muss mindestens zwei Skills enthalten.',\n        '',\n        'Gib nur JSON zurück, keine Erklärungen.'\n      ].join('\\n')\n    }\n  ],\n  temperature: 0.6\n}) }}",
         "options": {}
       },
-      "id": "ae2f4dde-9cb9-42bd-9186-5fe70f6b3d8e",
+      "id": "b2048dc3-de87-4371-8738-45c148e07e94",
       "name": "HTTP: Rollen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5152, 688]
+      "position": [-5472, -320]
     },
     {
       "parameters": {
         "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, config } = $('JSON parsen (Unternehmen)').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_object' || part.type === 'json_schema' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst abteilungen = data.abteilungen ?? data;\nreturn { unternehmen, abteilungen, config };"
       },
-      "id": "fe5b704a-4896-4c76-98d7-f5af66b61700",
+      "id": "b83330c4-2503-43a9-b66d-e7aa75099735",
       "name": "JSON parsen (Abteilungen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5376, 688]
+      "position": [-5696, -320]
     },
     {
       "parameters": {
@@ -274,41 +274,41 @@
         "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Experte für Organisationsstrukturen. Antworte immer mit validem JSON im Format: {\"abteilungen\": [...]}'\n    },\n    {\n      role: 'user',\n      content: 'Erstelle eine hierarchische Abteilungsstruktur für: ' + $json.unternehmen.name + ' (Branche: ' + $json.unternehmen.branche + ', Mitarbeiter: ' + $json.unternehmen.mitarbeiteranzahl + '). Erstelle ' + $json.config.hierarchie_ebenen + ' Hierarchie-Ebenen. Jede Abteilung braucht: id (dept_XXX), unternehmen_id (' + $json.unternehmen.id + '), name, ebene (1-' + $json.config.hierarchie_ebenen + '), parent_id (null für Ebene 1), budget_euro, mitarbeiteranzahl.'\n    }\n  ],\n  temperature: 0.7\n}) }}",
         "options": {}
       },
-      "id": "7a9dc2ee-0611-4d9e-9649-25a2200648f0",
+      "id": "a19742b3-6101-4b38-a169-f790044ed196",
       "name": "HTTP: Abteilungen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5600, 688]
+      "position": [-5920, -320]
     },
     {
       "parameters": {
         "jsCode": "const config = $('Konfiguration').first().json;\nconst response = $input.first().json.choices[0].message.content;\nconst unternehmen = JSON.parse(response);\nreturn { unternehmen, config };"
       },
-      "id": "81a51a08-2fb5-4db1-93a3-f9cb1c4ebdb0",
+      "id": "776699d7-efa4-4fd3-916a-eeba4560fe3c",
       "name": "JSON parsen (Unternehmen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5824, 688]
+      "position": [-6144, -320]
     },
     {
       "parameters": {
-        "jsCode": "const config = $input.first().json;\n\nif (config.use_demo_data) {\n  const unternehmen = {\n    id: '12345678',\n    name: 'EcoTech Solutions GmbH',\n    branche: 'Technologie',\n    groesse: 'Mittel',\n    mitarbeiteranzahl: 250,\n    gruendungsjahr: 2015,\n    hauptsitz: 'Berlin, Deutschland',\n    beschreibung: 'EcoTech Solutions GmbH entwickelt innovative Technologien für nachhaltige Energielösungen und Smart-City-Anwendungen.',\n    umsatz_mio: 45,\n    webseite: 'www.ecotechsolutions.de'\n  };\n\n  const abteilungen = [\n    { id: 'dept_001', unternehmen_id: '12345678', name: 'Geschäftsführung', ebene: 1, parent_id: null, beschreibung: 'Strategische Leitung', mitarbeiteranzahl: 5 },\n    { id: 'dept_002', unternehmen_id: '12345678', name: 'Vertrieb & Marketing', ebene: 2, parent_id: 'dept_001', beschreibung: 'Kundenakquise', mitarbeiteranzahl: 35 },\n    { id: 'dept_003', unternehmen_id: '12345678', name: 'Produktentwicklung', ebene: 2, parent_id: 'dept_001', beschreibung: 'Forschung und Entwicklung', mitarbeiteranzahl: 80 }\n  ];\n\n  const rollen = [\n    { id: 'role_001', abteilung_id: 'dept_001', titel: 'Geschäftsführer', beschreibung: 'Strategische Unternehmensführung', ebene: 'Executive', anzahl_personen: 2, gehalt_min: 100000, gehalt_max: 150000, anforderungen: ['Führungserfahrung', 'Strategisches Denken'] },\n    { id: 'role_002', abteilung_id: 'dept_002', titel: 'Vertriebsleiter', beschreibung: 'Leitung Vertriebsteam', ebene: 'Lead', anzahl_personen: 1, gehalt_min: 65000, gehalt_max: 80000, anforderungen: ['Vertriebserfahrung', 'Teamführung'] },\n    { id: 'role_003', abteilung_id: 'dept_002', titel: 'Account Manager', beschreibung: 'Kundenbetreuung', ebene: 'Mid', anzahl_personen: 4, gehalt_min: 45000, gehalt_max: 60000, anforderungen: ['Kommunikation', 'Kundenbeziehungen'] },\n    { id: 'role_004', abteilung_id: 'dept_003', titel: 'Entwicklungsleiter', beschreibung: 'Leitung Produktentwicklung', ebene: 'Lead', anzahl_personen: 1, gehalt_min: 70000, gehalt_max: 90000, anforderungen: ['Produktmanagement', 'Technische Führung'] },\n    { id: 'role_005', abteilung_id: 'dept_003', titel: 'Software-Entwickler', beschreibung: 'Programmierung', ebene: 'Mid', anzahl_personen: 10, gehalt_min: 50000, gehalt_max: 70000, anforderungen: ['Programmierung', 'Softwareentwicklung'] },\n    { id: 'role_006', abteilung_id: 'dept_004', titel: 'IT-Leiter', beschreibung: 'IT-Infrastruktur', ebene: 'Lead', anzahl_personen: 1, gehalt_min: 65000, gehalt_max: 85000, anforderungen: ['IT-Infrastruktur', 'Teamführung'] },\n    { id: 'role_007', abteilung_id: 'dept_004', titel: 'Systemadministrator', beschreibung: 'Server & Netzwerke', ebene: 'Mid', anzahl_personen: 3, gehalt_min: 45000, gehalt_max: 60000, anforderungen: ['Systemadministration', 'Netzwerke'] },\n    { id: 'role_008', abteilung_id: 'dept_005', titel: 'Personalleiter', beschreibung: 'HR-Strategie', ebene: 'Lead', anzahl_personen: 1, gehalt_min: 60000, gehalt_max: 75000, anforderungen: ['HR-Strategie', 'Personalführung'] },\n    { id: 'role_009', abteilung_id: 'dept_005', titel: 'HR-Referent', beschreibung: 'Recruiting', ebene: 'Mid', anzahl_personen: 3, gehalt_min: 40000, gehalt_max: 55000, anforderungen: ['Recruiting', 'HR-Prozesse'] },\n    { id: 'role_010', abteilung_id: 'dept_006', titel: 'Kaufmännischer Leiter', beschreibung: 'Finanzsteuerung', ebene: 'Lead', anzahl_personen: 1, gehalt_min: 65000, gehalt_max: 85000, anforderungen: ['Finanzmanagement', 'Controlling'] },\n    { id: 'role_011', abteilung_id: 'dept_006', titel: 'Buchhalter', beschreibung: 'Finanzbuchhaltung', ebene: 'Mid', anzahl_personen: 3, gehalt_min: 38000, gehalt_max: 50000, anforderungen: ['Buchhaltung', 'Finanzwesen'] },\n    { id: 'role_012', abteilung_id: 'dept_007', titel: 'Kundenservice-Leiter', beschreibung: 'Leitung Support', ebene: 'Lead', anzahl_personen: 1, gehalt_min: 55000, gehalt_max: 70000, anforderungen: ['Kundenservice', 'Teamführung'] },\n    { id: 'role_013', abteilung_id: 'dept_007', titel: 'Support-Mitarbeiter', beschreibung: 'Technischer Support', ebene: 'Entry', anzahl_personen: 5, gehalt_min: 35000, gehalt_max: 45000, anforderungen: ['Kundenservice', 'Technisches Verständnis'] },\n    { id: 'role_014', abteilung_id: 'dept_011', titel: 'Projektmanager', beschreibung: 'Projektplanung', ebene: 'Senior', anzahl_personen: 2, gehalt_min: 55000, gehalt_max: 70000, anforderungen: ['Projektmanagement', 'Planung'] },\n    { id: 'role_015', abteilung_id: 'dept_012', titel: 'Vertriebsassistent', beschreibung: 'Vertriebsinnendienst', ebene: 'Entry', anzahl_personen: 3, gehalt_min: 32000, gehalt_max: 42000, anforderungen: ['Büroorganisation', 'Vertrieb'] },\n    { id: 'role_016', abteilung_id: 'dept_013', titel: 'Marketing Manager', beschreibung: 'Marketingkampagnen', ebene: 'Mid', anzahl_personen: 2, gehalt_min: 48000, gehalt_max: 62000, anforderungen: ['Marketing', 'Kampagnenplanung'] }\n  ];\n\n  const mitarbeiter = [\n    { id: 'emp_001', rolle_id: 'role_001', abteilung_id: 'dept_001', vorname: 'Max', nachname: 'Müller', email: 'max.mueller@ecotechsolutions.de', telefon: '+49 30 1234567', alter: 30, geschlecht: 'männlich', motivation: 'hoch', intelligenz: 'hoch', gehalt_euro: 55000, eintrittsdatum: '2022-01-15', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Max Müller' },\n    { id: 'emp_002', rolle_id: 'role_002', abteilung_id: 'dept_002', vorname: 'Julia', nachname: 'Schmidt', email: 'julia.schmidt@ecotechsolutions.de', telefon: '+49 30 7654321', alter: 28, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 48000, eintrittsdatum: '2022-03-01', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Julia Schmidt' },\n    { id: 'emp_003', rolle_id: 'role_003', abteilung_id: 'dept_002', vorname: 'Michael', nachname: 'Schneider', email: 'michael.schneider@ecotechsolutions.de', telefon: '+49 30 1239876', alter: 35, geschlecht: 'männlich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 60000, eintrittsdatum: '2021-07-20', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Michael Schneider' },\n    { id: 'emp_004', rolle_id: 'role_004', abteilung_id: 'dept_003', vorname: 'Anna', nachname: 'Weber', email: 'anna.weber@ecotechsolutions.de', telefon: '+49 30 6543210', alter: 32, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'hoch', gehalt_euro: 52000, eintrittsdatum: '2023-04-10', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Anna Weber' },\n    { id: 'emp_005', rolle_id: 'role_005', abteilung_id: 'dept_003', vorname: 'Lukas', nachname: 'Klein', email: 'lukas.klein@ecotechsolutions.de', telefon: '+49 30 2345678', alter: 45, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 72000, eintrittsdatum: '2020-11-01', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Lukas Klein' },\n    { id: 'emp_006', rolle_id: 'role_006', abteilung_id: 'dept_004', vorname: 'Sophie', nachname: 'Fischer', email: 'sophie.fischer@ecotechsolutions.de', telefon: '+49 30 9876543', alter: 29, geschlecht: 'weiblich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 50000, eintrittsdatum: '2021-09-15', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Sophie Fischer' },\n    { id: 'emp_007', rolle_id: 'role_007', abteilung_id: 'dept_004', vorname: 'Felix', nachname: 'Becker', email: 'felix.becker@ecotechsolutions.de', telefon: '+49 30 8765432', alter: 38, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 62000, eintrittsdatum: '2019-05-21', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Felix Becker' },\n    { id: 'emp_008', rolle_id: 'role_008', abteilung_id: 'dept_005', vorname: 'Laura', nachname: 'Hoffmann', email: 'laura.hoffmann@ecotechsolutions.de', telefon: '+49 30 5432167', alter: 27, geschlecht: 'weiblich', motivation: 'niedrig', intelligenz: 'mittel', gehalt_euro: 47000, eintrittsdatum: '2022-02-12', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Laura Hoffmann' },\n    { id: 'emp_009', rolle_id: 'role_009', abteilung_id: 'dept_005', vorname: 'Tobias', nachname: 'Schultz', email: 'tobias.schultz@ecotechsolutions.de', telefon: '+49 30 3216549', alter: 41, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'hoch', gehalt_euro: 61000, eintrittsdatum: '2018-03-11', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Tobias Schultz' },\n    { id: 'emp_010', rolle_id: 'role_010', abteilung_id: 'dept_006', vorname: 'Carla', nachname: 'Richter', email: 'carla.richter@ecotechsolutions.de', telefon: '+49 30 6789123', alter: 34, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 53000, eintrittsdatum: '2023-06-15', vertrag: 'Teilzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Carla Richter' },\n    { id: 'emp_011', rolle_id: 'role_011', abteilung_id: 'dept_006', vorname: 'Daniel', nachname: 'Wagner', email: 'daniel.wagner@ecotechsolutions.de', telefon: '+49 30 7651234', alter: 50, geschlecht: 'männlich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 73000, eintrittsdatum: '2017-01-25', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Daniel Wagner' },\n    { id: 'emp_012', rolle_id: 'role_012', abteilung_id: 'dept_007', vorname: 'Nina', nachname: 'Schwarz', email: 'nina.schwarz@ecotechsolutions.de', telefon: '+49 30 9871234', alter: 29, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'niedrig', gehalt_euro: 49000, eintrittsdatum: '2022-05-18', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Nina Schwarz' },\n    { id: 'emp_013', rolle_id: 'role_013', abteilung_id: 'dept_007', vorname: 'Paul', nachname: 'Zimmermann', email: 'paul.zimmermann@ecotechsolutions.de', telefon: '+49 30 6547890', alter: 37, geschlecht: 'divers', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 60000, eintrittsdatum: '2020-08-05', vertrag: 'Teilzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Paul Zimmermann' },\n    { id: 'emp_014', rolle_id: 'role_014', abteilung_id: 'dept_011', vorname: 'Laura', nachname: 'Kramer', email: 'laura.kramer@ecotechsolutions.de', telefon: '+49 30 3219876', alter: 31, geschlecht: 'weiblich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 55000, eintrittsdatum: '2023-07-22', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Laura Kramer' },\n    { id: 'emp_015', rolle_id: 'role_015', abteilung_id: 'dept_012', vorname: 'Stefan', nachname: 'Lehmann', email: 'stefan.lehmann@ecotechsolutions.de', telefon: '+49 30 1238765', alter: 44, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'hoch', gehalt_euro: 64000, eintrittsdatum: '2021-04-19', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Stefan Lehmann' },\n    { id: 'emp_016', rolle_id: 'role_016', abteilung_id: 'dept_013', vorname: 'Kim', nachname: 'Wagner', email: 'kim.wagner@ecotechsolutions.de', telefon: '+49 30 5312468', alter: 26, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 46000, eintrittsdatum: '2022-10-09', vertrag: 'Teilzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Kim Wagner' }\n  ];\n\n  const prozesse = [\n    {\n        pcf_id: \"10017\",\n        hierarchy_id: \"1.1.1\",\n        name: \"Bewertung der externen Umgebung\",\n        description: \"Die Bewertung aller Kräfte, Entitäten und Systeme, die außerhalb einer Organisation liegen, aber deren Betrieb beeinflussen können. Die Analyse weitreichender Strömungen in der makroökonomischen Situation, die Bewertung des Wettbewerbs, die Beurteilung technologischer Veränderungen und die Identifizierung gesellschaftlicher sowie ökologischer Anliegen. Ein umfassendes Verständnis der Externalitäten schaffen, mit ausreichender Tiefe in den einzelnen Aspekten.\",\n        spezifischer_name: \"Analyse der externen Technologie-Umgebung\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Geschäftsführung muss die externen Faktoren, die die Technologiebranche beeinflussen, kontinuierlich bewerten, um strategische Entscheidungen zu treffen.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10020\",\n        hierarchy_id: \"1.1.4\",\n        name: \"Eine strategische Vision entwickeln\",\n        description: \"Die langfristige Vision der Organisation als strategische Positionierung und Einbindung der Interessengruppen etablieren. Die Vision durch die Schaffung strategischer Ausrichtungen aller Interessengruppen umsetzen. Die Rahmenwerke zur Strategieentwicklung in diesem Kontext verstehen.\",\n        spezifischer_name: \"Entwicklung einer nachhaltigen Technologie-Vision\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Geschäftsführung benötigt eine klare Vision, um die nachhaltigen Ziele des Unternehmens in der Technologiebranche zu definieren und zu kommunizieren.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10039\",\n        hierarchy_id: \"1.2.3\",\n        name: \"Langfristige Unternehmensstrategie entwickeln.\",\n        description: \"Entwicklung einer Strategie zur Erreichung der Unternehmensziele in ferner Zukunft. Eine der strategischen Optionen zur langfristigen Verwirklichung der Mission annehmen. Einbeziehung von Führungskräften des oberen Managements, bestehend aus Strategie- und/oder Geschäftseinheitspersonal.\",\n        spezifischer_name: \"Langfristige Strategie für nachhaltige Technologien\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Entwicklung einer langfristigen Strategie ist entscheidend, um die nachhaltigen Lösungen des Unternehmens im Technologiemarkt zu fördern.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10061\",\n        hierarchy_id: \"2.1.1\",\n        name: \"Entwicklung strategischer Initiativen\",\n        description: \"Entwicklung strategischer Projekte, die zur Erreichung langfristiger Ziele beitragen. Entwicklung zeitlich begrenzter Projekte, die freiwilliger Natur sind und über den Rahmen der routinemäßigen Abläufe der Organisation hinausgehen.\",\n        spezifischer_name: \"Strategische Initiativen für nachhaltige Technologien\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Geschäftsführung muss strategische Initiativen entwickeln, um innovative und nachhaltige Lösungen in der Technologiebranche voranzutreiben.\",\n        prioritaet: \"mittel\"\n    },\n    {\n        pcf_id: \"10018\",\n        hierarchy_id: \"1.1.2\",\n        name: \"Untersuchen des Marktes und Ermitteln der Bedürfnisse und Wünsche der Kunden.\",\n        description: \"Den Markt untersuchen, um kundenorientierte Lösungen zu identifizieren. Die relevanten Märkte bewerten, um die Produkte/Dienstleistungen zu bestimmen, die von Kunden benötigt oder gewünscht werden. Quantitative und qualitative Analysen durchführen, um Produkte/Dienstleistungen zu erfassen und zu untersuchen. Kreative Techniken einsetzen, die ein besseres Verständnis des Kunden ermöglichen und relevante Lösungen entwerfen.\",\n        spezifischer_name: \"Marktforschung für nachhaltige Technologien\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Die Produktentwicklung erfordert ein tiefes Verständnis der Marktbedürfnisse, um innovative und nachhaltige Lösungen zu schaffen.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10037\",\n        hierarchy_id: \"1.2.1\",\n        name: \"Entwickeln einer übergreifenden Missionserklärung\",\n        description: \"Einen übergreifenden, kompakten Satz formulieren, der die Mission der Organisation prägnant unterstreicht. Eine klare und prägnante Missionserklärung definieren und kommunizieren, die zusammenfasst, wie die Organisation vorgehen möchte, um eine strategische Vision zu entwickeln. Kritische Beiträge von der Geschäftsleitung und Strategieexperten einholen und mit dem Marketing oder Mitarbeitern aus verwandten Funktionen zusammenarbeiten.\",\n        spezifischer_name: \"Mission für nachhaltige Produktentwicklung\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Eine klare Mission ist entscheidend, um die Richtung der Produktentwicklung im Bereich nachhaltiger Technologien zu steuern.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10065\",\n        hierarchy_id: \"2.2.1\",\n        name: \"Führe Entdeckungsforschung durch.\",\n        description: \"Koordinierung der F&E-Aktivitäten zur Identifizierung neuer Technologien, die in das überarbeitete Produkt-/Dienstleistungsportfolio integriert werden können. Durchführung von F&E-Aktivitäten in der Frühphase, um Lücken zwischen bestehenden Lösungsangeboten und sich ändernden Markterwartungen zu schließen. Triangulation geeigneter Technologien, die die Entwicklung eines überarbeiteten Produkt-/Dienstleistungsportfolios unterstützen können.\",\n        spezifischer_name: \"Forschung für innovative nachhaltige Lösungen\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Die Identifizierung neuer Technologien ist entscheidend für die Entwicklung innovativer, nachhaltiger Produkte.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"19990\",\n        hierarchy_id: \"2.2.3\",\n        name: \"Produkt-/Dienstentwicklungsanforderungen definieren\",\n        description: \"Umfasst die Identifizierung und Erfassung neuer Produkt-/Dienstleistungsanforderungen oder potenzieller Verbesserungen bestehender Produkte/Dienstleistungen. Zusammenarbeit mit Mitgliedern der Lieferkette, um die Machbarkeit der in den Anforderungen definierten Punkte sicherzustellen. Ein Beispiel wäre ein Produkt mit Herstellungsanforderungen, die die Lieferkette derzeit nicht erfüllen kann, was eine unternehmerische Entscheidung erfordert, entweder die Fertigungskapazitäten zu erweitern oder das neue Produkt aufzugeben. Auswirkungen und Bedürfnisse auf Unternehmensebene müssen berücksichtigt werden. Abhängig von der Art des Endprodukts oder der Dienstleistung werden diese Anforderungen oft als eine Reihe von Fähigkeiten definiert, wie Verfügbarkeit oder Zuverlässigkeit, die die Entscheidungen zur Produktentwicklung beeinflussen.\",\n        spezifischer_name: \"Anforderungen für nachhaltige Produktentwicklung definieren\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Die Definition von Anforderungen ist entscheidend, um sicherzustellen, dass neue Produkte den Nachhaltigkeitsstandards entsprechen.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10106\",\n        hierarchy_id: \"3.1.1\",\n        name: \"Kunden- und Marktanalysen durchführen\",\n        description: \"Informationen über den Markt und die Kunden sammeln. Die inhärenten Eigenschaften und das kollektive Verhalten der verschiedenen Markt- und Kundensegmente genau untersuchen. Trends im Markt verfolgen. Herausfinden, was die Kunden zu Kaufentscheidungen bewegt, um Chancen im Markt zu identifizieren.\",\n        spezifischer_name: \"Marktforschung für nachhaltige Technologien\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Die Analyse von Kunden und Markttrends ist entscheidend, um die Bedürfnisse der Zielgruppe im Bereich nachhaltiger Technologien zu verstehen und passende Lösungen anzubieten.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10107\",\n        hierarchy_id: \"3.1.2\",\n        name: \"Bewerten und priorisieren von Marktchancen\",\n        description: \"Bewertung von Marktchancen durch Quantifizierung und Priorisierung sowie Validierungstests. Eine genaue Untersuchung der identifizierten Marktchancen durch die Durchführung von Kunden- und Marktanalysen [10106]. Diese Chancen werden durch die Suche nach einer Übereinstimmung zwischen den identifizierten Möglichkeiten und dem Zusammenspiel von organisatorischen Fähigkeiten und Geschäftsstrategie genutzt.\",\n        spezifischer_name: \"Priorisierung von Marktchancen für grüne Technologien\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Die Priorisierung von Marktchancen hilft, die Ressourcen effizient zu nutzen und die vielversprechendsten Möglichkeiten im Bereich nachhaltiger Technologien zu identifizieren.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10040\",\n        hierarchy_id: \"1.2.4\",\n        name: \"Koordinieren und Abstimmen von bereichsübergreifenden und prozessbezogenen Strategien\",\n        description: \"Den Ansatz und die Methode der einzelnen Einheiten, Abteilungen, Systeme und Abläufe innerhalb der Organisation in Übereinstimmung mit dem größeren strategischen Kurs ausrichten. Den strategischen Weg der Organisation nutzen, um die Funktionen, Abteilungen und Abläufe zu leiten. Den Plan und die Methode jedes Funktionsbereichs sowie die darin enthaltenen Prozesse kalibrieren, um die langfristige Geschäftsstrategie auszuwählen [10039].\",\n        spezifischer_name: \"Strategische Abstimmung für nachhaltige Lösungen\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Die Abstimmung der Strategien ist wichtig, um sicherzustellen, dass alle Abteilungen auf die gemeinsamen Ziele im Bereich nachhaltiger Technologien hinarbeiten.\",\n        prioritaet: \"mittel\"\n    },\n    {\n        pcf_id: \"10149\",\n        hierarchy_id: \"3.3.2\",\n        name: \"Marketingbudgets festlegen\",\n        description: \"Erstellen eines Budgets für die Marketingbemühungen der Organisation, das im Einklang mit der unternehmensweiten strategischen Ausrichtung steht. Entwickeln eines Plans zur Verteilung der Ressourcen, um die Marketingstrategie im Hinblick auf die Gesamtgeschäftsstrategie zu erreichen. Kostenannahmen treffen; das geschätzte Gesamteinkommen aus den Marketingaktivitäten im Vergleich zu den Kosten/Ausgaben dieser Aktivitäten berechnen. Die Kapitalrendite prognostizieren. Kosten den entsprechenden Marketingaktivitäten wie Werbekampagnen, Werbung, Marketingkommunikation, PR-Kampagnen, Personal und Büroräume zuordnen. Die Finanz- und Marketingfunktionen einbeziehen.\",\n        spezifischer_name: \"Budgetierung für nachhaltige Marketingstrategien\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Ein effektives Budget ist entscheidend, um die Marketingaktivitäten für nachhaltige Lösungen effizient zu planen und die Ressourcen optimal zu nutzen.\",\n        prioritaet: \"hoch\"\n    }\n];\n\n  return [{ json: { unternehmen, abteilungen, rollen, mitarbeiter, prozesse, config } }];\n} else {\n  return [];\n}"
+        "jsCode": "const config = $input.first().json;\n\nif (config.use_demo_data) {\n  const unternehmen = {\n    id: '12345678',\n    name: 'EcoTech Solutions GmbH',\n    branche: 'Technologie',\n    groesse: 'Mittel',\n    mitarbeiteranzahl: 250,\n    gruendungsjahr: 2015,\n    hauptsitz: 'Berlin, Deutschland',\n    beschreibung: 'EcoTech Solutions GmbH entwickelt innovative Technologien für nachhaltige Energielösungen und Smart-City-Anwendungen.',\n    umsatz_mio: 45,\n    webseite: 'www.ecotechsolutions.de'\n  };\n\n  const abteilungen = [\n    { id: 'dept_001', unternehmen_id: '12345678', name: 'Geschäftsführung', ebene: 1, parent_id: null, beschreibung: 'Strategische Leitung', mitarbeiteranzahl: 5 },\n    { id: 'dept_002', unternehmen_id: '12345678', name: 'Vertrieb & Marketing', ebene: 2, parent_id: 'dept_001', beschreibung: 'Kundenakquise', mitarbeiteranzahl: 35 },\n    { id: 'dept_003', unternehmen_id: '12345678', name: 'Produktentwicklung', ebene: 2, parent_id: 'dept_001', beschreibung: 'Forschung und Entwicklung', mitarbeiteranzahl: 80 }\n  ];\n\n  const rollen = [\n    { id: 'role_001', abteilung_id: 'dept_001', titel: 'Geschäftsführer', beschreibung: 'Strategische Unternehmensführung', ebene: 'Executive', anzahl_personen: 2, gehalt_min: 100000, gehalt_max: 150000, anforderungen: ['Führungserfahrung', 'Strategisches Denken'] },\n    { id: 'role_002', abteilung_id: 'dept_002', titel: 'Vertriebsleiter', beschreibung: 'Leitung Vertriebsteam', ebene: 'Lead', anzahl_personen: 1, gehalt_min: 65000, gehalt_max: 80000, anforderungen: ['Vertriebserfahrung', 'Teamführung'] }\n  ];\n\n  const mitarbeiter = [\n    { id: 'emp_001', rolle_id: 'role_001', abteilung_id: 'dept_001', vorname: 'Max', nachname: 'Müller', email: 'max.mueller@ecotechsolutions.de', telefon: '+49 30 1234567', alter: 30, geschlecht: 'männlich', motivation: 'hoch', intelligenz: 'hoch', gehalt_euro: 55000, eintrittsdatum: '2022-01-15', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Max Müller' },\n    { id: 'emp_002', rolle_id: 'role_002', abteilung_id: 'dept_002', vorname: 'Julia', nachname: 'Schmidt', email: 'julia.schmidt@ecotechsolutions.de', telefon: '+49 30 7654321', alter: 28, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 48000, eintrittsdatum: '2022-03-01', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Julia Schmidt' },\n    { id: 'emp_003', rolle_id: 'role_003', abteilung_id: 'dept_002', vorname: 'Michael', nachname: 'Schneider', email: 'michael.schneider@ecotechsolutions.de', telefon: '+49 30 1239876', alter: 35, geschlecht: 'männlich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 60000, eintrittsdatum: '2021-07-20', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Michael Schneider' },\n    { id: 'emp_004', rolle_id: 'role_004', abteilung_id: 'dept_003', vorname: 'Anna', nachname: 'Weber', email: 'anna.weber@ecotechsolutions.de', telefon: '+49 30 6543210', alter: 32, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'hoch', gehalt_euro: 52000, eintrittsdatum: '2023-04-10', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Anna Weber' },\n    { id: 'emp_005', rolle_id: 'role_005', abteilung_id: 'dept_003', vorname: 'Lukas', nachname: 'Klein', email: 'lukas.klein@ecotechsolutions.de', telefon: '+49 30 2345678', alter: 45, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 72000, eintrittsdatum: '2020-11-01', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Lukas Klein' },\n    { id: 'emp_006', rolle_id: 'role_006', abteilung_id: 'dept_004', vorname: 'Sophie', nachname: 'Fischer', email: 'sophie.fischer@ecotechsolutions.de', telefon: '+49 30 9876543', alter: 29, geschlecht: 'weiblich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 50000, eintrittsdatum: '2021-09-15', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Sophie Fischer' },\n    { id: 'emp_007', rolle_id: 'role_007', abteilung_id: 'dept_004', vorname: 'Felix', nachname: 'Becker', email: 'felix.becker@ecotechsolutions.de', telefon: '+49 30 8765432', alter: 38, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 62000, eintrittsdatum: '2019-05-21', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Felix Becker' },\n    { id: 'emp_008', rolle_id: 'role_008', abteilung_id: 'dept_005', vorname: 'Laura', nachname: 'Hoffmann', email: 'laura.hoffmann@ecotechsolutions.de', telefon: '+49 30 5432167', alter: 27, geschlecht: 'weiblich', motivation: 'niedrig', intelligenz: 'mittel', gehalt_euro: 47000, eintrittsdatum: '2022-02-12', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Laura Hoffmann' },\n    { id: 'emp_009', rolle_id: 'role_009', abteilung_id: 'dept_005', vorname: 'Tobias', nachname: 'Schultz', email: 'tobias.schultz@ecotechsolutions.de', telefon: '+49 30 3216549', alter: 41, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'hoch', gehalt_euro: 61000, eintrittsdatum: '2018-03-11', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Tobias Schultz' },\n    { id: 'emp_010', rolle_id: 'role_010', abteilung_id: 'dept_006', vorname: 'Carla', nachname: 'Richter', email: 'carla.richter@ecotechsolutions.de', telefon: '+49 30 6789123', alter: 34, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 53000, eintrittsdatum: '2023-06-15', vertrag: 'Teilzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Carla Richter' },\n    { id: 'emp_011', rolle_id: 'role_011', abteilung_id: 'dept_006', vorname: 'Daniel', nachname: 'Wagner', email: 'daniel.wagner@ecotechsolutions.de', telefon: '+49 30 7651234', alter: 50, geschlecht: 'männlich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 73000, eintrittsdatum: '2017-01-25', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Daniel Wagner' },\n    { id: 'emp_012', rolle_id: 'role_012', abteilung_id: 'dept_007', vorname: 'Nina', nachname: 'Schwarz', email: 'nina.schwarz@ecotechsolutions.de', telefon: '+49 30 9871234', alter: 29, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'niedrig', gehalt_euro: 49000, eintrittsdatum: '2022-05-18', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Nina Schwarz' },\n    { id: 'emp_013', rolle_id: 'role_013', abteilung_id: 'dept_007', vorname: 'Paul', nachname: 'Zimmermann', email: 'paul.zimmermann@ecotechsolutions.de', telefon: '+49 30 6547890', alter: 37, geschlecht: 'divers', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 60000, eintrittsdatum: '2020-08-05', vertrag: 'Teilzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Paul Zimmermann' },\n    { id: 'emp_014', rolle_id: 'role_014', abteilung_id: 'dept_011', vorname: 'Laura', nachname: 'Kramer', email: 'laura.kramer@ecotechsolutions.de', telefon: '+49 30 3219876', alter: 31, geschlecht: 'weiblich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 55000, eintrittsdatum: '2023-07-22', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Laura Kramer' },\n    { id: 'emp_015', rolle_id: 'role_015', abteilung_id: 'dept_012', vorname: 'Stefan', nachname: 'Lehmann', email: 'stefan.lehmann@ecotechsolutions.de', telefon: '+49 30 1238765', alter: 44, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'hoch', gehalt_euro: 64000, eintrittsdatum: '2021-04-19', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Stefan Lehmann' },\n    { id: 'emp_016', rolle_id: 'role_016', abteilung_id: 'dept_013', vorname: 'Kim', nachname: 'Wagner', email: 'kim.wagner@ecotechsolutions.de', telefon: '+49 30 5312468', alter: 26, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 46000, eintrittsdatum: '2022-10-09', vertrag: 'Teilzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Kim Wagner' }\n  ];\n\n  const prozesse = [\n    {\n        pcf_id: \"10017\",\n        hierarchy_id: \"1.1.1\",\n        name: \"Bewertung der externen Umgebung\",\n        description: \"Die Bewertung aller Kräfte, Entitäten und Systeme, die außerhalb einer Organisation liegen, aber deren Betrieb beeinflussen können. Die Analyse weitreichender Strömungen in der makroökonomischen Situation, die Bewertung des Wettbewerbs, die Beurteilung technologischer Veränderungen und die Identifizierung gesellschaftlicher sowie ökologischer Anliegen. Ein umfassendes Verständnis der Externalitäten schaffen, mit ausreichender Tiefe in den einzelnen Aspekten.\",\n        spezifischer_name: \"Analyse der externen Technologie-Umgebung\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Geschäftsführung muss die externen Faktoren, die die Technologiebranche beeinflussen, kontinuierlich bewerten, um strategische Entscheidungen zu treffen.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10020\",\n        hierarchy_id: \"1.1.4\",\n        name: \"Eine strategische Vision entwickeln\",\n        description: \"Die langfristige Vision der Organisation als strategische Positionierung und Einbindung der Interessengruppen etablieren. Die Vision durch die Schaffung strategischer Ausrichtungen aller Interessengruppen umsetzen. Die Rahmenwerke zur Strategieentwicklung in diesem Kontext verstehen.\",\n        spezifischer_name: \"Entwicklung einer nachhaltigen Technologie-Vision\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Geschäftsführung benötigt eine klare Vision, um die nachhaltigen Ziele des Unternehmens in der Technologiebranche zu definieren und zu kommunizieren.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10039\",\n        hierarchy_id: \"1.2.3\",\n        name: \"Langfristige Unternehmensstrategie entwickeln.\",\n        description: \"Entwicklung einer Strategie zur Erreichung der Unternehmensziele in ferner Zukunft. Eine der strategischen Optionen zur langfristigen Verwirklichung der Mission annehmen. Einbeziehung von Führungskräften des oberen Managements, bestehend aus Strategie- und/oder Geschäftseinheitspersonal.\",\n        spezifischer_name: \"Langfristige Strategie für nachhaltige Technologien\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Entwicklung einer langfristigen Strategie ist entscheidend, um die nachhaltigen Lösungen des Unternehmens im Technologiemarkt zu fördern.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10061\",\n        hierarchy_id: \"2.1.1\",\n        name: \"Entwicklung strategischer Initiativen\",\n        description: \"Entwicklung strategischer Projekte, die zur Erreichung langfristiger Ziele beitragen. Entwicklung zeitlich begrenzter Projekte, die freiwilliger Natur sind und über den Rahmen der routinemäßigen Abläufe der Organisation hinausgehen.\",\n        spezifischer_name: \"Strategische Initiativen für nachhaltige Technologien\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Geschäftsführung muss strategische Initiativen entwickeln, um innovative und nachhaltige Lösungen in der Technologiebranche voranzutreiben.\",\n        prioritaet: \"mittel\"\n    },\n    {\n        pcf_id: \"10018\",\n        hierarchy_id: \"1.1.2\",\n        name: \"Untersuchen des Marktes und Ermitteln der Bedürfnisse und Wünsche der Kunden.\",\n        description: \"Den Markt untersuchen, um kundenorientierte Lösungen zu identifizieren. Die relevanten Märkte bewerten, um die Produkte/Dienstleistungen zu bestimmen, die von Kunden benötigt oder gewünscht werden. Quantitative und qualitative Analysen durchführen, um Produkte/Dienstleistungen zu erfassen und zu untersuchen. Kreative Techniken einsetzen, die ein besseres Verständnis des Kunden ermöglichen und relevante Lösungen entwerfen.\",\n        spezifischer_name: \"Marktforschung für nachhaltige Technologien\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Die Produktentwicklung erfordert ein tiefes Verständnis der Marktbedürfnisse, um innovative und nachhaltige Lösungen zu schaffen.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10037\",\n        hierarchy_id: \"1.2.1\",\n        name: \"Entwickeln einer übergreifenden Missionserklärung\",\n        description: \"Einen übergreifenden, kompakten Satz formulieren, der die Mission der Organisation prägnant unterstreicht. Eine klare und prägnante Missionserklärung definieren und kommunizieren, die zusammenfasst, wie die Organisation vorgehen möchte, um eine strategische Vision zu entwickeln. Kritische Beiträge von der Geschäftsleitung und Strategieexperten einholen und mit dem Marketing oder Mitarbeitern aus verwandten Funktionen zusammenarbeiten.\",\n        spezifischer_name: \"Mission für nachhaltige Produktentwicklung\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Eine klare Mission ist entscheidend, um die Richtung der Produktentwicklung im Bereich nachhaltiger Technologien zu steuern.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10065\",\n        hierarchy_id: \"2.2.1\",\n        name: \"Führe Entdeckungsforschung durch.\",\n        description: \"Koordinierung der F&E-Aktivitäten zur Identifizierung neuer Technologien, die in das überarbeitete Produkt-/Dienstleistungsportfolio integriert werden können. Durchführung von F&E-Aktivitäten in der Frühphase, um Lücken zwischen bestehenden Lösungsangeboten und sich ändernden Markterwartungen zu schließen. Triangulation geeigneter Technologien, die die Entwicklung eines überarbeiteten Produkt-/Dienstleistungsportfolios unterstützen können.\",\n        spezifischer_name: \"Forschung für innovative nachhaltige Lösungen\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Die Identifizierung neuer Technologien ist entscheidend für die Entwicklung innovativer, nachhaltiger Produkte.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"19990\",\n        hierarchy_id: \"2.2.3\",\n        name: \"Produkt-/Dienstentwicklungsanforderungen definieren\",\n        description: \"Umfasst die Identifizierung und Erfassung neuer Produkt-/Dienstleistungsanforderungen oder potenzieller Verbesserungen bestehender Produkte/Dienstleistungen. Zusammenarbeit mit Mitgliedern der Lieferkette, um die Machbarkeit der in den Anforderungen definierten Punkte sicherzustellen. Ein Beispiel wäre ein Produkt mit Herstellungsanforderungen, die die Lieferkette derzeit nicht erfüllen kann, was eine unternehmerische Entscheidung erfordert, entweder die Fertigungskapazitäten zu erweitern oder das neue Produkt aufzugeben. Auswirkungen und Bedürfnisse auf Unternehmensebene müssen berücksichtigt werden. Abhängig von der Art des Endprodukts oder der Dienstleistung werden diese Anforderungen oft als eine Reihe von Fähigkeiten definiert, wie Verfügbarkeit oder Zuverlässigkeit, die die Entscheidungen zur Produktentwicklung beeinflussen.\",\n        spezifischer_name: \"Anforderungen für nachhaltige Produktentwicklung definieren\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Die Definition von Anforderungen ist entscheidend, um sicherzustellen, dass neue Produkte den Nachhaltigkeitsstandards entsprechen.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10106\",\n        hierarchy_id: \"3.1.1\",\n        name: \"Kunden- und Marktanalysen durchführen\",\n        description: \"Informationen über den Markt und die Kunden sammeln. Die inhärenten Eigenschaften und das kollektive Verhalten der verschiedenen Markt- und Kundensegmente genau untersuchen. Trends im Markt verfolgen. Herausfinden, was die Kunden zu Kaufentscheidungen bewegt, um Chancen im Markt zu identifizieren.\",\n        spezifischer_name: \"Marktforschung für nachhaltige Technologien\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Die Analyse von Kunden und Markttrends ist entscheidend, um die Bedürfnisse der Zielgruppe im Bereich nachhaltiger Technologien zu verstehen und passende Lösungen anzubieten.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10107\",\n        hierarchy_id: \"3.1.2\",\n        name: \"Bewerten und priorisieren von Marktchancen\",\n        description: \"Bewertung von Marktchancen durch Quantifizierung und Priorisierung sowie Validierungstests. Eine genaue Untersuchung der identifizierten Marktchancen durch die Durchführung von Kunden- und Marktanalysen [10106]. Diese Chancen werden durch die Suche nach einer Übereinstimmung zwischen den identifizierten Möglichkeiten und dem Zusammenspiel von organisatorischen Fähigkeiten und Geschäftsstrategie genutzt.\",\n        spezifischer_name: \"Priorisierung von Marktchancen für grüne Technologien\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Die Priorisierung von Marktchancen hilft, die Ressourcen effizient zu nutzen und die vielversprechendsten Möglichkeiten im Bereich nachhaltiger Technologien zu identifizieren.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10040\",\n        hierarchy_id: \"1.2.4\",\n        name: \"Koordinieren und Abstimmen von bereichsübergreifenden und prozessbezogenen Strategien\",\n        description: \"Den Ansatz und die Methode der einzelnen Einheiten, Abteilungen, Systeme und Abläufe innerhalb der Organisation in Übereinstimmung mit dem größeren strategischen Kurs ausrichten. Den strategischen Weg der Organisation nutzen, um die Funktionen, Abteilungen und Abläufe zu leiten. Den Plan und die Methode jedes Funktionsbereichs sowie die darin enthaltenen Prozesse kalibrieren, um die langfristige Geschäftsstrategie auszuwählen [10039].\",\n        spezifischer_name: \"Strategische Abstimmung für nachhaltige Lösungen\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Die Abstimmung der Strategien ist wichtig, um sicherzustellen, dass alle Abteilungen auf die gemeinsamen Ziele im Bereich nachhaltiger Technologien hinarbeiten.\",\n        prioritaet: \"mittel\"\n    },\n    {\n        pcf_id: \"10149\",\n        hierarchy_id: \"3.3.2\",\n        name: \"Marketingbudgets festlegen\",\n        description: \"Erstellen eines Budgets für die Marketingbemühungen der Organisation, das im Einklang mit der unternehmensweiten strategischen Ausrichtung steht. Entwickeln eines Plans zur Verteilung der Ressourcen, um die Marketingstrategie im Hinblick auf die Gesamtgeschäftsstrategie zu erreichen. Kostenannahmen treffen; das geschätzte Gesamteinkommen aus den Marketingaktivitäten im Vergleich zu den Kosten/Ausgaben dieser Aktivitäten berechnen. Die Kapitalrendite prognostizieren. Kosten den entsprechenden Marketingaktivitäten wie Werbekampagnen, Werbung, Marketingkommunikation, PR-Kampagnen, Personal und Büroräume zuordnen. Die Finanz- und Marketingfunktionen einbeziehen.\",\n        spezifischer_name: \"Budgetierung für nachhaltige Marketingstrategien\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Ein effektives Budget ist entscheidend, um die Marketingaktivitäten für nachhaltige Lösungen effizient zu planen und die Ressourcen optimal zu nutzen.\",\n        prioritaet: \"hoch\"\n    }\n];\n\n  return [{ json: { unternehmen, abteilungen, rollen, mitarbeiter, prozesse, config } }];\n} else {\n  return [];\n}"
       },
-      "id": "3df1fd96-b25c-4b15-8e41-226e5b119591",
+      "id": "37ca71ef-d829-463e-8944-6edf98446245",
       "name": "Demo-Daten (Alle)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5024, 896]
+      "position": [-5344, -112]
     },
     {
       "parameters": {
         "jsCode": "const config = $input.first().json;\n\nif (config.use_demo_data) {\n  return [];\n} else {\n  return [{ json: config }];\n}"
       },
-      "id": "1683e862-2781-4610-be05-cb51dde014be",
+      "id": "c683f9f8-c880-4e74-9dbd-bdc6a759aeff",
       "name": "Filter für API-Calls",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-6272, 688]
+      "position": [-6592, -320]
     },
     {
       "parameters": {
@@ -332,11 +332,11 @@
         "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein Experte für Unternehmensstrukturen. Erstelle realistische fiktive Unternehmensdaten. Antworte immer mit validem JSON.'\n    },\n    {\n      role: 'user',\n      content: 'Erstelle ein fiktives Unternehmen mit folgenden Vorgaben: Branche: ' + $json.branche + ', Größe: ' + $json.unternehmensgroesse + ', Land: ' + $json.land + ', Besonderheit: ' + $json.besonderheit + '. Erstelle ein JSON-Objekt mit den Feldern: id, name, branche, groesse, mitarbeiteranzahl, gruendungsjahr, hauptsitz, beschreibung, umsatz_mio, webseite.'\n    }\n  ],\n  temperature: 0.8\n}) }}",
         "options": {}
       },
-      "id": "e289247e-123c-4e97-b58c-7242a07f40ad",
+      "id": "b68d1c79-664e-439b-a210-b03328d09b49",
       "name": "HTTP: Unternehmen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-6048, 688]
+      "position": [-6368, -320]
     },
     {
       "parameters": {
@@ -387,7 +387,7 @@
             {
               "id": "config_use_demo_data",
               "name": "use_demo_data",
-              "value": false,
+              "value": true,
               "type": "boolean"
             },
             {
@@ -436,60 +436,60 @@
         },
         "options": {}
       },
-      "id": "c43583a4-7513-4263-be7c-dbd0405e476d",
+      "id": "bf793ccf-86aa-472b-a4af-628af39fd247",
       "name": "Konfiguration",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.3,
-      "position": [-6496, 880],
+      "position": [-6816, -128],
       "notes": "HIER ANPASSEN: Branche, Größe, Land, Besonderheiten und OpenAI API Key"
     },
     {
       "parameters": {},
-      "id": "cbac55e9-12cd-4089-a394-9588b8b7d60b",
+      "id": "88680f6f-775c-466c-ac24-195621f42e41",
       "name": "Start",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [-6720, 880]
+      "position": [-7040, -128]
     },
     {
       "parameters": {
         "jsCode": "const items = $input.all();\nlet rows = [];\nfor (const item of items) {\n  const data = item.json;\n  if (Array.isArray(data)) {\n    rows = rows.concat(data);\n  } else if (data && Array.isArray(data.data)) {\n    rows = rows.concat(data.data);\n  } else if (data) {\n    rows.push(data);\n  }\n}\nconst activities = rows\n  .filter(row => String(row['Hierarchy'] ?? row['Hierarchy ID'] ?? '').trim() === '4')\n  .map(row => {\n    const hierarchyId = String(row['Hierarchy ID'] ?? '').trim();\n    const parentHierarchyId = hierarchyId.includes('.') ? hierarchyId.split('.').slice(0, -1).join('.') : '';\n    return {\n      pcf_id: row['PCF ID'],\n      hierarchy_id: hierarchyId,\n      parent_hierarchy_id: parentHierarchyId,\n      name: row['Name (German Translation) (not veriied)'] ?? row['Name (German Translation) (not verified)'] ?? row['Name'] ?? '',\n      description: row['Element Description (German Translation) (not verfied)'] ?? row['Element Description (German Translation) (not verified)'] ?? row['Element Description'] ?? ''\n    };\n  });\nconst activitiesByProcess = activities.reduce((acc, activity) => {\n  const key = activity.parent_hierarchy_id || '';\n  if (!acc[key]) acc[key] = [];\n  acc[key].push(activity);\n  return acc;\n}, {});\nreturn [{ json: { apqcActivities: activities, apqcActivitiesByProcess: activitiesByProcess } }];\n"
       },
-      "id": "0f9c1729-eeef-492a-81ff-daf58be4d309",
+      "id": "8724e38c-12b6-4045-a440-51d05c0cd4ff",
       "name": "APQC Aktivitäten filtern",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4928, 1264]
+      "position": [-5248, 256]
     },
     {
       "parameters": {
         "jsCode": "// Hole die ursprüngliche Aktivität und die API-Antwort\nconst originalAktivitaet = $input.first().json;\nconst apiResponse = $input.first().json.choices?.[0]?.message?.content;\n\nif (!apiResponse) {\n  // Falls keine Antwort, gebe Originalaktivität zurück\n  const { mitarbeiter_kontext, prozess_kontext, config, ...aktivitaetOhneTemp } = originalAktivitaet;\n  return [{\n    json: {\n      ...aktivitaetOhneTemp,\n      beschreibung_mitarbeiter: 'Beschreibung konnte nicht generiert werden.',\n      beschreibung_qualitaet_motivation: mitarbeiter_kontext.motivation,\n      beschreibung_qualitaet_intelligenz: mitarbeiter_kontext.intelligenz,\n      beschreibung_qualitaet_gesamt: 'unbekannt'\n    }\n  }];\n}\n\n// Parse die API-Antwort\nlet parsedResponse;\ntry {\n  parsedResponse = typeof apiResponse === 'string' ? JSON.parse(apiResponse) : apiResponse;\n} catch (e) {\n  parsedResponse = { beschreibung_mitarbeiter: 'Fehler beim Parsen der Beschreibung.' };\n}\n\n// Entferne die temporären Kontextfelder und füge die Mitarbeiterbeschreibung hinzu\nconst { mitarbeiter_kontext, prozess_kontext, config, choices, ...aktivitaetOhneTemp } = originalAktivitaet;\n\n// Berechne Gesamtqualität basierend auf Motivation und Intelligenz\nconst calculateQuality = (motivation, intelligenz) => {\n  const qualityMap = { 'hoch': 3, 'mittel': 2, 'niedrig': 1 };\n  const motivScore = qualityMap[motivation] || 2;\n  const intScore = qualityMap[intelligenz] || 2;\n  const avgScore = (motivScore + intScore) / 2;\n  \n  if (avgScore >= 2.5) return 'hoch';\n  if (avgScore >= 1.5) return 'mittel';\n  return 'niedrig';\n};\n\nreturn [{\n  json: {\n    ...aktivitaetOhneTemp,\n    beschreibung_mitarbeiter: parsedResponse.beschreibung_mitarbeiter || 'Keine Beschreibung verfügbar.',\n    // Qualitätsfelder vom Mitarbeiter speichern\n    beschreibung_qualitaet_motivation: mitarbeiter_kontext.motivation,\n    beschreibung_qualitaet_intelligenz: mitarbeiter_kontext.intelligenz,\n    beschreibung_qualitaet_gesamt: calculateQuality(mitarbeiter_kontext.motivation, mitarbeiter_kontext.intelligenz)\n  }\n}];"
       },
       "name": "Beschreibungen zusammenführen",
-      "id": "b33cb743-f475-4367-843f-9affccd5420f",
+      "id": "0eb5e8f6-78d5-423e-b9d8-a9c440487b5e",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [560, 1232]
+      "position": [256, 224]
     },
     {
       "parameters": {
         "jsCode": "// Sammle alle angereicherten Aktivitäten\nconst aktivitaeten = $input.all().map(item => item.json);\n\nreturn [{ json: { aktivitaeten } }];"
       },
       "name": "Aktivitäten aggregieren",
-      "id": "e8afb76b-e1a3-4d41-9af3-9306a1624eec",
+      "id": "e444d5a0-101f-46fb-8d66-ec22d695bed9",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [784, 1232]
+      "position": [480, 224]
     },
     {
       "parameters": {
         "jsCode": "const { aktivitaeten } = $input.first().json;\nreturn aktivitaeten.map(act => ({ json: act }));"
       },
       "name": "Aktivitäten extrahieren",
-      "id": "b1efa111-0ba4-40f2-8c15-9955d427a647",
+      "id": "74b0ee5b-dff6-4e11-8e41-f7c39307d287",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1008, 1232]
+      "position": [704, 224]
     },
     {
       "parameters": {
@@ -500,50 +500,50 @@
         }
       },
       "name": "Aktivitäten JSON",
-      "id": "7e01fd4e-5501-4600-945d-1bb7fdb33a2b",
+      "id": "8be5ab77-543c-47de-bcd9-bfe718abd64d",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [1232, 1232]
+      "position": [928, 224]
     },
     {
       "parameters": {},
-      "id": "5b5dd97f-bef0-456f-985f-e74741361061",
+      "id": "f8577f2f-be03-431b-bebe-7b02f4af28a1",
       "name": "Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-832, 32]
+      "position": [-1152, -976]
     },
     {
       "parameters": {},
-      "id": "a55cd964-dd76-4960-b49f-5d7c58061cfa",
+      "id": "a3daebce-f97f-4e1a-95be-dde690621a63",
       "name": "Dateien + Rollen zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-608, 128]
+      "position": [-928, -880]
     },
     {
       "parameters": {},
-      "id": "aa8efab6-6193-4766-9ee6-3178939ee1a4",
+      "id": "5fd6f3b1-c356-47b2-861d-3920bb26980f",
       "name": "Dateien + Prozesse zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-384, 32]
+      "position": [-704, -976]
     },
     {
       "parameters": {},
-      "id": "b89a77a0-b1a3-4541-b0ce-3a7fc8c81225",
+      "id": "3f10c6a1-bd5f-41c6-965b-1ef0cf880cf5",
       "name": "Dateien + Aktivitäten zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [1920, 432]
+      "position": [1616, -576]
     },
     {
       "parameters": {},
-      "id": "30ff076d-b72a-45fb-922f-b260d27e6c6a",
+      "id": "de4ee92f-89a2-40ae-b479-4ff1ef8047f1",
       "name": "Alle Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [2144, 528]
+      "position": [1840, -480]
     },
     {
       "parameters": {
@@ -552,90 +552,90 @@
       },
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [2368, 528],
-      "id": "e273e723-7bf0-4ac6-a811-29f5e00742fa",
+      "position": [2064, -480],
+      "id": "13d3f536-ef14-45d6-9066-9b794fdb84ae",
       "name": "Convert to File"
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\n\nconst {\n  unternehmen = {},\n  abteilungen = [],\n  rollen = [],\n  apqcProcesses = [],\n  apqcActivities = [],\n  apqcActivitiesByProcess = {},\n  config = {},\n} = input;\n\nconst globalData = $getWorkflowStaticData('global');\n\nconsole.log('=== PROZESSITERATION VORBEREITEN ===');\nconsole.log('Config use_demo_prozesse:', config.use_demo_prozesse);\n\n// Wenn Demo-Prozesse verwendet werden sollen, springe direkt zum Abschluss\nif (config.use_demo_prozesse) {\n  console.log('=== PROZESSITERATION ÜBERSPRUNGEN (use_demo_prozesse aktiv) ===');\n  \n  // Hole Demo-Prozesse aus Demo-Daten Node\n  const getNodeJson = (nodeName) => {\n    try {\n      const item = $(nodeName).first();\n      return item?.json ?? {};\n    } catch (error) {\n      return {};\n    }\n  };\n  \n  const demoData = getNodeJson('Demo-Daten (Alle)');\n  const demoProzesse = demoData.prozesse || [];\n  \n  console.log('Demo-Prozesse gefunden:', demoProzesse.length);\n  \n  // Speichere Kontext in globalData für späteren Zugriff\n  globalData.context = { unternehmen, abteilungen, rollen, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\n  globalData.assignedProcesses = demoProzesse;\n  \n  // Markiere als final für direkten Sprung zu \"Prozessiteration Abschluss\"\n  return [{ json: { isFinal: true } }];\n}\n\nconsole.log('=== STARTE PROZESS-ITERATION ===');\nconsole.log('Anzahl Abteilungen:', abteilungen.length);\n\nconst sortAbteilungen = (list) => {\n  return [...list]\n    .map((abteilung, index) => ({ ...abteilung, __index: index }))\n    .sort((a, b) => {\n      const levelA = Number(a.ebene ?? 999);\n      const levelB = Number(b.ebene ?? 999);\n      if (Number.isFinite(levelA) && Number.isFinite(levelB)) {\n        if (levelA !== levelB) return levelA - levelB;\n      } else if (Number.isFinite(levelA)) {\n        return -1;\n      } else if (Number.isFinite(levelB)) {\n        return 1;\n      }\n      const mitA = Number(a.mitarbeiteranzahl ?? 0);\n      const mitB = Number(b.mitarbeiteranzahl ?? 0);\n      if (mitA !== mitB) return mitB - mitA;\n      return (a.name || '').localeCompare(b.name || '');\n    });\n};\n\nconst sortedWithIndex = sortAbteilungen(abteilungen);\nconst sortedAbteilungen = sortedWithIndex.map(({ __index, ...rest }) => rest);\n\nglobalData.availableProcesses = Array.isArray(apqcProcesses) ? apqcProcesses.map(proc => ({ ...proc })) : [];\nglobalData.assignedProcesses = [];\nglobalData.context = { unternehmen, abteilungen: sortedAbteilungen, rollen, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\nglobalData.remainingDepartments = sortedAbteilungen.length;\n\nreturn sortedAbteilungen.map((abteilung, index) => ({ json: { abteilung, position: index } }));"
       },
-      "id": "b2ef0a5b-f7c4-420b-97ff-22d14201528a",
+      "id": "ee35f68f-e9f4-4a37-8147-61d4579588ad",
       "name": "Prozessiteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4256, 880]
+      "position": [-4576, -128]
     },
     {
       "parameters": {
         "batchSize": 1,
         "options": {}
       },
-      "id": "ede2a154-93ea-42c4-a68d-57cdb25f5dff",
+      "id": "d85e7efd-b99e-4cc8-b630-dac30e510398",
       "name": "Abteilungen iterieren",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-4000, 1008]
+      "position": [-4320, 0]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst abteilung = input.abteilung || {};\nconst position = input.position ?? 0;\n\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.context || {};\nconst availableProcesses = Array.isArray(globalData.availableProcesses) ? globalData.availableProcesses : [];\n\nconst limitProcesses = (processes, limit = 120) => {\n  if (processes.length <= limit) return processes;\n  return processes.slice(0, limit);\n};\n\nconst prozessPool = limitProcesses(availableProcesses);\nconst rollenGesamt = Array.isArray(context.rollen) ? context.rollen : [];\nconst rollen = rollenGesamt.filter(rolle => rolle.abteilung_id === abteilung.id).slice(0, 10);\n\nconst unternehmen = context.unternehmen || {};\nconst config = context.config || {};\n\nconst systemPrompt = \"Du bist Organisations- und Prozessberater. Erstelle für die angegebene Abteilung 2-4 passende APQC-Prozesse auf Ebene 3. Verwende ausschließlich die bereitgestellten Prozessdaten (PCF ID, Hierarchy ID, Name, Beschreibung) unverändert. Jeder Prozess darf nur einmal verwendet werden. Erstelle zusätzlich für jeden Prozess einen branchenspezifischen Prozessnamen, der auf dem APQC-Namen basiert, aber konkret auf die Branche und Tätigkeit angepasst ist - OHNE den Unternehmensnamen zu verwenden.\";\n\nconst abteilungsInfo = {\n  id: abteilung.id,\n  name: abteilung.name,\n  ebene: abteilung.ebene,\n  mitarbeiter: abteilung.mitarbeiteranzahl,\n};\n\nconst rollenInfo = rollen.map(rolle => ({\n  id: rolle.id,\n  titel: rolle.titel,\n  ebene: rolle.ebene,\n}));\n\nconst unternehmensInfo = {\n  name: unternehmen.name,\n  branche: unternehmen.branche,\n  mitarbeiteranzahl: unternehmen.mitarbeiteranzahl,\n  besonderheit: config.besonderheit || null,\n};\n\nconst userSections = [\n  \"Unternehmenskontext:\",\n  JSON.stringify(unternehmensInfo, null, 2),\n  \"\",\n  \"Abteilung:\",\n  JSON.stringify(abteilungsInfo, null, 2),\n  \"\",\n  \"Rollen in dieser Abteilung (Auszug):\",\n  JSON.stringify(rollenInfo, null, 2),\n  \"\",\n  \"Verfügbare APQC-Prozesse Level 3:\",\n  JSON.stringify(prozessPool, null, 2),\n  \"\",\n  \"Aufgabe:\",\n  \"Wähle 2-4 Prozesse aus der Liste aus, die bestmöglich zu den Aufgaben der Abteilung passen. Verwende die gelieferten IDs, Namen und Beschreibungen unverändert. Erstelle zusätzlich für jeden Prozess einen spezifischer_name, der den generischen APQC-Namen konkret auf die Branche anpasst. Beispiel: Bei einem Eiscreme-Hersteller wird 'Manage Production Operations' zu 'Eiscremeherstellung' oder 'Manage Quality' zu 'Qualitätskontrolle Speiseeis'. WICHTIG: Verwende NICHT den Unternehmensnamen, sondern nur branchenspezifische Begriffe. Gib je Prozess eine kurze Begründung und eine Priorität (hoch/mittel/niedrig) an. Antworte im JSON-Format laut Schema.\",\n];\n\nconst requestPayload = {\n  model: \"gpt-4o-mini\",\n  temperature: 0.2,\n  response_format: {\n    type: \"json_schema\",\n    json_schema: {\n      name: \"prozesse_response\",\n      schema: {\n        type: \"object\",\n        additionalProperties: false,\n        properties: {\n          prozesse: {\n            type: \"array\",\n            minItems: 1,\n            items: {\n              type: \"object\",\n              additionalProperties: false,\n              properties: {\n                pcf_id: { type: \"string\", pattern: \"^[0-9]+$\" },\n                hierarchy_id: { type: \"string\", pattern: \"^[0-9]+\\\\.[0-9]+\\\\.[0-9]+$\" },\n                name: { type: \"string\" },\n                description: { type: \"string\" },\n                spezifischer_name: { type: \"string\" },\n                abteilung_id: { type: \"string\" },\n                abteilung_name: { type: \"string\" },\n                begruendung: { type: \"string\" },\n                prioritaet: { type: \"string\", enum: [\"hoch\", \"mittel\", \"niedrig\"] },\n              },\n              required: [\"pcf_id\", \"hierarchy_id\", \"name\", \"description\", \"spezifischer_name\", \"abteilung_id\", \"abteilung_name\"],\n            },\n          },\n        },\n        required: [\"prozesse\"],\n      },\n    },\n  },\n  messages: [\n    { role: \"system\", content: systemPrompt },\n    { role: \"user\", content: userSections.join(\"\\n\") },\n  ],\n};\n\nreturn [\n  {\n    json: {\n      unternehmen,\n      abteilung,\n      rollen,\n      prozessPool,\n      config,\n      position,\n      requestPayload,\n    },\n  },\n];"
       },
-      "id": "6a3e1630-8d81-4494-b93e-ab5790b324c9",
+      "id": "c1390136-d8eb-413a-9576-5b98e3f925ce",
       "name": "Abteilungskontext erstellen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3712, 992]
+      "position": [-4032, -16]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst response = input.body ?? input;\nconst message = response.choices?.[0]?.message;\nlet raw = message?.content;\nif (!raw) {\n  throw new Error('Antwort der Prozesse-API fehlt oder ist leer.');\n}\n\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart?.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\n\nlet data;\nif (typeof raw === 'object') {\n  data = raw;\n} else {\n  try {\n    data = JSON.parse(raw);\n  } catch (error) {\n    throw new Error('Antwort konnte nicht als JSON geparst werden: ' + error.message);\n  }\n}\n\nif (!data || !Array.isArray(data.prozesse)) {\n  throw new Error('Die KI-Antwort enthält keine gültige Prozessliste.');\n}\n\nconst globalData = $getWorkflowStaticData('global');\nconst assigned = Array.isArray(globalData.assignedProcesses) ? globalData.assignedProcesses : [];\n\nfor (const prozess of data.prozesse) {\n  assigned.push({\n    ...prozess,\n    abteilung_id: prozess.abteilung_id,\n    abteilung_name: prozess.abteilung_name,\n  });\n}\n\nglobalData.assignedProcesses = assigned;\n\ndata.prozesse = data.prozesse.map(prozess => ({ ...prozess }));\n\nreturn [\n  {\n    json: {\n      prozesse: data.prozesse,\n    },\n  },\n];"
       },
-      "id": "3916e2c1-7594-466d-8990-fa0d4ee576d5",
+      "id": "cb8fd96e-51b0-4077-b36f-7b573c19b8ec",
       "name": "Prozessantwort parsen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3296, 992]
+      "position": [-3616, -16]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst selected = Array.isArray(input.prozesse) ? input.prozesse : [];\nconst globalData = $getWorkflowStaticData('global');\nconst available = Array.isArray(globalData.availableProcesses) ? globalData.availableProcesses : [];\n\nconst selectedIds = new Set(selected.map(prozess => String(prozess.pcf_id || '').trim()));\nconst remaining = available.filter(proc => !selectedIds.has(String(proc.pcf_id || '').trim()));\n\nglobalData.availableProcesses = remaining;\nconst currentRemaining = Number(globalData.remainingDepartments ?? remaining.length);\nconst updatedRemaining = Math.max(0, currentRemaining - 1);\nglobalData.remainingDepartments = updatedRemaining;\n\nconst isFinal = updatedRemaining === 0;\n\nreturn [\n  {\n    json: {\n      prozesse: selected,\n      isFinal,\n    },\n  },\n];"
       },
-      "id": "de55a84f-e173-40f3-a297-d026fb94150f",
+      "id": "5299ced3-8e78-42b5-a3b3-d669327775df",
       "name": "Verfügbare Prozesse aktualisieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3104, 992]
+      "position": [-3424, -16]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nif (!input.isFinal) {\n  return [];\n}\n\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.context || {};\n\nconst result = {\n  unternehmen: context.unternehmen || {},\n  abteilungen: context.abteilungen || [],\n  rollen: context.rollen || [],\n  prozesse: globalData.assignedProcesses || [],\n  apqcProcesses: context.apqcProcesses || [],\n  apqcActivities: context.apqcActivities || [],\n  apqcActivitiesByProcess: context.apqcActivitiesByProcess || {},\n  config: context.config || {},\n};\n\nconsole.log('=== PROZESSITERATION ABSCHLUSS ===');\nconsole.log('Prozesse:', result.prozesse.length);\nconsole.log('KEINE Mitarbeiter hier - werden später erstellt');\n\nglobalData.availableProcesses = [];\nglobalData.assignedProcesses = [];\nglobalData.context = {};\nglobalData.remainingDepartments = 0;\n\nreturn [\n  {\n    json: result,\n  },\n];"
       },
-      "id": "2e09b49d-7cbb-4102-9e5a-5dd793cb1a01",
+      "id": "895b2e07-7283-443b-9760-b0c437de8875",
       "name": "Prozessiteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-2912, 880]
+      "position": [-3232, -128]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst {\n  unternehmen = {},\n  abteilungen = [],\n  rollen = [],\n  prozesse = [],\n  mitarbeiter = [],\n  apqcProcesses = [],\n  apqcActivities = [],\n  apqcActivitiesByProcess = {},\n  config = {},\n} = input;\n\n// Initialisiere globalData für Aktivitätsiteration\nconst globalData = $getWorkflowStaticData('global');\n\n// Hole Mitarbeiter aus globalData (falls dort gespeichert von Mitarbeiteriteration)\nconst mitarbeiterAusGlobal = globalData.mitarbeiterData || [];\nconst finaleMitarbeiter = mitarbeiterAusGlobal.length > 0 ? mitarbeiterAusGlobal : mitarbeiter;\n\nglobalData.assignedActivities = [];\nglobalData.activityContext = { unternehmen, abteilungen, rollen, prozesse, mitarbeiter: finaleMitarbeiter, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\nglobalData.remainingProcesses = prozesse.length;\n\n// DEBUG\nconsole.log('=== AKTIVITÄTSITERATION VORBEREITEN ===');\nconsole.log('Anzahl Prozesse:', prozesse.length);\nconsole.log('Anzahl Mitarbeiter:', finaleMitarbeiter.length);\nconsole.log('APQC Activities verfügbar:', Object.keys(apqcActivitiesByProcess).length);\nconsole.log('Config use_apqc_activities:', config.use_apqc_activities);\n\n// Gebe die Prozessliste als ARRAY in einem einzigen Item aus (nicht als separate Items)\nreturn [{\n  json: {\n    prozesse,\n    config,\n    unternehmen,\n    abteilungen,\n    rollen,\n    mitarbeiter: finaleMitarbeiter,\n    apqcProcesses,\n    apqcActivities,\n    apqcActivitiesByProcess,\n  }\n}];"
       },
-      "id": "ef76393e-b82b-4fa6-b449-cc8d27add2c1",
+      "id": "07575c5a-9879-4619-a914-2a32fca4aefa",
       "name": "Aktivitätsiteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-2688, 1456]
+      "position": [-3008, 448]
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first()?.json ?? {};\nconst prozesse = input.prozesse || [];\nconst config = input.config || {};\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.activityContext || {};\nconst apqcActivitiesByProcess = context.apqcActivitiesByProcess || {};\nconst useApqc = config.use_apqc_activities === true;\n\nconsole.log('=== AKTIVITÄTSKONTEXT ERSTELLEN ===');\nconsole.log('Anzahl Prozesse:', prozesse.length);\nconsole.log('Modus:', useApqc ? 'APQC' : 'KI');\n\n// Wandle die Prozessliste in separate Items um, eines pro Prozess\n// Für APQC: Hole auch die verfügbaren APQC-Aktivitäten\n// Für KI: Nur Kontext mitgeben\nconst items = prozesse.map((prozess, index) => {\n  const hierarchyId = prozess.hierarchy_id || '';\n  const availableActivities = useApqc ? (apqcActivitiesByProcess[hierarchyId] || []) : [];\n  \n  console.log(`Prozess ${index + 1}/${prozesse.length}: ${prozess.name}${useApqc ? ` - APQC Activities: ${availableActivities.length}` : ''}`);\n  \n  return {\n    json: {\n      prozess,\n      position: index,\n      availableActivities,\n      config,\n      context: {\n        unternehmen: context.unternehmen || {},\n        abteilungen: context.abteilungen || [],\n        rollen: context.rollen || [],\n        mitarbeiter: context.mitarbeiter || [],\n      },\n    },\n  };\n});\n\n// Gebe Items auf den richtigen Output aus\n// Output 0 = APQC Pfad (wenn use_apqc_activities true)\n// Output 1 = KI Pfad (wenn use_apqc_activities false)\nif (useApqc) {\n  return [items, []];\n} else {\n  return [[], items];\n}"
+        "jsCode": "const input = $input.first()?.json ?? {};\nconst prozesse = input.prozesse || [];\nconst config = input.config || {};\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.activityContext || {};\nconst apqcActivitiesByProcess = context.apqcActivitiesByProcess || {};\nconst useApqc = config.use_apqc_activities === true;\n\nconsole.log('=== AKTIVITÄTSKONTEXT ERSTELLEN ===');\nconsole.log('Anzahl Prozesse:', prozesse.length);\nconsole.log('Modus:', useApqc ? 'APQC' : 'KI');\nconsole.log('Config use_apqc_activities:', config.use_apqc_activities);\n\n// Wandle die Prozessliste in separate Items um, eines pro Prozess\n// Für APQC: Hole auch die verfügbaren APQC-Aktivitäten\n// Für KI: Kontext mitgeben (bezieht sich auf die ERSTELLTEN Prozesse, nicht auf APQC)\nreturn prozesse.map((prozess, index) => {\n  const hierarchyId = prozess.hierarchy_id || '';\n  const availableActivities = useApqc ? (apqcActivitiesByProcess[hierarchyId] || []) : [];\n  \n  console.log(`Prozess ${index + 1}/${prozesse.length}: ${prozess.name}${useApqc ? ` - APQC Activities: ${availableActivities.length}` : ' - KI generiert'}`);\n  \n  return {\n    json: {\n      prozess,\n      position: index,\n      availableActivities,\n      config,\n      context: {\n        unternehmen: context.unternehmen || {},\n        abteilungen: context.abteilungen || [],\n        rollen: context.rollen || [],\n        mitarbeiter: context.mitarbeiter || [],\n      },\n    },\n  };\n});"
       },
-      "id": "768cd137-b5e6-4b1e-832a-54fe0501b1ea",
+      "id": "5bf27ff7-1dc7-4ba1-a666-af79e40df68b",
       "name": "Aktivitätskontext erstellen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-2464, 1456]
+      "position": [-2784, 448]
     },
     {
       "parameters": {
@@ -661,31 +661,31 @@
         },
         "options": {}
       },
-      "id": "33e8adb0-f6fc-411f-a2da-a614ba55a231",
+      "id": "71eff5bf-2444-4fbc-944d-95a3fb5e4bbb",
       "name": "IF: APQC oder KI Aktivitäten",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-2240, 1456]
+      "position": [-2560, 448]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst prozess = input.prozess || {};\nconst availableActivities = input.availableActivities || [];\n\n// Extrahiere APQC-Aktivitäten und formatiere sie mit einheitlicher Struktur\nconst aktivitaeten = availableActivities.map((activity, index) => ({\n  id: `act_${prozess.pcf_id}_${String(index + 1).padStart(3, '0')}`,\n  prozess_id: prozess.pcf_id,\n  prozess_hierarchy_id: prozess.hierarchy_id,\n  prozess_name: prozess.name,\n  name: activity.name,\n  beschreibung: activity.description || '',\n  apqc_hierarchy_id: activity.hierarchy_id,\n  apqc_pcf_id: activity.pcf_id || null,\n  quelle: 'APQC',\n  prioritaet: 'mittel',\n  reihenfolge: index + 1,\n  geschaetzter_zeitaufwand_stunden: null,\n}));\n\nconsole.log('APQC Aktivitäten extrahiert:', aktivitaeten.length, 'für Prozess', prozess.name);\n\nreturn [{ json: { aktivitaeten, prozess } }];"
       },
-      "id": "94916ded-1d7f-47bf-a603-d81e34803bd2",
+      "id": "071407bb-0e92-4f8a-a523-d8b1f01a37e4",
       "name": "APQC Aktivitäten extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1728, 1104]
+      "position": [-2048, 96]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst prozess = input.prozess || {};\nconst context = input.context || {};\nconst config = input.config || {};\n\nconst systemPrompt = `Du bist ein erfahrener Prozessberater. Erstelle 3-5 operative Aktivitäten für den gegebenen Geschäftsprozess.\n\nWICHTIG:\n- Die Aktivitäten müssen in LOGISCHER REIHENFOLGE erstellt werden (chronologisch, wie sie im Prozess ablaufen)\n- Jede Aktivität soll konkret, messbar und auf den Unternehmenskontext zugeschnitten sein\n- Berücksichtige die Branche, Größe und Priorität des Prozesses`;\n\nconst userSections = [\n  'Unternehmen:',\n  JSON.stringify(context.unternehmen, null, 2),\n  '',\n  'Prozess:',\n  JSON.stringify({\n    name: prozess.name,\n    description: prozess.description,\n    abteilung: prozess.abteilung_name,\n    prioritaet: prozess.prioritaet,\n    hierarchy_id: prozess.hierarchy_id,\n  }, null, 2),\n  '',\n  'Aufgabe:',\n  `Erstelle 3-5 Aktivitäten für diesen Prozess in CHRONOLOGISCHER REIHENFOLGE.\nJede Aktivität braucht:\n- name: Klare Bezeichnung der Aktivität\n- beschreibung: Detaillierte Beschreibung was genau getan wird\n- prioritaet: hoch/mittel/niedrig (basierend auf Wichtigkeit für den Prozess)\n- geschaetzter_zeitaufwand_stunden: Realistische Schätzung\n\nDie Aktivitäten sollen den Prozessablauf von Anfang bis Ende abdecken.`,\n];\n\nconst requestPayload = {\n  model: 'gpt-4o-mini',\n  temperature: 0.4,\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'aktivitaeten_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          aktivitaeten: {\n            type: 'array',\n            minItems: 3,\n            maxItems: 5,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                name: { type: 'string' },\n                beschreibung: { type: 'string' },\n                prioritaet: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] },\n                geschaetzter_zeitaufwand_stunden: { type: 'number', minimum: 0.5, maximum: 100 },\n              },\n              required: ['name', 'beschreibung', 'prioritaet', 'geschaetzter_zeitaufwand_stunden'],\n            },\n          },\n        },\n        required: ['aktivitaeten'],\n      },\n    },\n  },\n  messages: [\n    { role: 'system', content: systemPrompt },\n    { role: 'user', content: userSections.join('\\n') },\n  ],\n};\n\nreturn [{ json: { requestPayload, prozess, config } }];"
       },
-      "id": "b9781180-40c0-4a28-ad04-5d85ef6e813b",
+      "id": "02cf74fe-ee33-4844-be99-76c33b8dd938",
       "name": "KI-Aktivitäten Prompt erstellen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1632, 1472]
+      "position": [-1952, 464]
     },
     {
       "parameters": {
@@ -709,124 +709,114 @@
         "jsonBody": "={{ $json.requestPayload }}",
         "options": {}
       },
-      "id": "f7e61bcc-ec85-4534-bc79-7ddfe9902f7b",
+      "id": "85b5a2f8-f6a7-47c7-8285-f1cca59e71e7",
       "name": "HTTP: Aktivitäten erstellen (KI)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1472, 1472]
+      "position": [-1792, 464]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst prozess = input.prozess || {};\n\nconst message = input.choices?.[0]?.message;\nif (!message) {\n  throw new Error('KI-Antwort für Aktivitäten fehlt');\n}\n\nlet raw = message.content;\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\n\nconst data = JSON.parse(raw);\nconst aktivitaeten = (data.aktivitaeten || []).map((act, index) => ({\n  id: `act_${prozess.pcf_id}_${String(index + 1).padStart(3, '0')}`,\n  prozess_id: prozess.pcf_id,\n  prozess_hierarchy_id: prozess.hierarchy_id,\n  prozess_name: prozess.name,\n  name: act.name,\n  beschreibung: act.beschreibung || '',\n  apqc_hierarchy_id: null,\n  apqc_pcf_id: null,\n  quelle: 'KI',\n  prioritaet: act.prioritaet || 'mittel',\n  reihenfolge: index + 1,\n  geschaetzter_zeitaufwand_stunden: act.geschaetzter_zeitaufwand_stunden || null,\n}));\n\nconsole.log('KI-Aktivitäten erstellt:', aktivitaeten.length, 'für Prozess', prozess.name);\n\nreturn [{ json: { aktivitaeten, prozess } }];"
       },
-      "id": "50271aa0-450f-43f5-b1b3-ab4956265db3",
+      "id": "a50083b4-ff41-4638-908b-3fb8010e610b",
       "name": "KI-Aktivitäten parsen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1312, 1472]
+      "position": [-1632, 464]
     },
     {
       "parameters": {
         "jsCode": "const globalData = $getWorkflowStaticData('global');\nconst input = $input.first()?.json ?? {};\nconst aktivitaeten = input.aktivitaeten || [];\n\n// Initialisiere Array falls nicht vorhanden\nif (!globalData.assignedActivities) {\n  globalData.assignedActivities = [];\n}\n\n// ERWEITERN statt überschreiben\nglobalData.assignedActivities.push(...aktivitaeten);\n\nconsole.log('APQC Aktivitäten akkumuliert:', aktivitaeten.length, '| Gesamt:', globalData.assignedActivities.length);\n\nreturn [{ json: { aktivitaeten } }];"
       },
-      "id": "3e2da6bf-49e2-4180-a5ab-8488d90c5263",
+      "id": "a14993ca-e65b-48e4-9ffe-bf950517137b",
       "name": "APQC Aktivitäten zuordnen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1440, 1104]
+      "position": [-1760, 96]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst globalData = $getWorkflowStaticData('global');\n\nconst currentRemaining = Number(globalData.remainingProcesses ?? 0);\nconst updatedRemaining = Math.max(0, currentRemaining - 1);\nglobalData.remainingProcesses = updatedRemaining;\n\nconst isFinal = updatedRemaining === 0;\n\nconsole.log('Prozesse verbleibend:', updatedRemaining, '| isFinal:', isFinal);\n\nreturn [{ json: { isFinal, prozess: input.prozess } }];"
       },
-      "id": "e6d01683-d6e7-4b58-beed-aab241f6491b",
+      "id": "645c49eb-5246-445c-b6c7-2dfc696959b0",
       "name": "Verfügbare Prozesse aktualisieren (APQC Aktivitäten)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1248, 1104]
+      "position": [-1568, 96]
     },
     {
       "parameters": {
         "jsCode": "const globalData = $getWorkflowStaticData('global');\nconst input = $input.first()?.json ?? {};\nconst aktivitaeten = input.aktivitaeten || [];\n\n// Initialisiere Array falls nicht vorhanden\nif (!globalData.assignedActivities) {\n  globalData.assignedActivities = [];\n}\n\n// ERWEITERN statt überschreiben\nglobalData.assignedActivities.push(...aktivitaeten);\n\nconsole.log('KI Aktivitäten akkumuliert:', aktivitaeten.length, '| Gesamt:', globalData.assignedActivities.length);\n\nreturn [{ json: { aktivitaeten } }];"
       },
-      "id": "73180d84-1ac4-4576-ae7b-06be8d360b5a",
+      "id": "cbe1ef6b-8a53-4720-a6ed-bfca44021e55",
       "name": "KI Aktivitäten zuordnen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1152, 1472]
-    },
-    {
-      "parameters": {
-        "jsCode": "const input = $input.first()?.json ?? {};\nconst globalData = $getWorkflowStaticData('global');\n\nconst currentRemaining = Number(globalData.remainingProcesses ?? 0);\nconst updatedRemaining = Math.max(0, currentRemaining - 1);\nglobalData.remainingProcesses = updatedRemaining;\n\nconst isFinal = updatedRemaining === 0;\n\nconsole.log('Prozesse verbleibend:', updatedRemaining, '| isFinal:', isFinal);\n\nreturn [{ json: { isFinal, prozess: input.prozess } }];"
-      },
-      "id": "918d0f22-1a05-4a57-8395-cbce067f7b63",
-      "name": "Verfügbare Prozesse aktualisieren (KI Aktivitäten)",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [-960, 1472]
+      "position": [-1440, 464]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nif (!input.isFinal) {\n  return [];\n}\n\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.activityContext || {};\nconst assignedActivities = globalData.assignedActivities || [];\n\nconsole.log('=== AKTIVITÄTSITERATION ABSCHLUSS ===');\nconsole.log('Aktivitäten gesamt:', assignedActivities.length);\n\nconst result = {\n  unternehmen: context.unternehmen || {},\n  abteilungen: context.abteilungen || [],\n  rollen: context.rollen || [],\n  prozesse: context.prozesse || [],\n  mitarbeiter: context.mitarbeiter || [],\n  aktivitaeten: assignedActivities,\n  apqcProcesses: context.apqcProcesses || [],\n  apqcActivities: context.apqcActivities || [],\n  apqcActivitiesByProcess: context.apqcActivitiesByProcess || {},\n  config: context.config || {},\n};\n\n// Cleanup\nglobalData.availableProcessesForActivities = [];\nglobalData.assignedActivities = [];\nglobalData.activityContext = {};\nglobalData.remainingProcesses = 0;\n\nreturn [{ json: result }];"
       },
-      "id": "ac90ef78-e24d-49d3-b6ee-cffe91c586fd",
+      "id": "9386c8cf-fdc0-46ff-959c-d1da16da127c",
       "name": "APQC Aktivitätsiteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1008, 1104]
+      "position": [-1328, 96]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nif (!input.isFinal) {\n  return [];\n}\n\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.activityContext || {};\nconst assignedActivities = globalData.assignedActivities || [];\n\nconsole.log('=== AKTIVITÄTSITERATION ABSCHLUSS ===');\nconsole.log('Aktivitäten gesamt:', assignedActivities.length);\n\nconst result = {\n  unternehmen: context.unternehmen || {},\n  abteilungen: context.abteilungen || [],\n  rollen: context.rollen || [],\n  prozesse: context.prozesse || [],\n  mitarbeiter: context.mitarbeiter || [],\n  aktivitaeten: assignedActivities,\n  apqcProcesses: context.apqcProcesses || [],\n  apqcActivities: context.apqcActivities || [],\n  apqcActivitiesByProcess: context.apqcActivitiesByProcess || {},\n  config: context.config || {},\n};\n\n// Cleanup\nglobalData.availableProcessesForActivities = [];\nglobalData.assignedActivities = [];\nglobalData.activityContext = {};\nglobalData.remainingProcesses = 0;\n\nreturn [{ json: result }];"
       },
-      "id": "65b7e178-061f-4196-93fd-8f263496a9c7",
+      "id": "f39a6105-8607-4bb1-813a-8c1ba3f6bab6",
       "name": "KI Aktivitätsiteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-720, 1472]
+      "position": [-1040, 464]
     },
     {
       "parameters": {
         "batchSize": 1,
         "options": {}
       },
-      "id": "796756e9-e15d-4876-88a8-172cdeddc8e0",
+      "id": "798a1b90-8035-4806-8e59-db2d00879a3f",
       "name": "Prozesse Iterieren (APQC Aktivitäten)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-1904, 1120]
+      "position": [-2224, 112]
     },
     {
       "parameters": {
         "batchSize": 1,
         "options": {}
       },
-      "id": "b97de830-6161-4ffd-88d1-6adb826dbee7",
+      "id": "7674c6b6-2f57-4a20-bddf-edf431ff20bc",
       "name": "Prozesse Iterieren (KI Aktivitäten)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-1904, 1488]
+      "position": [-2224, 480]
     },
     {
       "parameters": {
         "jsCode": "// Hole Input-Daten\nconst input = $input.first()?.json ?? {};\n\n// Extrahiere alle benötigten Daten\nconst unternehmen = input.unternehmen || {};\nconst abteilungen = input.abteilungen || [];\nconst rollen = input.rollen || [];\nconst prozesse = input.prozesse || [];\nconst config = input.config || {};\nconst apqcProcesses = input.apqcProcesses || [];\nconst apqcActivities = input.apqcActivities || [];\nconst apqcActivitiesByProcess = input.apqcActivitiesByProcess || {};\n\nconsole.log('=== MITARBEITERITERATION VORBEREITEN ===');\nconsole.log('Unternehmen:', unternehmen.name);\nconsole.log('Abteilungen:', abteilungen.length);\nconsole.log('Rollen:', rollen.length);\nconsole.log('Config use_demo_mitarbeiter:', config.use_demo_mitarbeiter);\n\n// Prüfe explizit auf use_demo_mitarbeiter Flag\nif (config.use_demo_mitarbeiter) {\n  console.log('=== MITARBEITERITERATION ÜBERSPRUNGEN (use_demo_mitarbeiter aktiv) ===');\n  \n  // Hole Demo-Mitarbeiter aus einer separaten Quelle oder erstelle sie hier\n  // Für jetzt geben wir ein leeres Array zurück und die Demo-Mitarbeiter\n  // sollten von einer anderen Node kommen\n  return [{\n    json: {\n      skipMitarbeiterCreation: true,\n      isFinal: true,\n    },\n  }];\n}\n\n// Initialisiere globalData für Mitarbeiter-Sammlung\nconst globalData = $getWorkflowStaticData('global');\nglobalData.alleMitarbeiter = [];\nglobalData.mitarbeiterContext = { unternehmen, abteilungen, rollen, prozesse, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\n\nconsole.log('=== STARTE MITARBEITER-ITERATION ===');\nconsole.log('Anzahl Rollen:', rollen.length);\n\n// Erstelle Lookup-Map für Abteilungen\nconst abteilungMap = new Map(abteilungen.map(a => [a.id, a]));\n\n// Iteriere über jede Rolle und erstelle entsprechende Mitarbeiter\nreturn rollen.map((rolle, index) => {\n  const abteilung = abteilungMap.get(rolle.abteilung_id) || {};\n  console.log(`Rolle ${index + 1}/${rollen.length}: ${rolle.titel} (${rolle.anzahl_personen} Mitarbeiter)`);\n  return {\n    json: {\n      rolle,\n      abteilung,\n      unternehmen,\n      config,\n      position: index,\n    },\n  };\n});"
       },
-      "id": "a8fafebc-ac9f-4a0c-9ee9-a1faa57256e1",
+      "id": "d3864eeb-3c14-4e4c-83b2-ce95a384f43e",
       "name": "Mitarbeiteriteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-2512, 768]
+      "position": [-2832, -240]
     },
     {
       "parameters": {
         "batchSize": 1,
         "options": {}
       },
-      "id": "d0fe781f-2bcf-4509-a7fe-2afe4a5411b5",
+      "id": "b71affcd-9b05-422e-a7da-0a4fb67e6a51",
       "name": "Rollen iterieren (Mitarbeiter-Erstellung)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-2320, 896]
+      "position": [-2640, -112]
     },
     {
       "parameters": {
@@ -850,62 +840,62 @@
         "jsonBody": "={{ JSON.stringify({\n  model: 'gpt-4o-mini',\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'mitarbeiter_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          mitarbeiter: {\n            type: 'array',\n            minItems: 1,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                id: { type: 'string' },\n                rolle_id: { type: 'string' },\n                abteilung_id: { type: 'string' },\n                vorname: { type: 'string' },\n                nachname: { type: 'string' },\n                email: { type: 'string' },\n                telefon: { type: 'string' },\n                alter: { type: 'integer', minimum: 25, maximum: 65 },\n                geschlecht: { type: 'string', enum: ['männlich', 'weiblich', 'divers'] },\n                motivation: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] },\n                intelligenz: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] },\n                gehalt_euro: { type: 'number' },\n                eintrittsdatum: { type: 'string' },\n                vertrag: { type: 'string', enum: ['Vollzeit', 'Teilzeit'] },\n                standort: { type: 'string' }\n              },\n              required: ['id', 'rolle_id', 'abteilung_id', 'vorname', 'nachname', 'email', 'telefon', 'alter', 'geschlecht', 'motivation', 'intelligenz', 'gehalt_euro', 'eintrittsdatum', 'vertrag', 'standort']\n            }\n          }\n        },\n        required: ['mitarbeiter']\n      }\n    }\n  },\n  messages: [\n    {\n      role: 'system',\n      content: `Du bist ein HR-Experte. Erstelle realistische Mitarbeiterprofile als JSON, das exakt dem gelieferten Schema entspricht.\n\nWICHTIG FÜR NAMENSVARIABILITÄT:\n- Verwende eine große Vielfalt an Vor- und Nachnamen\n- KEINE Namen dürfen sich wiederholen oder ähnlich sein\n- Wähle aus mindestens 50+ verschiedenen Vornamen\n- Wähle aus mindestens 100+ verschiedenen Nachnamen\n- Kombinationen müssen einzigartig sein\n- Namen sollen zur Kultur des Landes passen`\n    },\n    {\n      role: 'user',\n      content: `Erstelle ${$json.rolle.anzahl_personen} VÖLLIG UNTERSCHIEDLICHE Mitarbeiter für die Rolle \"${$json.rolle.titel}\" (${$json.rolle.id}) in der Abteilung \"${$json.abteilung.name}\" (${$json.abteilung.id}) bei ${$json.unternehmen.name} (Land: ${$json.config.land}, Branche: ${$json.unternehmen.branche}).\n\nROLLENINFO:\n- Titel: ${$json.rolle.titel}\n- Beschreibung: ${$json.rolle.beschreibung}\n- Ebene: ${$json.rolle.ebene}\n- Gehaltsspanne: ${$json.rolle.gehalt_min}-${$json.rolle.gehalt_max} EUR\n- Anzahl zu erstellen: ${$json.rolle.anzahl_personen}\n\nWICHTIGE ANFORDERUNGEN:\n- id: emp_XXX (fortlaufend)\n- rolle_id: ${$json.rolle.id}\n- abteilung_id: ${$json.abteilung.id}\n\nNAMEN (EXTREM WICHTIG!):\n- Verwende VÖLLIG UNTERSCHIEDLICHE Vornamen für jeden Mitarbeiter\n- Verwende VÖLLIG UNTERSCHIEDLICHE Nachnamen für jeden Mitarbeiter\n- KEINE Wiederholungen oder ähnliche Namen erlaubt\n- Namen müssen zum Land ${$json.config.land} passen\n- Bei ${$json.rolle.anzahl_personen} Personen: ${$json.rolle.anzahl_personen} komplett verschiedene Namen!\n\nWEITERE FELDER:\n- email: vorname.nachname@${$json.unternehmen.webseite ? $json.unternehmen.webseite.replace('www.','') : 'beispiel.de'}\n- telefon: realistische lokale Nummer\n- alter: passend zur Ebene ${$json.rolle.ebene} (Entry=25-30, Mid=30-40, Senior=40-50, Lead=45-55, Executive=50-65)\n- geschlecht: Realistische Verteilung (ca. 50% männlich, 45% weiblich, 5% divers)\n- motivation: Normalverteilt (60% mittel, 25% hoch, 15% niedrig)\n- intelligenz: Normalverteilt (60% mittel, 30% hoch, 10% niedrig)\n- gehalt_euro: zwischen ${$json.rolle.gehalt_min} und ${$json.rolle.gehalt_max} EUR, variierend nach Erfahrung\n- eintrittsdatum: YYYY-MM-DD zwischen 2015 und 2024\n- vertrag: 85% Vollzeit, 15% Teilzeit\n- standort: ${$json.unternehmen.hauptsitz}`\n    }\n  ],\n  temperature: 1.0\n}) }}",
         "options": {}
       },
-      "id": "72add77a-3755-4b66-88dd-76e960cbc752",
+      "id": "102624cc-4faa-438a-ad04-97bb63cbe610",
       "name": "HTTP: Mitarbeiter erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-2064, 880]
+      "position": [-2384, -128]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nif (!input.isFinal) {\n  return [];\n}\n\nconst globalData = $getWorkflowStaticData('global');\nconst mitarbeiterContext = globalData.mitarbeiterContext || {};\nconst alleMitarbeiter = globalData.alleMitarbeiter || [];\n\nconst result = {\n  unternehmen: mitarbeiterContext.unternehmen || {},\n  abteilungen: mitarbeiterContext.abteilungen || [],\n  rollen: mitarbeiterContext.rollen || [],\n  prozesse: mitarbeiterContext.prozesse || [],\n  mitarbeiter: alleMitarbeiter,\n  apqcProcesses: mitarbeiterContext.apqcProcesses || [],\n  apqcActivities: mitarbeiterContext.apqcActivities || [],\n  apqcActivitiesByProcess: mitarbeiterContext.apqcActivitiesByProcess || {},\n  config: mitarbeiterContext.config || {},\n};\n\nconsole.log('=== MITARBEITERITERATION ABSCHLUSS ===');\nconsole.log('Mitarbeiter gesamt:', result.mitarbeiter.length);\nconsole.log('Rollen gesamt:', result.rollen.length);\n\n// WICHTIG: Speichere Mitarbeiter in globalData für spätere Verwendung in Aktivitätsiteration\nglobalData.mitarbeiterData = result.mitarbeiter;\n\n// Cleanup Mitarbeiter-spezifisches globalData\nglobalData.alleMitarbeiter = [];\nglobalData.mitarbeiterContext = {};\n\nreturn [\n  {\n    json: result,\n  },\n];"
       },
-      "id": "1cc71adb-eb5b-4c1f-bd9d-63b3a8d6d9ac",
+      "id": "10553024-91dd-4d70-9467-08a3b152f70c",
       "name": "Mitarbeiteriteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1456, 768]
+      "position": [-1776, -240]
     },
     {
       "parameters": {
         "batchSize": 1,
         "options": {}
       },
-      "id": "3b87691b-d61a-402e-ab37-def489847e7c",
+      "id": "b63c13b1-0882-4ebc-b918-23755b4f8bb8",
       "name": "Aktivitäten iterieren (Beschreibungs-Erstellung)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-704, 880]
+      "position": [-592, -16]
     },
     {
       "parameters": {
         "jsCode": "const input = $input.first()?.json ?? {};\nconst {\n  unternehmen = {},\n  abteilungen = [],\n  rollen = [],\n  prozesse = [],\n  mitarbeiter = [],\n  aktivitaeten = [],\n  apqcProcesses = [],\n  apqcActivities = [],\n  apqcActivitiesByProcess = {},\n  config = {},\n} = input;\n\n// Erstelle Lookup-Maps\nconst prozessMap = new Map(prozesse.map(p => [p.pcf_id, p]));\nconst abteilungMap = new Map(abteilungen.map(a => [a.id, a]));\nconst rollenMap = new Map(rollen.map(r => [r.id, r]));\n\n// Gruppiere Mitarbeiter nach Abteilung\nconst mitarbeiterByAbteilung = new Map();\nmitarbeiter.forEach(ma => {\n  const abtId = ma.abteilung_id;\n  if (!mitarbeiterByAbteilung.has(abtId)) {\n    mitarbeiterByAbteilung.set(abtId, []);\n  }\n  mitarbeiterByAbteilung.get(abtId).push(ma);\n});\n\nconsole.log('=== MITARBEITER-ZUORDNUNG ===');\nconsole.log('Aktivitäten zu verarbeiten:', aktivitaeten.length);\nconsole.log('Mitarbeiter verfügbar:', mitarbeiter.length);\n\n// Ordne jedem Aktivität einen passenden Mitarbeiter zu\nconst aktivitaetenMitMitarbeiter = aktivitaeten.map((aktivitaet, index) => {\n  // Finde den Prozess der Aktivität\n  const prozess = prozessMap.get(aktivitaet.prozess_id);\n  if (!prozess) {\n    console.log('WARNUNG: Prozess nicht gefunden für Aktivität:', aktivitaet.id);\n    return { ...aktivitaet, mitarbeiter_id: null };\n  }\n  \n  // Finde die Abteilung des Prozesses\n  const abteilungId = prozess.abteilung_id;\n  const verfuegbareMitarbeiter = mitarbeiterByAbteilung.get(abteilungId) || [];\n  \n  if (verfuegbareMitarbeiter.length === 0) {\n    console.log('WARNUNG: Keine Mitarbeiter in Abteilung', abteilungId, 'für Aktivität:', aktivitaet.id);\n    return { ...aktivitaet, mitarbeiter_id: null };\n  }\n  \n  // Wähle einen passenden Mitarbeiter\n  // Strategie: Rollenwahl basierend auf Aktivitätspriorität\n  // - Hohe Priorität → Senior/Manager-Rollen\n  // - Mittlere/Niedrige → Junior/Mid-Level-Rollen\n  let ausgewaehlterMitarbeiter;\n  \n  if (aktivitaet.prioritaet === 'hoch') {\n    // Bevorzuge höhere Rollen (Executive, Manager)\n    ausgewaehlterMitarbeiter = verfuegbareMitarbeiter.find(ma => {\n      const rolle = rollenMap.get(ma.rolle_id);\n      return rolle && (rolle.ebene === 'Executive' || rolle.ebene === 'Manager');\n    }) || verfuegbareMitarbeiter[0];\n  } else {\n    // Wähle basierend auf Index (Round-Robin für Verteilung)\n    const mitarbeiterIndex = index % verfuegbareMitarbeiter.length;\n    ausgewaehlterMitarbeiter = verfuegbareMitarbeiter[mitarbeiterIndex];\n  }\n  \n  return {\n    ...aktivitaet,\n    mitarbeiter_id: ausgewaehlterMitarbeiter.id,\n  };\n});\n\nconsole.log('Aktivitäten mit Mitarbeiter-Zuordnung:', aktivitaetenMitMitarbeiter.length);\n\nreturn [{\n  json: {\n    unternehmen,\n    abteilungen,\n    rollen,\n    prozesse,\n    mitarbeiter,\n    aktivitaeten: aktivitaetenMitMitarbeiter,\n    apqcProcesses,\n    apqcActivities,\n    apqcActivitiesByProcess,\n    config,\n  },\n}];"
       },
       "name": "Mitarbeiter zu Aktivitäten zuordnen",
-      "id": "a9d67424-14b8-4757-b021-9406c40e8889",
+      "id": "9f5b8de2-7f02-4a13-b3dd-550b358e06fa",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-848, 880]
+      "position": [-784, -16]
     },
     {
       "parameters": {
         "jsCode": "const message = $input.first().json.choices[0].message;\nconst { unternehmen, abteilungen, rollen, prozesse, mitarbeiter, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config } = $('Mitarbeiter Antwort Parsen').first().json;\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart && jsonPart.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\nconst data = JSON.parse(raw);\nconst aktivitaeten = data.aktivitaeten ?? data;\nreturn { unternehmen, abteilungen, rollen, prozesse, mitarbeiter, aktivitaeten, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };"
       },
       "name": "JSON parsen (Aktivitäten)",
-      "id": "9ef30cc4-0b2c-4d49-82ba-a15f694e1cc0",
+      "id": "01940436-4baf-4d07-90c5-2af1a87d3a17",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [192, 944]
+      "position": [80, -32]
     },
     {
       "parameters": {
         "jsCode": "// Hole alle Daten aus dem vorherigen Node\nconst { unternehmen, abteilungen, rollen, prozesse, mitarbeiter, aktivitaeten, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config } = $input.first().json;\n\n// Erstelle Lookup-Maps für schnellen Zugriff\nconst mitarbeiterMap = new Map(mitarbeiter.map(m => [m.id, m]));\nconst rollenMap = new Map(rollen.map(r => [r.id, r]));\nconst abteilungenMap = new Map(abteilungen.map(a => [a.id, a]));\nconst prozesseMap = new Map(prozesse.map(p => [p.pcf_id, p]));\n\n// Reichere jede Aktivität mit vollständigem Kontext an\nconst aktivitaetenMitKontext = aktivitaeten.map(aktivitaet => {\n  const mitarbeiter = mitarbeiterMap.get(aktivitaet.mitarbeiter_id) || {};\n  const rolle = rollenMap.get(mitarbeiter.rolle_id) || {};\n  const abteilung = abteilungenMap.get(mitarbeiter.abteilung_id) || {};\n  const prozess = prozesseMap.get(aktivitaet.prozess_id) || {};\n  \n  return {\n    json: {\n      ...aktivitaet,\n      mitarbeiter_kontext: {\n        id: mitarbeiter.id,\n        vollname: mitarbeiter.vollname,\n        vorname: mitarbeiter.vorname,\n        nachname: mitarbeiter.nachname,\n        rolle_id: mitarbeiter.rolle_id,\n        rolle_titel: rolle.titel,\n        rolle_ebene: rolle.ebene,\n        abteilung_id: mitarbeiter.abteilung_id,\n        abteilung_name: abteilung.name,\n        erfahrung_jahre: mitarbeiter.alter ? Math.floor((mitarbeiter.alter - 20) / 2) : 5,\n        // Persönlichkeitsfelder\n        geschlecht: mitarbeiter.geschlecht || 'divers',\n        motivation: mitarbeiter.motivation || 'mittel',\n        intelligenz: mitarbeiter.intelligenz || 'mittel'\n      },\n      prozess_kontext: {\n        pcf_id: prozess.pcf_id,\n        name: prozess.name,\n        abteilung_name: prozess.abteilung_name\n      },\n      config: config\n    }\n  };\n});\n\nreturn aktivitaetenMitKontext;"
       },
       "name": "Aktivitäten mit Mitarbeiter-Kontext anreichern",
-      "id": "cfc71e27-1bdb-4392-9950-29636a980138",
+      "id": "0e7f42c6-d69e-4cb7-bebf-158eb96c3612",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-464, 880]
+      "position": [-320, -32]
     },
     {
       "parameters": {
@@ -930,20 +920,20 @@
         "options": {}
       },
       "name": "HTTP: Mitarbeiterbeschreibungen generieren",
-      "id": "d8f75250-2bb0-4227-b10b-bb656d9b16c4",
+      "id": "9301fdb8-8f41-4675-9d3e-1e9f149ca3c5",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-240, 880]
+      "position": [-96, -32]
     },
     {
       "parameters": {
         "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    return {};\n  }\n};\n\nconst prozessData = getNodeJson('JSON parsen (Prozesse)');\nconst {\n  unternehmen = {},\n  abteilungen = [],\n  rollen = [],\n  prozesse = [],\n  mitarbeiter: existingMitarbeiter = [],\n  apqcProcesses = [],\n  apqcActivities = [],\n  apqcActivitiesByProcess = {},\n  config = {},\n} = prozessData;\n\n// Wenn bereits Mitarbeiter vorhanden sind (Demo-Daten), diese verwenden\nif (existingMitarbeiter && existingMitarbeiter.length > 0) {\n  console.log('=== DEMO-MITARBEITER VERWENDEN ===');\n  console.log('Anzahl:', existingMitarbeiter.length);\n  return [{ json: { mitarbeiter: existingMitarbeiter, isFinal: true } }];\n}\n\n// Sonst API Response parsen\nconst message = $input.first().json?.choices?.[0]?.message;\nif (!message) {\n  throw new Error('Antwort der Mitarbeiter-API fehlt oder ist leer.');\n}\n\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart?.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\n\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\n\nconst data = JSON.parse(raw);\nlet mitarbeiter = data.mitarbeiter ?? data;\n\nif (!Array.isArray(mitarbeiter)) {\n  mitarbeiter = [mitarbeiter];\n}\n\n// Hole globalData\nconst globalData = $getWorkflowStaticData('global');\nconst alleMitarbeiter = globalData.alleMitarbeiter || [];\nconst context = globalData.mitarbeiterContext || {};\n\n// Füge neue Mitarbeiter hinzu mit fortlaufenden IDs\nconst startIndex = alleMitarbeiter.length;\nmitarbeiter = mitarbeiter.map((ma, index) => ({\n  ...ma,\n  id: `emp_${String(startIndex + index + 1).padStart(3, '0')}`,\n  unternehmen_id: unternehmen.id ?? '',\n  vollname: `${ma.vorname ?? ''} ${ma.nachname ?? ''}`.trim(),\n  geschlecht: ma.geschlecht || 'divers',\n  motivation: ma.motivation || 'mittel',\n  intelligenz: ma.intelligenz || 'mittel',\n}));\n\n// Speichere in globalData\nglobalData.alleMitarbeiter = [...alleMitarbeiter, ...mitarbeiter];\n\nconsole.log('=== MITARBEITER PARSEN ===');\nconsole.log('Neue Mitarbeiter:', mitarbeiter.length);\nconsole.log('Gesamt:', globalData.alleMitarbeiter.length);\nconsole.log('Verbleibende Rollen:', (context.rollen?.length || 0) - Math.floor(globalData.alleMitarbeiter.length / 2));\n\n// Prüfe, ob alle Rollen abgearbeitet wurden\nconst alleRollenBearbeitet = globalData.alleMitarbeiter.length >= (context.rollen?.length || 0);\n\nreturn [{ json: { mitarbeiter, isFinal: alleRollenBearbeitet } }];\n"
       },
-      "id": "acea0657-4bdf-465c-936f-467b4cf6e77d",
+      "id": "917c83bd-3a09-436e-b88f-e9887981c456",
       "name": "Mitarbeiter Antwort Parsen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1840, 880]
+      "position": [-2160, -128]
     }
   ],
   "pinData": {},
@@ -1438,7 +1428,7 @@
       "main": [
         [
           {
-            "node": "IF: APQC oder KI Aktivitäten",
+            "node": "Aktivitätskontext erstellen",
             "type": "main",
             "index": 0
           }
@@ -1446,24 +1436,6 @@
       ]
     },
     "IF: APQC oder KI Aktivitäten": {
-      "main": [
-        [
-          {
-            "node": "Aktivitätskontext erstellen",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Aktivitätskontext erstellen",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Aktivitätskontext erstellen": {
       "main": [
         [
           {
@@ -1475,6 +1447,17 @@
         [
           {
             "node": "Prozesse Iterieren (KI Aktivitäten)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aktivitätskontext erstellen": {
+      "main": [
+        [
+          {
+            "node": "IF: APQC oder KI Aktivitäten",
             "type": "main",
             "index": 0
           }
@@ -1556,28 +1539,12 @@
       "main": [
         [
           {
-            "node": "Verfügbare Prozesse aktualisieren (KI Aktivitäten)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Verfügbare Prozesse aktualisieren (KI Aktivitäten)": {
-      "main": [
-        [
-          {
             "node": "KI Aktivitätsiteration Abschluss",
             "type": "main",
             "index": 0
           },
           {
             "node": "Prozesse Iterieren (KI Aktivitäten)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Prozesse Iterieren (APQC Aktivitäten)",
             "type": "main",
             "index": 0
           }
@@ -1758,7 +1725,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "0aea6831-573a-49bb-b744-3e94bae60c49",
+  "versionId": "93e5ab1b-62b9-43d7-977a-70bb6cd7d6f8",
   "meta": {
     "instanceId": "978683d95f2fec9645576a18fcc11fe4832fe617757398b1b4c3c46245f2e93c"
   },
