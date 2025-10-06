@@ -983,7 +983,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Hole Input-Daten\nconst input = $input.first()?.json ?? {};\n\n// Extrahiere alle benötigten Daten\nconst unternehmen = input.unternehmen || {};\nconst abteilungen = input.abteilungen || [];\nconst rollen = input.rollen || [];\nconst prozesse = input.prozesse || [];\nconst config = input.config || {};\n\nconsole.log('=== MITARBEITERITERATION VORBEREITEN ===');\nconsole.log('Unternehmen:', unternehmen.name);\nconsole.log('Abteilungen:', abteilungen.length);\nconsole.log('Rollen:', rollen.length);\nconsole.log('Config:', config);\n\n// Initialisiere globalData für Mitarbeiter-Sammlung\nconst globalData = $getWorkflowStaticData('global');\nglobalData.alleMitarbeiter = [];\nglobalData.mitarbeiterContext = { unternehmen, abteilungen, rollen, prozesse, config };\n\n// Erstelle Lookup-Map für Abteilungen\nconst abteilungMap = new Map(abteilungen.map(a => [a.id, a]));\n\n// Iteriere über jede Rolle und erstelle entsprechende Mitarbeiter\nreturn rollen.map((rolle, index) => {\n  const abteilung = abteilungMap.get(rolle.abteilung_id) || {};\n  return {\n    json: {\n      rolle,\n      abteilung,\n      unternehmen,\n      config,\n      position: index,\n    },\n  };\n});"
+        "jsCode": "// Hole Input-Daten\nconst input = $input.first()?.json ?? {};\n\n// Extrahiere alle benötigten Daten\nconst unternehmen = input.unternehmen || {};\nconst abteilungen = input.abteilungen || [];\nconst rollen = input.rollen || [];\nconst prozesse = input.prozesse || [];\nconst mitarbeiter = input.mitarbeiter || [];\nconst config = input.config || {};\nconst apqcProcesses = input.apqcProcesses || [];\nconst apqcActivities = input.apqcActivities || [];\nconst apqcActivitiesByProcess = input.apqcActivitiesByProcess || {};\n\nconsole.log('=== MITARBEITERITERATION VORBEREITEN ===');\nconsole.log('Unternehmen:', unternehmen.name);\nconsole.log('Abteilungen:', abteilungen.length);\nconsole.log('Rollen:', rollen.length);\nconsole.log('Bestehende Mitarbeiter:', mitarbeiter.length);\nconsole.log('Config:', config);\n\n// Wenn bereits Mitarbeiter vorhanden sind (Demo-Daten), überspringe die Iteration\nif (mitarbeiter && mitarbeiter.length > 0) {\n  console.log('=== MITARBEITERITERATION ÜBERSPRUNGEN (Demo-Mitarbeiter vorhanden) ===');\n  const globalData = $getWorkflowStaticData('global');\n  globalData.mitarbeiterData = mitarbeiter;\n  \n  // Gib direkt das Ergebnis für den Abschluss zurück\n  return [{\n    json: {\n      mitarbeiter,\n      isFinal: true,\n    },\n  }];\n}\n\n// Initialisiere globalData für Mitarbeiter-Sammlung\nconst globalData = $getWorkflowStaticData('global');\nglobalData.alleMitarbeiter = [];\nglobalData.mitarbeiterContext = { unternehmen, abteilungen, rollen, prozesse, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\n\n// Erstelle Lookup-Map für Abteilungen\nconst abteilungMap = new Map(abteilungen.map(a => [a.id, a]));\n\n// Iteriere über jede Rolle und erstelle entsprechende Mitarbeiter\nreturn rollen.map((rolle, index) => {\n  const abteilung = abteilungMap.get(rolle.abteilung_id) || {};\n  return {\n    json: {\n      rolle,\n      abteilung,\n      unternehmen,\n      config,\n      position: index,\n    },\n  };\n});"
       },
       "id": "b4142cb0-fffe-4e14-8a29-1a6dc9b2a2ff",
       "name": "Mitarbeiteriteration vorbereiten",
@@ -1819,6 +1819,11 @@
         [
           {
             "node": "Rollen iterieren (Mitarbeiter-Erstellung)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mitarbeiteriteration Abschluss",
             "type": "main",
             "index": 0
           }
