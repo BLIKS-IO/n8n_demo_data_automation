@@ -5,7 +5,10 @@
       "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-5024, -128],
+      "position": [
+        -5024,
+        -128
+      ],
       "id": "7aa1e18d-0a80-4f31-9f69-d72cc0976d65",
       "name": "Merge"
     },
@@ -21,7 +24,10 @@
       "name": "Prozesse JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-928, -1232]
+      "position": [
+        -928,
+        -1232
+      ]
     },
     {
       "parameters": {
@@ -31,7 +37,10 @@
       "name": "Prozesse extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1152, -1232]
+      "position": [
+        -1152,
+        -1232
+      ]
     },
     {
       "parameters": {
@@ -41,7 +50,10 @@
       "name": "JSON parsen (Prozesse)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3008, -624]
+      "position": [
+        -3008,
+        -624
+      ]
     },
     {
       "parameters": {
@@ -69,7 +81,10 @@
       "name": "HTTP: Prozesse erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-3824, -16]
+      "position": [
+        -3824,
+        -16
+      ]
     },
     {
       "parameters": {
@@ -79,7 +94,10 @@
       "name": "Kontext + Prozesse",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4800, -128]
+      "position": [
+        -4800,
+        -128
+      ]
     },
     {
       "parameters": {
@@ -89,7 +107,10 @@
       "name": "APQC Prozesse filtern",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5248, 64]
+      "position": [
+        -5248,
+        64
+      ]
     },
     {
       "parameters": {
@@ -106,7 +127,10 @@
       "name": "APQC Datei lesen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5472, 160]
+      "position": [
+        -5472,
+        160
+      ]
     },
     {
       "parameters": {
@@ -120,7 +144,10 @@
       "name": "Mitarbeiter JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [1152, 416]
+      "position": [
+        1152,
+        416
+      ]
     },
     {
       "parameters": {
@@ -134,7 +161,10 @@
       "name": "Rollen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-1152, -672]
+      "position": [
+        -1152,
+        -672
+      ]
     },
     {
       "parameters": {
@@ -148,7 +178,10 @@
       "name": "Abteilungen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-1376, -880]
+      "position": [
+        -1376,
+        -880
+      ]
     },
     {
       "parameters": {
@@ -162,7 +195,10 @@
       "name": "Unternehmen JSON",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [-1376, -1072]
+      "position": [
+        -1376,
+        -1072
+      ]
     },
     {
       "parameters": {
@@ -172,7 +208,10 @@
       "name": "Mitarbeiter extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [928, 416]
+      "position": [
+        928,
+        416
+      ]
     },
     {
       "parameters": {
@@ -182,7 +221,10 @@
       "name": "Rollen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1376, -672]
+      "position": [
+        -1376,
+        -672
+      ]
     },
     {
       "parameters": {
@@ -192,7 +234,10 @@
       "name": "Abteilungen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1600, -880]
+      "position": [
+        -1600,
+        -880
+      ]
     },
     {
       "parameters": {
@@ -202,7 +247,10 @@
       "name": "Unternehmen extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1600, -1072]
+      "position": [
+        -1600,
+        -1072
+      ]
     },
     {
       "parameters": {
@@ -212,7 +260,10 @@
       "name": "JSON parsen (Rollen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5248, -320]
+      "position": [
+        -5248,
+        -320
+      ]
     },
     {
       "parameters": {
@@ -240,7 +291,10 @@
       "name": "HTTP: Rollen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5472, -320]
+      "position": [
+        -5472,
+        -320
+      ]
     },
     {
       "parameters": {
@@ -250,7 +304,10 @@
       "name": "JSON parsen (Abteilungen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5696, -320]
+      "position": [
+        -5696,
+        -320
+      ]
     },
     {
       "parameters": {
@@ -278,7 +335,10 @@
       "name": "HTTP: Abteilungen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5920, -320]
+      "position": [
+        -5920,
+        -320
+      ]
     },
     {
       "parameters": {
@@ -288,17 +348,23 @@
       "name": "JSON parsen (Unternehmen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-6144, -320]
+      "position": [
+        -6144,
+        -320
+      ]
     },
     {
       "parameters": {
-        "jsCode": "const config = $input.first().json;\n\nif (config.use_demo_data) {\n  const unternehmen = {\n    id: '12345678',\n    name: 'EcoTech Solutions GmbH',\n    branche: 'Technologie',\n    groesse: 'Mittel',\n    mitarbeiteranzahl: 250,\n    gruendungsjahr: 2015,\n    hauptsitz: 'Berlin, Deutschland',\n    beschreibung: 'EcoTech Solutions GmbH entwickelt innovative Technologien für nachhaltige Energielösungen und Smart-City-Anwendungen.',\n    umsatz_mio: 45,\n    webseite: 'www.ecotechsolutions.de'\n  };\n\n  const abteilungen = [\n    { id: 'dept_001', unternehmen_id: '12345678', name: 'Geschäftsführung', ebene: 1, parent_id: null, beschreibung: 'Strategische Leitung', mitarbeiteranzahl: 5 },\n    { id: 'dept_002', unternehmen_id: '12345678', name: 'Vertrieb & Marketing', ebene: 2, parent_id: 'dept_001', beschreibung: 'Kundenakquise', mitarbeiteranzahl: 35 },\n    { id: 'dept_003', unternehmen_id: '12345678', name: 'Produktentwicklung', ebene: 2, parent_id: 'dept_001', beschreibung: 'Forschung und Entwicklung', mitarbeiteranzahl: 80 }\n  ];\n\n  const rollen = [\n    { id: 'role_001', abteilung_id: 'dept_001', titel: 'Geschäftsführer', beschreibung: 'Strategische Unternehmensführung', ebene: 'Executive', anzahl_personen: 2, gehalt_min: 100000, gehalt_max: 150000, anforderungen: ['Führungserfahrung', 'Strategisches Denken'] },\n    { id: 'role_002', abteilung_id: 'dept_002', titel: 'Vertriebsleiter', beschreibung: 'Leitung Vertriebsteam', ebene: 'Lead', anzahl_personen: 1, gehalt_min: 65000, gehalt_max: 80000, anforderungen: ['Vertriebserfahrung', 'Teamführung'] }\n  ];\n\n  const mitarbeiter = [\n    { id: 'emp_001', rolle_id: 'role_001', abteilung_id: 'dept_001', vorname: 'Max', nachname: 'Müller', email: 'max.mueller@ecotechsolutions.de', telefon: '+49 30 1234567', alter: 30, geschlecht: 'männlich', motivation: 'hoch', intelligenz: 'hoch', gehalt_euro: 55000, eintrittsdatum: '2022-01-15', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Max Müller' },\n    { id: 'emp_002', rolle_id: 'role_002', abteilung_id: 'dept_002', vorname: 'Julia', nachname: 'Schmidt', email: 'julia.schmidt@ecotechsolutions.de', telefon: '+49 30 7654321', alter: 28, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 48000, eintrittsdatum: '2022-03-01', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Julia Schmidt' },\n    { id: 'emp_003', rolle_id: 'role_003', abteilung_id: 'dept_002', vorname: 'Michael', nachname: 'Schneider', email: 'michael.schneider@ecotechsolutions.de', telefon: '+49 30 1239876', alter: 35, geschlecht: 'männlich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 60000, eintrittsdatum: '2021-07-20', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Michael Schneider' },\n    { id: 'emp_004', rolle_id: 'role_004', abteilung_id: 'dept_003', vorname: 'Anna', nachname: 'Weber', email: 'anna.weber@ecotechsolutions.de', telefon: '+49 30 6543210', alter: 32, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'hoch', gehalt_euro: 52000, eintrittsdatum: '2023-04-10', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Anna Weber' },\n    { id: 'emp_005', rolle_id: 'role_005', abteilung_id: 'dept_003', vorname: 'Lukas', nachname: 'Klein', email: 'lukas.klein@ecotechsolutions.de', telefon: '+49 30 2345678', alter: 45, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 72000, eintrittsdatum: '2020-11-01', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Lukas Klein' },\n    { id: 'emp_006', rolle_id: 'role_006', abteilung_id: 'dept_004', vorname: 'Sophie', nachname: 'Fischer', email: 'sophie.fischer@ecotechsolutions.de', telefon: '+49 30 9876543', alter: 29, geschlecht: 'weiblich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 50000, eintrittsdatum: '2021-09-15', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Sophie Fischer' },\n    { id: 'emp_007', rolle_id: 'role_007', abteilung_id: 'dept_004', vorname: 'Felix', nachname: 'Becker', email: 'felix.becker@ecotechsolutions.de', telefon: '+49 30 8765432', alter: 38, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 62000, eintrittsdatum: '2019-05-21', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Felix Becker' },\n    { id: 'emp_008', rolle_id: 'role_008', abteilung_id: 'dept_005', vorname: 'Laura', nachname: 'Hoffmann', email: 'laura.hoffmann@ecotechsolutions.de', telefon: '+49 30 5432167', alter: 27, geschlecht: 'weiblich', motivation: 'niedrig', intelligenz: 'mittel', gehalt_euro: 47000, eintrittsdatum: '2022-02-12', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Laura Hoffmann' },\n    { id: 'emp_009', rolle_id: 'role_009', abteilung_id: 'dept_005', vorname: 'Tobias', nachname: 'Schultz', email: 'tobias.schultz@ecotechsolutions.de', telefon: '+49 30 3216549', alter: 41, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'hoch', gehalt_euro: 61000, eintrittsdatum: '2018-03-11', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Tobias Schultz' },\n    { id: 'emp_010', rolle_id: 'role_010', abteilung_id: 'dept_006', vorname: 'Carla', nachname: 'Richter', email: 'carla.richter@ecotechsolutions.de', telefon: '+49 30 6789123', alter: 34, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 53000, eintrittsdatum: '2023-06-15', vertrag: 'Teilzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Carla Richter' },\n    { id: 'emp_011', rolle_id: 'role_011', abteilung_id: 'dept_006', vorname: 'Daniel', nachname: 'Wagner', email: 'daniel.wagner@ecotechsolutions.de', telefon: '+49 30 7651234', alter: 50, geschlecht: 'männlich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 73000, eintrittsdatum: '2017-01-25', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Daniel Wagner' },\n    { id: 'emp_012', rolle_id: 'role_012', abteilung_id: 'dept_007', vorname: 'Nina', nachname: 'Schwarz', email: 'nina.schwarz@ecotechsolutions.de', telefon: '+49 30 9871234', alter: 29, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'niedrig', gehalt_euro: 49000, eintrittsdatum: '2022-05-18', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Nina Schwarz' },\n    { id: 'emp_013', rolle_id: 'role_013', abteilung_id: 'dept_007', vorname: 'Paul', nachname: 'Zimmermann', email: 'paul.zimmermann@ecotechsolutions.de', telefon: '+49 30 6547890', alter: 37, geschlecht: 'divers', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 60000, eintrittsdatum: '2020-08-05', vertrag: 'Teilzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Paul Zimmermann' },\n    { id: 'emp_014', rolle_id: 'role_014', abteilung_id: 'dept_011', vorname: 'Laura', nachname: 'Kramer', email: 'laura.kramer@ecotechsolutions.de', telefon: '+49 30 3219876', alter: 31, geschlecht: 'weiblich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 55000, eintrittsdatum: '2023-07-22', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Laura Kramer' },\n    { id: 'emp_015', rolle_id: 'role_015', abteilung_id: 'dept_012', vorname: 'Stefan', nachname: 'Lehmann', email: 'stefan.lehmann@ecotechsolutions.de', telefon: '+49 30 1238765', alter: 44, geschlecht: 'männlich', motivation: 'mittel', intelligenz: 'hoch', gehalt_euro: 64000, eintrittsdatum: '2021-04-19', vertrag: 'Vollzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Stefan Lehmann' },\n    { id: 'emp_016', rolle_id: 'role_016', abteilung_id: 'dept_013', vorname: 'Kim', nachname: 'Wagner', email: 'kim.wagner@ecotechsolutions.de', telefon: '+49 30 5312468', alter: 26, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 46000, eintrittsdatum: '2022-10-09', vertrag: 'Teilzeit', standort: 'Berlin, Deutschland', unternehmen_id: '12345678', vollname: 'Kim Wagner' }\n  ];\n\n  const prozesse = [\n    {\n        pcf_id: \"10017\",\n        hierarchy_id: \"1.1.1\",\n        name: \"Bewertung der externen Umgebung\",\n        description: \"Die Bewertung aller Kräfte, Entitäten und Systeme, die außerhalb einer Organisation liegen, aber deren Betrieb beeinflussen können. Die Analyse weitreichender Strömungen in der makroökonomischen Situation, die Bewertung des Wettbewerbs, die Beurteilung technologischer Veränderungen und die Identifizierung gesellschaftlicher sowie ökologischer Anliegen. Ein umfassendes Verständnis der Externalitäten schaffen, mit ausreichender Tiefe in den einzelnen Aspekten.\",\n        spezifischer_name: \"Analyse der externen Technologie-Umgebung\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Geschäftsführung muss die externen Faktoren, die die Technologiebranche beeinflussen, kontinuierlich bewerten, um strategische Entscheidungen zu treffen.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10020\",\n        hierarchy_id: \"1.1.4\",\n        name: \"Eine strategische Vision entwickeln\",\n        description: \"Die langfristige Vision der Organisation als strategische Positionierung und Einbindung der Interessengruppen etablieren. Die Vision durch die Schaffung strategischer Ausrichtungen aller Interessengruppen umsetzen. Die Rahmenwerke zur Strategieentwicklung in diesem Kontext verstehen.\",\n        spezifischer_name: \"Entwicklung einer nachhaltigen Technologie-Vision\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Geschäftsführung benötigt eine klare Vision, um die nachhaltigen Ziele des Unternehmens in der Technologiebranche zu definieren und zu kommunizieren.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10039\",\n        hierarchy_id: \"1.2.3\",\n        name: \"Langfristige Unternehmensstrategie entwickeln.\",\n        description: \"Entwicklung einer Strategie zur Erreichung der Unternehmensziele in ferner Zukunft. Eine der strategischen Optionen zur langfristigen Verwirklichung der Mission annehmen. Einbeziehung von Führungskräften des oberen Managements, bestehend aus Strategie- und/oder Geschäftseinheitspersonal.\",\n        spezifischer_name: \"Langfristige Strategie für nachhaltige Technologien\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Entwicklung einer langfristigen Strategie ist entscheidend, um die nachhaltigen Lösungen des Unternehmens im Technologiemarkt zu fördern.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10061\",\n        hierarchy_id: \"2.1.1\",\n        name: \"Entwicklung strategischer Initiativen\",\n        description: \"Entwicklung strategischer Projekte, die zur Erreichung langfristiger Ziele beitragen. Entwicklung zeitlich begrenzter Projekte, die freiwilliger Natur sind und über den Rahmen der routinemäßigen Abläufe der Organisation hinausgehen.\",\n        spezifischer_name: \"Strategische Initiativen für nachhaltige Technologien\",\n        abteilung_id: \"dept_001\",\n        abteilung_name: \"Geschäftsführung\",\n        begruendung: \"Die Geschäftsführung muss strategische Initiativen entwickeln, um innovative und nachhaltige Lösungen in der Technologiebranche voranzutreiben.\",\n        prioritaet: \"mittel\"\n    },\n    {\n        pcf_id: \"10018\",\n        hierarchy_id: \"1.1.2\",\n        name: \"Untersuchen des Marktes und Ermitteln der Bedürfnisse und Wünsche der Kunden.\",\n        description: \"Den Markt untersuchen, um kundenorientierte Lösungen zu identifizieren. Die relevanten Märkte bewerten, um die Produkte/Dienstleistungen zu bestimmen, die von Kunden benötigt oder gewünscht werden. Quantitative und qualitative Analysen durchführen, um Produkte/Dienstleistungen zu erfassen und zu untersuchen. Kreative Techniken einsetzen, die ein besseres Verständnis des Kunden ermöglichen und relevante Lösungen entwerfen.\",\n        spezifischer_name: \"Marktforschung für nachhaltige Technologien\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Die Produktentwicklung erfordert ein tiefes Verständnis der Marktbedürfnisse, um innovative und nachhaltige Lösungen zu schaffen.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10037\",\n        hierarchy_id: \"1.2.1\",\n        name: \"Entwickeln einer übergreifenden Missionserklärung\",\n        description: \"Einen übergreifenden, kompakten Satz formulieren, der die Mission der Organisation prägnant unterstreicht. Eine klare und prägnante Missionserklärung definieren und kommunizieren, die zusammenfasst, wie die Organisation vorgehen möchte, um eine strategische Vision zu entwickeln. Kritische Beiträge von der Geschäftsleitung und Strategieexperten einholen und mit dem Marketing oder Mitarbeitern aus verwandten Funktionen zusammenarbeiten.\",\n        spezifischer_name: \"Mission für nachhaltige Produktentwicklung\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Eine klare Mission ist entscheidend, um die Richtung der Produktentwicklung im Bereich nachhaltiger Technologien zu steuern.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10065\",\n        hierarchy_id: \"2.2.1\",\n        name: \"Führe Entdeckungsforschung durch.\",\n        description: \"Koordinierung der F&E-Aktivitäten zur Identifizierung neuer Technologien, die in das überarbeitete Produkt-/Dienstleistungsportfolio integriert werden können. Durchführung von F&E-Aktivitäten in der Frühphase, um Lücken zwischen bestehenden Lösungsangeboten und sich ändernden Markterwartungen zu schließen. Triangulation geeigneter Technologien, die die Entwicklung eines überarbeiteten Produkt-/Dienstleistungsportfolios unterstützen können.\",\n        spezifischer_name: \"Forschung für innovative nachhaltige Lösungen\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Die Identifizierung neuer Technologien ist entscheidend für die Entwicklung innovativer, nachhaltiger Produkte.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"19990\",\n        hierarchy_id: \"2.2.3\",\n        name: \"Produkt-/Dienstentwicklungsanforderungen definieren\",\n        description: \"Umfasst die Identifizierung und Erfassung neuer Produkt-/Dienstleistungsanforderungen oder potenzieller Verbesserungen bestehender Produkte/Dienstleistungen. Zusammenarbeit mit Mitgliedern der Lieferkette, um die Machbarkeit der in den Anforderungen definierten Punkte sicherzustellen. Ein Beispiel wäre ein Produkt mit Herstellungsanforderungen, die die Lieferkette derzeit nicht erfüllen kann, was eine unternehmerische Entscheidung erfordert, entweder die Fertigungskapazitäten zu erweitern oder das neue Produkt aufzugeben. Auswirkungen und Bedürfnisse auf Unternehmensebene müssen berücksichtigt werden. Abhängig von der Art des Endprodukts oder der Dienstleistung werden diese Anforderungen oft als eine Reihe von Fähigkeiten definiert, wie Verfügbarkeit oder Zuverlässigkeit, die die Entscheidungen zur Produktentwicklung beeinflussen.\",\n        spezifischer_name: \"Anforderungen für nachhaltige Produktentwicklung definieren\",\n        abteilung_id: \"dept_003\",\n        abteilung_name: \"Produktentwicklung\",\n        begruendung: \"Die Definition von Anforderungen ist entscheidend, um sicherzustellen, dass neue Produkte den Nachhaltigkeitsstandards entsprechen.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10106\",\n        hierarchy_id: \"3.1.1\",\n        name: \"Kunden- und Marktanalysen durchführen\",\n        description: \"Informationen über den Markt und die Kunden sammeln. Die inhärenten Eigenschaften und das kollektive Verhalten der verschiedenen Markt- und Kundensegmente genau untersuchen. Trends im Markt verfolgen. Herausfinden, was die Kunden zu Kaufentscheidungen bewegt, um Chancen im Markt zu identifizieren.\",\n        spezifischer_name: \"Marktforschung für nachhaltige Technologien\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Die Analyse von Kunden und Markttrends ist entscheidend, um die Bedürfnisse der Zielgruppe im Bereich nachhaltiger Technologien zu verstehen und passende Lösungen anzubieten.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10107\",\n        hierarchy_id: \"3.1.2\",\n        name: \"Bewerten und priorisieren von Marktchancen\",\n        description: \"Bewertung von Marktchancen durch Quantifizierung und Priorisierung sowie Validierungstests. Eine genaue Untersuchung der identifizierten Marktchancen durch die Durchführung von Kunden- und Marktanalysen [10106]. Diese Chancen werden durch die Suche nach einer Übereinstimmung zwischen den identifizierten Möglichkeiten und dem Zusammenspiel von organisatorischen Fähigkeiten und Geschäftsstrategie genutzt.\",\n        spezifischer_name: \"Priorisierung von Marktchancen für grüne Technologien\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Die Priorisierung von Marktchancen hilft, die Ressourcen effizient zu nutzen und die vielversprechendsten Möglichkeiten im Bereich nachhaltiger Technologien zu identifizieren.\",\n        prioritaet: \"hoch\"\n    },\n    {\n        pcf_id: \"10040\",\n        hierarchy_id: \"1.2.4\",\n        name: \"Koordinieren und Abstimmen von bereichsübergreifenden und prozessbezogenen Strategien\",\n        description: \"Den Ansatz und die Methode der einzelnen Einheiten, Abteilungen, Systeme und Abläufe innerhalb der Organisation in Übereinstimmung mit dem größeren strategischen Kurs ausrichten. Den strategischen Weg der Organisation nutzen, um die Funktionen, Abteilungen und Abläufe zu leiten. Den Plan und die Methode jedes Funktionsbereichs sowie die darin enthaltenen Prozesse kalibrieren, um die langfristige Geschäftsstrategie auszuwählen [10039].\",\n        spezifischer_name: \"Strategische Abstimmung für nachhaltige Lösungen\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Die Abstimmung der Strategien ist wichtig, um sicherzustellen, dass alle Abteilungen auf die gemeinsamen Ziele im Bereich nachhaltiger Technologien hinarbeiten.\",\n        prioritaet: \"mittel\"\n    },\n    {\n        pcf_id: \"10149\",\n        hierarchy_id: \"3.3.2\",\n        name: \"Marketingbudgets festlegen\",\n        description: \"Erstellen eines Budgets für die Marketingbemühungen der Organisation, das im Einklang mit der unternehmensweiten strategischen Ausrichtung steht. Entwickeln eines Plans zur Verteilung der Ressourcen, um die Marketingstrategie im Hinblick auf die Gesamtgeschäftsstrategie zu erreichen. Kostenannahmen treffen; das geschätzte Gesamteinkommen aus den Marketingaktivitäten im Vergleich zu den Kosten/Ausgaben dieser Aktivitäten berechnen. Die Kapitalrendite prognostizieren. Kosten den entsprechenden Marketingaktivitäten wie Werbekampagnen, Werbung, Marketingkommunikation, PR-Kampagnen, Personal und Büroräume zuordnen. Die Finanz- und Marketingfunktionen einbeziehen.\",\n        spezifischer_name: \"Budgetierung für nachhaltige Marketingstrategien\",\n        abteilung_id: \"dept_002\",\n        abteilung_name: \"Vertrieb & Marketing\",\n        begruendung: \"Ein effektives Budget ist entscheidend, um die Marketingaktivitäten für nachhaltige Lösungen effizient zu planen und die Ressourcen optimal zu nutzen.\",\n        prioritaet: \"hoch\"\n    }\n];\n\n  return [{ json: { unternehmen, abteilungen, rollen, mitarbeiter, prozesse, config } }];\n} else {\n  return [];\n}"
+        "jsCode": "const config = $input.first().json;\n\nif (config.use_demo_data) {\n  const unternehmen = {\n    id: '12345678',\n    name: 'Dolce Gelato GmbH',\n    branche: 'Lebensmittel & Gastronomie',\n    groesse: 'Mittel',\n    mitarbeiteranzahl: 150,\n    gruendungsjahr: 2010,\n    hauptsitz: 'München, Deutschland',\n    beschreibung: 'Dolce Gelato GmbH stellt handgemachtes Eis aus regionalen und biologischen Zutaten her und betreibt mehrere Filialen in Süddeutschland.',\n    umsatz_mio: 12,\n    webseite: 'www.dolcegelato.de'\n  };\n\n  const abteilungen = [\n    { id: 'dept_001', unternehmen_id: '12345678', name: 'Geschäftsführung', ebene: 1, parent_id: null, beschreibung: 'Strategische Leitung', mitarbeiteranzahl: 3 },\n    { id: 'dept_002', unternehmen_id: '12345678', name: 'Produktion', ebene: 2, parent_id: 'dept_001', beschreibung: 'Eisherstellung und Qualitätskontrolle', mitarbeiteranzahl: 45 },\n    { id: 'dept_003', unternehmen_id: '12345678', name: 'Vertrieb & Filialen', ebene: 2, parent_id: 'dept_001', beschreibung: 'Verkauf und Kundenservice', mitarbeiteranzahl: 102 }\n  ];\n\n  const rollen = [\n    { id: 'role_001', abteilung_id: 'dept_001', titel: 'Geschäftsführer', beschreibung: 'Strategische Unternehmensführung', ebene: 'Executive', anzahl_personen: 1, gehalt_min: 90000, gehalt_max: 120000, anforderungen: ['Führungserfahrung', 'Strategisches Denken', 'Kenntnisse Lebensmittelbranche'] },\n    { id: 'role_002', abteilung_id: 'dept_002', titel: 'Produktionsleiter Eiscreme', beschreibung: 'Leitung der Eisproduktion', ebene: 'Lead', anzahl_personen: 1, gehalt_min: 55000, gehalt_max: 70000, anforderungen: ['Lebensmitteltechnik', 'Qualitätskontrolle', 'Teamführung'] },\n    { id: 'role_003', abteilung_id: 'dept_003', titel: 'Filialleiter', beschreibung: 'Leitung einer Eisdiele-Filiale', ebene: 'Mid', anzahl_personen: 1, gehalt_min: 38000, gehalt_max: 48000, anforderungen: ['Kundenservice', 'Verkaufserfahrung'] }\n  ];\n\n  const mitarbeiter = [\n    { id: 'emp_001', rolle_id: 'role_001', abteilung_id: 'dept_001', vorname: 'Isabella', nachname: 'Rossi', email: 'i.rossi@dolcegelato.de', telefon: '+49 89 1234567', alter: 42, geschlecht: 'weiblich', motivation: 'hoch', intelligenz: 'hoch', gehalt_euro: 105000, eintrittsdatum: '2010-03-15', vertrag: 'Vollzeit', standort: 'München, Deutschland', unternehmen_id: '12345678', vollname: 'Isabella Rossi' },\n    { id: 'emp_002', rolle_id: 'role_002', abteilung_id: 'dept_002', vorname: 'Marco', nachname: 'Bianchi', email: 'm.bianchi@dolcegelato.de', telefon: '+49 89 2345678', alter: 35, geschlecht: 'männlich', motivation: 'hoch', intelligenz: 'mittel', gehalt_euro: 62000, eintrittsdatum: '2015-06-01', vertrag: 'Vollzeit', standort: 'München, Deutschland', unternehmen_id: '12345678', vollname: 'Marco Bianchi' },\n    { id: 'emp_003', rolle_id: 'role_003', abteilung_id: 'dept_003', vorname: 'Sofia', nachname: 'Ferrari', email: 's.ferrari@dolcegelato.de', telefon: '+49 89 3456789', alter: 28, geschlecht: 'weiblich', motivation: 'mittel', intelligenz: 'mittel', gehalt_euro: 43000, eintrittsdatum: '2019-09-15', vertrag: 'Vollzeit', standort: 'München, Deutschland', unternehmen_id: '12345678', vollname: 'Sofia Ferrari' }\n  ];\n\n  const prozesse = [\n    {\n      id: 'proc_001',\n      pcf_id: '10551',\n      hierarchy_id: '4.2.1',\n      name: 'Rohstoffe und Materialien beschaffen',\n      description: 'Beschaffung von Rohmaterialien für die Produktion.',\n      spezifischer_name: 'Beschaffung regionaler Bio-Zutaten für Eis',\n      abteilung_id: 'dept_002',\n      abteilung_name: 'Produktion',\n      begruendung: 'Hochwertige regionale Zutaten sind essentiell für die Qualität unseres handgemachten Eises.',\n      prioritaet: 'hoch'\n    },\n    {\n      id: 'proc_002',\n      pcf_id: '10607',\n      hierarchy_id: '4.3.1',\n      name: 'Produktionsaufträge planen und terminieren',\n      description: 'Planung und Zeitplanung der Produktionsaufträge.',\n      spezifischer_name: 'Produktionsplanung für saisonale Eissorten',\n      abteilung_id: 'dept_002',\n      abteilung_name: 'Produktion',\n      begruendung: 'Effiziente Planung sichert frische Eis-Produktion entsprechend der saisonalen Nachfrage.',\n      prioritaet: 'hoch'\n    },\n    {\n      id: 'proc_003',\n      pcf_id: '10770',\n      hierarchy_id: '5.1.1',\n      name: 'Kundenservicestrategien entwickeln',\n      description: 'Entwicklung von Strategien für exzellenten Kundenservice.',\n      spezifischer_name: 'Service-Konzept für Eisdiele-Filialen',\n      abteilung_id: 'dept_003',\n      abteilung_name: 'Vertrieb & Filialen',\n      begruendung: 'Erstklassiger Service in unseren Filialen ist entscheidend für Kundenzufriedenheit und Wiederkauf.',\n      prioritaet: 'hoch'\n    }\n  ];\n\n  return [{ json: { unternehmen, abteilungen, rollen, mitarbeiter, prozesse, config } }];\n} else {\n  return [];\n}"
       },
       "id": "37ca71ef-d829-463e-8944-6edf98446245",
       "name": "Demo-Daten (Alle)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5344, -112]
+      "position": [
+        -5344,
+        -112
+      ]
     },
     {
       "parameters": {
@@ -308,7 +374,10 @@
       "name": "Filter für API-Calls",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-6592, -320]
+      "position": [
+        -6592,
+        -320
+      ]
     },
     {
       "parameters": {
@@ -336,7 +405,10 @@
       "name": "HTTP: Unternehmen erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-6368, -320]
+      "position": [
+        -6368,
+        -320
+      ]
     },
     {
       "parameters": {
@@ -345,7 +417,7 @@
             {
               "id": "config_branche",
               "name": "branche",
-              "value": "Technologie",
+              "value": "Lebensmittel & Gastronomie",
               "type": "string"
             },
             {
@@ -363,7 +435,7 @@
             {
               "id": "config_besonderheit",
               "name": "besonderheit",
-              "value": "Fokus auf nachhaltige Lösungen",
+              "value": "Handgemachtes Eis mit regionalen Zutaten",
               "type": "string"
             },
             {
@@ -440,7 +512,10 @@
       "name": "Konfiguration",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.3,
-      "position": [-6816, -128],
+      "position": [
+        -6816,
+        -128
+      ],
       "notes": "HIER ANPASSEN: Branche, Größe, Land, Besonderheiten und OpenAI API Key"
     },
     {
@@ -449,7 +524,10 @@
       "name": "Start",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [-7040, -128]
+      "position": [
+        -7040,
+        -128
+      ]
     },
     {
       "parameters": {
@@ -459,7 +537,10 @@
       "name": "APQC Aktivitäten filtern",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5248, 256]
+      "position": [
+        -5248,
+        256
+      ]
     },
     {
       "parameters": {
@@ -469,7 +550,10 @@
       "id": "0eb5e8f6-78d5-423e-b9d8-a9c440487b5e",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [256, 224]
+      "position": [
+        256,
+        224
+      ]
     },
     {
       "parameters": {
@@ -479,7 +563,10 @@
       "id": "e444d5a0-101f-46fb-8d66-ec22d695bed9",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [480, 224]
+      "position": [
+        480,
+        224
+      ]
     },
     {
       "parameters": {
@@ -489,7 +576,10 @@
       "id": "74b0ee5b-dff6-4e11-8e41-f7c39307d287",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [704, 224]
+      "position": [
+        704,
+        224
+      ]
     },
     {
       "parameters": {
@@ -503,7 +593,10 @@
       "id": "8be5ab77-543c-47de-bcd9-bfe718abd64d",
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [928, 224]
+      "position": [
+        928,
+        224
+      ]
     },
     {
       "parameters": {},
@@ -511,7 +604,10 @@
       "name": "Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-1152, -976]
+      "position": [
+        -1152,
+        -976
+      ]
     },
     {
       "parameters": {},
@@ -519,7 +615,10 @@
       "name": "Dateien + Rollen zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-928, -880]
+      "position": [
+        -928,
+        -880
+      ]
     },
     {
       "parameters": {},
@@ -527,7 +626,10 @@
       "name": "Dateien + Prozesse zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [-704, -976]
+      "position": [
+        -704,
+        -976
+      ]
     },
     {
       "parameters": {},
@@ -535,7 +637,10 @@
       "name": "Dateien + Aktivitäten zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [1616, -576]
+      "position": [
+        1616,
+        -576
+      ]
     },
     {
       "parameters": {},
@@ -543,7 +648,10 @@
       "name": "Alle Dateien zusammenführen",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [1840, -480]
+      "position": [
+        1840,
+        -480
+      ]
     },
     {
       "parameters": {
@@ -552,7 +660,10 @@
       },
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
-      "position": [2064, -480],
+      "position": [
+        2064,
+        -480
+      ],
       "id": "13d3f536-ef14-45d6-9066-9b794fdb84ae",
       "name": "Convert to File"
     },
@@ -564,7 +675,10 @@
       "name": "Prozessiteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4576, -128]
+      "position": [
+        -4576,
+        -128
+      ]
     },
     {
       "parameters": {
@@ -575,7 +689,10 @@
       "name": "Abteilungen iterieren",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-4320, 0]
+      "position": [
+        -4320,
+        0
+      ]
     },
     {
       "parameters": {
@@ -585,7 +702,10 @@
       "name": "Abteilungskontext erstellen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4032, -16]
+      "position": [
+        -4032,
+        -16
+      ]
     },
     {
       "parameters": {
@@ -595,7 +715,10 @@
       "name": "Prozessantwort parsen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3616, -16]
+      "position": [
+        -3616,
+        -16
+      ]
     },
     {
       "parameters": {
@@ -605,7 +728,10 @@
       "name": "Verfügbare Prozesse aktualisieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3424, -16]
+      "position": [
+        -3424,
+        -16
+      ]
     },
     {
       "parameters": {
@@ -615,7 +741,10 @@
       "name": "Prozessiteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3232, -128]
+      "position": [
+        -3232,
+        -128
+      ]
     },
     {
       "parameters": {
@@ -625,7 +754,10 @@
       "name": "Aktivitätsiteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-3008, 448]
+      "position": [
+        -3008,
+        448
+      ]
     },
     {
       "parameters": {
@@ -635,7 +767,10 @@
       "name": "Aktivitätskontext erstellen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-2784, 448]
+      "position": [
+        -2784,
+        448
+      ]
     },
     {
       "parameters": {
@@ -665,7 +800,10 @@
       "name": "IF: APQC oder KI Aktivitäten",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-2560, 448]
+      "position": [
+        -2560,
+        448
+      ]
     },
     {
       "parameters": {
@@ -675,7 +813,10 @@
       "name": "APQC Aktivitäten extrahieren",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-2048, 96]
+      "position": [
+        -2048,
+        96
+      ]
     },
     {
       "parameters": {
@@ -685,7 +826,10 @@
       "name": "KI-Aktivitäten Prompt erstellen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1952, 464]
+      "position": [
+        -1952,
+        464
+      ]
     },
     {
       "parameters": {
@@ -713,7 +857,10 @@
       "name": "HTTP: Aktivitäten erstellen (KI)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-1792, 464]
+      "position": [
+        -1792,
+        464
+      ]
     },
     {
       "parameters": {
@@ -723,7 +870,10 @@
       "name": "KI-Aktivitäten parsen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1632, 464]
+      "position": [
+        -1632,
+        464
+      ]
     },
     {
       "parameters": {
@@ -733,7 +883,10 @@
       "name": "APQC Aktivitäten zuordnen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1760, 96]
+      "position": [
+        -1760,
+        96
+      ]
     },
     {
       "parameters": {
@@ -743,7 +896,10 @@
       "name": "Verfügbare Prozesse aktualisieren (APQC Aktivitäten)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1568, 96]
+      "position": [
+        -1568,
+        96
+      ]
     },
     {
       "parameters": {
@@ -753,7 +909,10 @@
       "name": "KI Aktivitäten zuordnen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1440, 464]
+      "position": [
+        -1440,
+        464
+      ]
     },
     {
       "parameters": {
@@ -763,7 +922,10 @@
       "name": "APQC Aktivitätsiteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1328, 96]
+      "position": [
+        -1328,
+        96
+      ]
     },
     {
       "parameters": {
@@ -773,7 +935,10 @@
       "name": "KI Aktivitätsiteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1040, 464]
+      "position": [
+        -1040,
+        464
+      ]
     },
     {
       "parameters": {
@@ -784,7 +949,10 @@
       "name": "Prozesse Iterieren (APQC Aktivitäten)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-2224, 112]
+      "position": [
+        -2224,
+        112
+      ]
     },
     {
       "parameters": {
@@ -795,7 +963,10 @@
       "name": "Prozesse Iterieren (KI Aktivitäten)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-2224, 480]
+      "position": [
+        -2224,
+        480
+      ]
     },
     {
       "parameters": {
@@ -805,7 +976,10 @@
       "name": "Mitarbeiteriteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-2832, -240]
+      "position": [
+        -2832,
+        -240
+      ]
     },
     {
       "parameters": {
@@ -816,7 +990,10 @@
       "name": "Rollen iterieren (Mitarbeiter-Erstellung)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-2640, -112]
+      "position": [
+        -2640,
+        -112
+      ]
     },
     {
       "parameters": {
@@ -844,7 +1021,10 @@
       "name": "HTTP: Mitarbeiter erstellen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-2384, -128]
+      "position": [
+        -2384,
+        -128
+      ]
     },
     {
       "parameters": {
@@ -854,7 +1034,10 @@
       "name": "Mitarbeiteriteration Abschluss",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-1776, -240]
+      "position": [
+        -1776,
+        -240
+      ]
     },
     {
       "parameters": {
@@ -865,7 +1048,10 @@
       "name": "Aktivitäten iterieren (Beschreibungs-Erstellung)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
-      "position": [-592, -16]
+      "position": [
+        -592,
+        -16
+      ]
     },
     {
       "parameters": {
@@ -875,7 +1061,10 @@
       "id": "9f5b8de2-7f02-4a13-b3dd-550b358e06fa",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-784, -16]
+      "position": [
+        -784,
+        -16
+      ]
     },
     {
       "parameters": {
@@ -885,7 +1074,10 @@
       "id": "01940436-4baf-4d07-90c5-2af1a87d3a17",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [80, -32]
+      "position": [
+        80,
+        -32
+      ]
     },
     {
       "parameters": {
@@ -895,7 +1087,10 @@
       "id": "0e7f42c6-d69e-4cb7-bebf-158eb96c3612",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-320, -32]
+      "position": [
+        -320,
+        -32
+      ]
     },
     {
       "parameters": {
@@ -923,7 +1118,10 @@
       "id": "9301fdb8-8f41-4675-9d3e-1e9f149ca3c5",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-96, -32]
+      "position": [
+        -96,
+        -32
+      ]
     },
     {
       "parameters": {
@@ -933,7 +1131,10 @@
       "name": "Mitarbeiter Antwort Parsen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-2160, -128]
+      "position": [
+        -2160,
+        -128
+      ]
     }
   ],
   "pinData": {},
