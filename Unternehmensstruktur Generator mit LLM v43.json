@@ -619,7 +619,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first()?.json ?? {};\nconst {\n  unternehmen = {},\n  abteilungen = [],\n  rollen = [],\n  prozesse = [],\n  mitarbeiter = [],\n  apqcProcesses = [],\n  apqcActivities = [],\n  apqcActivitiesByProcess = {},\n  config = {},\n} = input;\n\n// Initialisiere globalData für Aktivitätsiteration\nconst globalData = $getWorkflowStaticData('global');\n\n// Hole Mitarbeiter aus globalData (falls dort gespeichert von Mitarbeiteriteration)\nconst mitarbeiterAusGlobal = globalData.mitarbeiterData || [];\nconst finaleMitarbeiter = mitarbeiterAusGlobal.length > 0 ? mitarbeiterAusGlobal : mitarbeiter;\n\nglobalData.availableProcessesForActivities = prozesse.map(p => ({ ...p }));\nglobalData.assignedActivities = [];\nglobalData.activityContext = { unternehmen, abteilungen, rollen, prozesse, mitarbeiter: finaleMitarbeiter, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\nglobalData.remainingProcesses = prozesse.length;\n\n// DEBUG\nconsole.log('=== AKTIVITÄTSITERATION VORBEREITEN ===');\nconsole.log('Anzahl Prozesse:', prozesse.length);\nconsole.log('Anzahl Mitarbeiter:', finaleMitarbeiter.length);\nconsole.log('APQC Activities verfügbar:', Object.keys(apqcActivitiesByProcess).length);\nconsole.log('Config use_apqc_activities:', config.use_apqc_activities);\n\nreturn prozesse.map((prozess, index) => ({ json: { prozess, position: index } }));"
+        "jsCode": "const input = $input.first()?.json ?? {};\nconst {\n  unternehmen = {},\n  abteilungen = [],\n  rollen = [],\n  prozesse = [],\n  mitarbeiter = [],\n  apqcProcesses = [],\n  apqcActivities = [],\n  apqcActivitiesByProcess = {},\n  config = {},\n} = input;\n\n// Initialisiere globalData für Aktivitätsiteration\nconst globalData = $getWorkflowStaticData('global');\n\n// Hole Mitarbeiter aus globalData (falls dort gespeichert von Mitarbeiteriteration)\nconst mitarbeiterAusGlobal = globalData.mitarbeiterData || [];\nconst finaleMitarbeiter = mitarbeiterAusGlobal.length > 0 ? mitarbeiterAusGlobal : mitarbeiter;\n\nglobalData.assignedActivities = [];\nglobalData.activityContext = { unternehmen, abteilungen, rollen, prozesse, mitarbeiter: finaleMitarbeiter, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\nglobalData.remainingProcesses = prozesse.length;\n\n// DEBUG\nconsole.log('=== AKTIVITÄTSITERATION VORBEREITEN ===');\nconsole.log('Anzahl Prozesse:', prozesse.length);\nconsole.log('Anzahl Mitarbeiter:', finaleMitarbeiter.length);\nconsole.log('APQC Activities verfügbar:', Object.keys(apqcActivitiesByProcess).length);\nconsole.log('Config use_apqc_activities:', config.use_apqc_activities);\n\n// Gebe die Prozessliste als ARRAY in einem einzigen Item aus (nicht als separate Items)\nreturn [{\n  json: {\n    prozesse,\n    config,\n    unternehmen,\n    abteilungen,\n    rollen,\n    mitarbeiter: finaleMitarbeiter,\n    apqcProcesses,\n    apqcActivities,\n    apqcActivitiesByProcess,\n  }\n}];"
       },
       "id": "ef76393e-b82b-4fa6-b449-cc8d27add2c1",
       "name": "Aktivitätsiteration vorbereiten",
@@ -629,7 +629,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first()?.json ?? {};\nconst prozess = input.prozess || {};\nconst position = input.position ?? 0;\n\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.activityContext || {};\nconst apqcActivitiesByProcess = context.apqcActivitiesByProcess || {};\nconst config = context.config || {};\n\n// Hole verfügbare APQC-Aktivitäten für diesen Prozess\nconst hierarchyId = prozess.hierarchy_id || '';\nconst availableActivities = apqcActivitiesByProcess[hierarchyId] || [];\n\nconsole.log('=== AKTIVITÄTSKONTEXT ===');\nconsole.log('Prozess:', prozess.name);\nconsole.log('Hierarchy ID:', hierarchyId);\nconsole.log('Verfügbare APQC-Aktivitäten:', availableActivities.length);\n\nreturn [{\n  json: {\n    prozess,\n    position,\n    availableActivities,\n    config,\n    context: {\n      unternehmen: context.unternehmen || {},\n      abteilungen: context.abteilungen || [],\n      rollen: context.rollen || [],\n      mitarbeiter: context.mitarbeiter || [],\n    },\n  },\n}];"
+        "jsCode": "const input = $input.first()?.json ?? {};\nconst prozesse = input.prozesse || [];\nconst config = input.config || {};\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.activityContext || {};\nconst apqcActivitiesByProcess = context.apqcActivitiesByProcess || {};\nconst useApqc = config.use_apqc_activities === true;\n\nconsole.log('=== AKTIVITÄTSKONTEXT ERSTELLEN ===');\nconsole.log('Anzahl Prozesse:', prozesse.length);\nconsole.log('Modus:', useApqc ? 'APQC' : 'KI');\n\n// Wandle die Prozessliste in separate Items um, eines pro Prozess\n// Für APQC: Hole auch die verfügbaren APQC-Aktivitäten\n// Für KI: Nur Kontext mitgeben\nconst items = prozesse.map((prozess, index) => {\n  const hierarchyId = prozess.hierarchy_id || '';\n  const availableActivities = useApqc ? (apqcActivitiesByProcess[hierarchyId] || []) : [];\n  \n  console.log(`Prozess ${index + 1}/${prozesse.length}: ${prozess.name}${useApqc ? ` - APQC Activities: ${availableActivities.length}` : ''}`);\n  \n  return {\n    json: {\n      prozess,\n      position: index,\n      availableActivities,\n      config,\n      context: {\n        unternehmen: context.unternehmen || {},\n        abteilungen: context.abteilungen || [],\n        rollen: context.rollen || [],\n        mitarbeiter: context.mitarbeiter || [],\n      },\n    },\n  };\n});\n\n// Gebe Items auf den richtigen Output aus\n// Output 0 = APQC Pfad (wenn use_apqc_activities true)\n// Output 1 = KI Pfad (wenn use_apqc_activities false)\nif (useApqc) {\n  return [items, []];\n} else {\n  return [[], items];\n}"
       },
       "id": "768cd137-b5e6-4b1e-832a-54fe0501b1ea",
       "name": "Aktivitätskontext erstellen",
@@ -1438,17 +1438,6 @@
       "main": [
         [
           {
-            "node": "Aktivitätskontext erstellen",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Aktivitätskontext erstellen": {
-      "main": [
-        [
-          {
             "node": "IF: APQC oder KI Aktivitäten",
             "type": "main",
             "index": 0
@@ -1457,6 +1446,24 @@
       ]
     },
     "IF: APQC oder KI Aktivitäten": {
+      "main": [
+        [
+          {
+            "node": "Aktivitätskontext erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aktivitätskontext erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aktivitätskontext erstellen": {
       "main": [
         [
           {
