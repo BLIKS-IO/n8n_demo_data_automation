@@ -983,10 +983,10 @@
     },
     {
       "parameters": {
-        "jsCode": "// Hole Input-Daten\nconst input = $input.first()?.json ?? {};\n\n// Extrahiere alle benötigten Daten\nconst unternehmen = input.unternehmen || {};\nconst abteilungen = input.abteilungen || [];\nconst rollen = input.rollen || [];\nconst prozesse = input.prozesse || [];\nconst config = input.config || {};\n\nconsole.log('=== MITARBEITER-KONTEXT ERSTELLEN ===');\nconsole.log('Unternehmen:', unternehmen.name);\nconsole.log('Abteilungen:', abteilungen.length);\nconsole.log('Rollen:', rollen.length);\nconsole.log('Config:', config);\n\n// Gebe alle Daten weiter an HTTP-Node\nreturn [\n  {\n    json: {\n      unternehmen,\n      abteilungen,\n      rollen,\n      prozesse,\n      config,\n    },\n  },\n];"
+        "jsCode": "// Hole Input-Daten\nconst input = $input.first()?.json ?? {};\n\n// Extrahiere alle benötigten Daten\nconst unternehmen = input.unternehmen || {};\nconst abteilungen = input.abteilungen || [];\nconst rollen = input.rollen || [];\nconst prozesse = input.prozesse || [];\nconst config = input.config || {};\n\nconsole.log('=== MITARBEITERITERATION VORBEREITEN ===');\nconsole.log('Unternehmen:', unternehmen.name);\nconsole.log('Abteilungen:', abteilungen.length);\nconsole.log('Rollen:', rollen.length);\nconsole.log('Config:', config);\n\n// Initialisiere globalData für Mitarbeiter-Sammlung\nconst globalData = $getWorkflowStaticData('global');\nglobalData.alleMitarbeiter = [];\nglobalData.mitarbeiterContext = { unternehmen, abteilungen, rollen, prozesse, config };\n\n// Erstelle Lookup-Map für Abteilungen\nconst abteilungMap = new Map(abteilungen.map(a => [a.id, a]));\n\n// Iteriere über jede Rolle und erstelle entsprechende Mitarbeiter\nreturn rollen.map((rolle, index) => {\n  const abteilung = abteilungMap.get(rolle.abteilung_id) || {};\n  return {\n    json: {\n      rolle,\n      abteilung,\n      unternehmen,\n      config,\n      position: index,\n    },\n  };\n});"
       },
       "id": "b4142cb0-fffe-4e14-8a29-1a6dc9b2a2ff",
-      "name": "Abteilungskontext erstellen1",
+      "name": "Mitarbeiteriteration vorbereiten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -1000,7 +1000,7 @@
         "options": {}
       },
       "id": "801fe659-71e7-4025-93bd-afa54ee51262",
-      "name": "Abteilungen iterieren (Mitarbeiter-Erstellung",
+      "name": "Rollen iterieren (Mitarbeiter-Erstellung)",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
       "position": [
@@ -1010,7 +1010,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    return {};\n  }\n};\n\nconst prozessData = getNodeJson('JSON parsen (Prozesse)');\nconst {\n  unternehmen = {},\n  abteilungen = [],\n  rollen = [],\n  prozesse = [],\n  mitarbeiter: existingMitarbeiter = [],\n  apqcProcesses = [],\n  apqcActivities = [],\n  apqcActivitiesByProcess = {},\n  config = {},\n} = prozessData;\n\n// Wenn bereits Mitarbeiter vorhanden sind (Demo-Daten), diese verwenden\nif (existingMitarbeiter && existingMitarbeiter.length > 0) {\n  console.log('Using existing demo employees:', existingMitarbeiter.length);\n  return { unternehmen, abteilungen, rollen, prozesse, mitarbeiter: existingMitarbeiter, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\n}\n\n// Sonst API Response parsen\nconst message = $input.first().json?.choices?.[0]?.message;\nif (!message) {\n  throw new Error('Antwort der Mitarbeiter-API fehlt oder ist leer.');\n}\n\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart?.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\n\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\n\nconst data = JSON.parse(raw);\nlet mitarbeiter = data.mitarbeiter ?? data;\n\nmitarbeiter = mitarbeiter.map((ma, index) => ({\n  ...ma,\n  id: `emp_${String(index + 1).padStart(3, '0')}`,\n  unternehmen_id: unternehmen.id ?? '',\n  vollname: `${ma.vorname ?? ''} ${ma.nachname ?? ''}`.trim(),\n  geschlecht: ma.geschlecht || 'divers',\n  motivation: ma.motivation || 'mittel',\n  intelligenz: ma.intelligenz || 'mittel',\n}));\n\nreturn { unternehmen, abteilungen, rollen, prozesse, mitarbeiter, apqcProcesses, apqcActivities, apqcActivitiesByProcess, config };\n"
+        "jsCode": "const getNodeJson = (nodeName) => {\n  try {\n    const item = $(nodeName).first();\n    return item?.json ?? {};\n  } catch (error) {\n    return {};\n  }\n};\n\nconst prozessData = getNodeJson('JSON parsen (Prozesse)');\nconst {\n  unternehmen = {},\n  abteilungen = [],\n  rollen = [],\n  prozesse = [],\n  mitarbeiter: existingMitarbeiter = [],\n  apqcProcesses = [],\n  apqcActivities = [],\n  apqcActivitiesByProcess = {},\n  config = {},\n} = prozessData;\n\n// Wenn bereits Mitarbeiter vorhanden sind (Demo-Daten), diese verwenden\nif (existingMitarbeiter && existingMitarbeiter.length > 0) {\n  console.log('=== DEMO-MITARBEITER VERWENDEN ===');\n  console.log('Anzahl:', existingMitarbeiter.length);\n  return [{ json: { mitarbeiter: existingMitarbeiter, isFinal: true } }];\n}\n\n// Sonst API Response parsen\nconst message = $input.first().json?.choices?.[0]?.message;\nif (!message) {\n  throw new Error('Antwort der Mitarbeiter-API fehlt oder ist leer.');\n}\n\nlet raw = message.content;\nif (Array.isArray(raw)) {\n  const jsonPart = raw.find(part => part.type === 'json_schema' || part.type === 'json_object' || part.type === 'output_json');\n  if (jsonPart?.json) {\n    raw = jsonPart.json;\n  } else {\n    raw = raw.map(part => part.text ?? '').join('\\n');\n  }\n}\n\nif (typeof raw === 'object') {\n  raw = JSON.stringify(raw);\n}\n\nconst data = JSON.parse(raw);\nlet mitarbeiter = data.mitarbeiter ?? data;\n\nif (!Array.isArray(mitarbeiter)) {\n  mitarbeiter = [mitarbeiter];\n}\n\n// Hole globalData\nconst globalData = $getWorkflowStaticData('global');\nconst alleMitarbeiter = globalData.alleMitarbeiter || [];\nconst context = globalData.mitarbeiterContext || {};\n\n// Füge neue Mitarbeiter hinzu mit fortlaufenden IDs\nconst startIndex = alleMitarbeiter.length;\nmitarbeiter = mitarbeiter.map((ma, index) => ({\n  ...ma,\n  id: `emp_${String(startIndex + index + 1).padStart(3, '0')}`,\n  unternehmen_id: unternehmen.id ?? '',\n  vollname: `${ma.vorname ?? ''} ${ma.nachname ?? ''}`.trim(),\n  geschlecht: ma.geschlecht || 'divers',\n  motivation: ma.motivation || 'mittel',\n  intelligenz: ma.intelligenz || 'mittel',\n}));\n\n// Speichere in globalData\nglobalData.alleMitarbeiter = [...alleMitarbeiter, ...mitarbeiter];\n\nconsole.log('=== MITARBEITER PARSEN ===');\nconsole.log('Neue Mitarbeiter:', mitarbeiter.length);\nconsole.log('Gesamt:', globalData.alleMitarbeiter.length);\nconsole.log('Verbleibende Rollen:', (context.rollen?.length || 0) - Math.floor(globalData.alleMitarbeiter.length / 2));\n\n// Prüfe, ob alle Rollen abgearbeitet wurden\nconst alleRollenBearbeitet = globalData.alleMitarbeiter.length >= (context.rollen?.length || 0);\n\nreturn [{ json: { mitarbeiter, isFinal: alleRollenBearbeitet } }];\n"
       },
       "id": "dc90dec0-a43c-42b3-ade6-1cb757d479e9",
       "name": "JSON parsen (Mitarbeiter)",
@@ -1040,7 +1040,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'mitarbeiter_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          mitarbeiter: {\n            type: 'array',\n            minItems: 1,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                id: { type: 'string' },\n                rolle_id: { type: 'string' },\n                abteilung_id: { type: 'string' },\n                vorname: { type: 'string' },\n                nachname: { type: 'string' },\n                email: { type: 'string' },\n                telefon: { type: 'string' },\n                alter: { type: 'integer', minimum: 25, maximum: 65 },\n                geschlecht: { type: 'string', enum: ['männlich', 'weiblich', 'divers'] },\n                motivation: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] },\n                intelligenz: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] },\n                gehalt_euro: { type: 'number' },\n                eintrittsdatum: { type: 'string' },\n                vertrag: { type: 'string', enum: ['Vollzeit', 'Teilzeit'] },\n                standort: { type: 'string' }\n              },\n              required: ['id', 'rolle_id', 'abteilung_id', 'vorname', 'nachname', 'email', 'telefon', 'alter', 'geschlecht', 'motivation', 'intelligenz', 'gehalt_euro', 'eintrittsdatum', 'vertrag', 'standort']\n            }\n          }\n        },\n        required: ['mitarbeiter']\n      }\n    }\n  },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein HR-Experte. Erstelle realistische Mitarbeiterprofile als JSON, das exakt dem gelieferten Schema entspricht.'\n    },\n    {\n      role: 'user',\n      content: 'Erstelle Mitarbeiter für ' + $json.unternehmen.name + ' (Land: ' + $json.config.land + ', Branche: ' + $json.unternehmen.branche + '). Es gibt ' + $json.rollen.length + ' Rollen. Jeder Mitarbeiter braucht: id (emp_XXX), rolle_id, abteilung_id, vorname, nachname, email, telefon, alter (25-65), geschlecht (männlich/weiblich/divers), motivation (hoch/mittel/niedrig), intelligenz (hoch/mittel/niedrig), gehalt_euro, eintrittsdatum (YYYY-MM-DD), vertrag (Vollzeit/Teilzeit), standort (' + $json.unternehmen.hauptsitz + '). Domain: ' + ($json.unternehmen.webseite ? $json.unternehmen.webseite.replace('www.','') : 'beispiel.de') + '. Namen zum Land passend. 85% Vollzeit. WICHTIG: Verteile geschlecht, motivation und intelligenz realistisch - nicht alle sollen \"hoch\" oder \"männlich\" sein. Etwa 50/50 Geschlechterverteilung, motivation und intelligenz normalverteilt mit Schwerpunkt \"mittel\".'\n    }\n  ],\n  temperature: 0.9\n}) }}",
+        "jsonBody": "={{ ({\n  model: 'gpt-4o-mini',\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'mitarbeiter_response',\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        properties: {\n          mitarbeiter: {\n            type: 'array',\n            minItems: 1,\n            items: {\n              type: 'object',\n              additionalProperties: false,\n              properties: {\n                id: { type: 'string' },\n                rolle_id: { type: 'string' },\n                abteilung_id: { type: 'string' },\n                vorname: { type: 'string' },\n                nachname: { type: 'string' },\n                email: { type: 'string' },\n                telefon: { type: 'string' },\n                alter: { type: 'integer', minimum: 25, maximum: 65 },\n                geschlecht: { type: 'string', enum: ['männlich', 'weiblich', 'divers'] },\n                motivation: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] },\n                intelligenz: { type: 'string', enum: ['hoch', 'mittel', 'niedrig'] },\n                gehalt_euro: { type: 'number' },\n                eintrittsdatum: { type: 'string' },\n                vertrag: { type: 'string', enum: ['Vollzeit', 'Teilzeit'] },\n                standort: { type: 'string' }\n              },\n              required: ['id', 'rolle_id', 'abteilung_id', 'vorname', 'nachname', 'email', 'telefon', 'alter', 'geschlecht', 'motivation', 'intelligenz', 'gehalt_euro', 'eintrittsdatum', 'vertrag', 'standort']\n            }\n          }\n        },\n        required: ['mitarbeiter']\n      }\n    }\n  },\n  messages: [\n    {\n      role: 'system',\n      content: 'Du bist ein HR-Experte. Erstelle realistische Mitarbeiterprofile als JSON, das exakt dem gelieferten Schema entspricht.'\n    },\n    {\n      role: 'user',\n      content: 'Erstelle ' + $json.rolle.anzahl_personen + ' Mitarbeiter für die Rolle \"' + $json.rolle.titel + '\" (' + $json.rolle.id + ') in der Abteilung \"' + $json.abteilung.name + '\" (' + $json.abteilung.id + ') bei ' + $json.unternehmen.name + ' (Land: ' + $json.config.land + ', Branche: ' + $json.unternehmen.branche + ').\\n\\nROLLENINFO:\\n- Titel: ' + $json.rolle.titel + '\\n- Beschreibung: ' + $json.rolle.beschreibung + '\\n- Ebene: ' + $json.rolle.ebene + '\\n- Gehaltsspanne: ' + $json.rolle.gehalt_min + '-' + $json.rolle.gehalt_max + ' EUR\\n- Anzahl: ' + $json.rolle.anzahl_personen + '\\n\\nJeder Mitarbeiter braucht:\\n- id (emp_XXX)\\n- rolle_id: ' + $json.rolle.id + '\\n- abteilung_id: ' + $json.abteilung.id + '\\n- vorname, nachname (zum Land ' + $json.config.land + ' passend)\\n- email (Format: vorname.nachname@' + ($json.unternehmen.webseite ? $json.unternehmen.webseite.replace('www.','') : 'beispiel.de') + ')\\n- telefon\\n- alter (25-65, passend zur Ebene: Entry=25-30, Mid=30-40, Senior=40-50, Lead=45-55, Executive=50-65)\\n- geschlecht (männlich/weiblich/divers) - WICHTIG: Verteile realistisch, etwa 50/50 männlich/weiblich, 5% divers\\n- motivation (hoch/mittel/niedrig) - WICHTIG: Normalverteilt mit Schwerpunkt \"mittel\" (60% mittel, 25% hoch, 15% niedrig)\\n- intelligenz (hoch/mittel/niedrig) - WICHTIG: Normalverteilt mit Schwerpunkt \"mittel\" (60% mittel, 30% hoch, 10% niedrig)\\n- gehalt_euro (innerhalb der Gehaltsspanne ' + $json.rolle.gehalt_min + '-' + $json.rolle.gehalt_max + ' EUR)\\n- eintrittsdatum (YYYY-MM-DD, zwischen 2015 und 2024)\\n- vertrag (85% Vollzeit, 15% Teilzeit)\\n- standort: ' + $json.unternehmen.hauptsitz + ''\n    }\n  ],\n  temperature: 0.9\n}) }}",
         "options": {}
       },
       "id": "b7a523ad-06af-46f0-a991-d15982ca1653",
@@ -1054,7 +1054,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first()?.json ?? {};\nif (!input.isFinal) {\n  return [];\n}\n\nconst globalData = $getWorkflowStaticData('global');\nconst context = globalData.context || {};\nconst result = {\n  unternehmen: context.unternehmen || {},\n  abteilungen: context.abteilungen || [],\n  rollen: context.rollen || [],\n  prozesse: globalData.assignedProcesses || [],\n  mitarbeiter: context.mitarbeiter || [],\n  apqcProcesses: context.apqcProcesses || [],\n  apqcActivities: context.apqcActivities || [],\n  apqcActivitiesByProcess: context.apqcActivitiesByProcess || {},\n  config: context.config || {},\n};\n\nconsole.log('=== MITARBEITERITERATION ABSCHLUSS ===');\nconsole.log('Mitarbeiter gesamt:', result.mitarbeiter.length);\n\n// WICHTIG: Speichere Mitarbeiter in globalData für spätere Verwendung in Aktivitätsiteration\nglobalData.mitarbeiterData = result.mitarbeiter;\n\nglobalData.availableProcesses = [];\nglobalData.assignedProcesses = [];\nglobalData.context = {};\nglobalData.remainingDepartments = 0;\n\nreturn [\n  {\n    json: result,\n  },\n];"
+        "jsCode": "const input = $input.first()?.json ?? {};\nif (!input.isFinal) {\n  return [];\n}\n\nconst globalData = $getWorkflowStaticData('global');\nconst mitarbeiterContext = globalData.mitarbeiterContext || {};\nconst alleMitarbeiter = globalData.alleMitarbeiter || [];\n\nconst result = {\n  unternehmen: mitarbeiterContext.unternehmen || {},\n  abteilungen: mitarbeiterContext.abteilungen || [],\n  rollen: mitarbeiterContext.rollen || [],\n  prozesse: mitarbeiterContext.prozesse || [],\n  mitarbeiter: alleMitarbeiter,\n  apqcProcesses: mitarbeiterContext.apqcProcesses || [],\n  apqcActivities: mitarbeiterContext.apqcActivities || [],\n  apqcActivitiesByProcess: mitarbeiterContext.apqcActivitiesByProcess || {},\n  config: mitarbeiterContext.config || {},\n};\n\nconsole.log('=== MITARBEITERITERATION ABSCHLUSS ===');\nconsole.log('Mitarbeiter gesamt:', result.mitarbeiter.length);\nconsole.log('Rollen gesamt:', result.rollen.length);\n\n// WICHTIG: Speichere Mitarbeiter in globalData für spätere Verwendung in Aktivitätsiteration\nglobalData.mitarbeiterData = result.mitarbeiter;\n\n// Cleanup Mitarbeiter-spezifisches globalData\nglobalData.alleMitarbeiter = [];\nglobalData.mitarbeiterContext = {};\n\nreturn [\n  {\n    json: result,\n  },\n];"
       },
       "id": "cdebbcdc-970b-48b6-86ce-fa5e55bfebbe",
       "name": "Mitarbeiteriteration Abschluss",
@@ -1183,7 +1183,7 @@
             "index": 0
           },
           {
-            "node": "Abteilungen iterieren (Mitarbeiter-Erstellung",
+            "node": "Rollen iterieren (Mitarbeiter-Erstellung)",
             "type": "main",
             "index": 0
           }
@@ -1814,11 +1814,22 @@
         ]
       ]
     },
-    "Abteilungen iterieren (Mitarbeiter-Erstellung": {
+    "Mitarbeiteriteration vorbereiten": {
       "main": [
         [
           {
-            "node": "Abteilungskontext erstellen1",
+            "node": "HTTP: Mitarbeiter erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rollen iterieren (Mitarbeiter-Erstellung)": {
+      "main": [
+        [
+          {
+            "node": "Mitarbeiteriteration vorbereiten",
             "type": "main",
             "index": 0
           }
@@ -1840,7 +1851,7 @@
       "main": [
         [
           {
-            "node": "Abteilungen iterieren (Mitarbeiter-Erstellung",
+            "node": "Rollen iterieren (Mitarbeiter-Erstellung)",
             "type": "main",
             "index": 0
           },
